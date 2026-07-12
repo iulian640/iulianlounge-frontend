@@ -28,9 +28,35 @@ export const LAMPS = [
   { x: 4.6, y: 2.25, z: 2.2, intensity: 12, shadow: true }, // blackjack
 ];
 
+// texturas CC0 de Poly Haven (ver docs/CREDITS.md)
+const textureLoader = new THREE.TextureLoader();
+
+function woodTexture(url, repeatX, repeatY, isColor = true) {
+  const texture = textureLoader.load(url);
+  if (isColor) texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(repeatX, repeatY);
+  return texture;
+}
+
 export const materials = {
-  // suelo semibrillante: los charcos de luz se reflejan como en las referencias
-  woodFloor: new THREE.MeshStandardMaterial({ color: '#33241a', roughness: 0.6, envMapIntensity: 0.4 }),
+  // parquet de espiga, muy años 20; el tinte oscurece la foto hacia la paleta
+  woodFloor: new THREE.MeshStandardMaterial({
+    color: '#8a7160',
+    map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
+    roughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
+    roughness: 0.85,
+    envMapIntensity: 0.4,
+  }),
+  // la tapa de la barra: madera noble barnizada (nada de latón macizo)
+  barWood: new THREE.MeshStandardMaterial({
+    color: '#a08874',
+    map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
+    roughnessMap: woodTexture('/textures/bar-wood-rough.jpg', 1, 3.5, false),
+    roughness: 0.7,
+    envMapIntensity: 0.6,
+  }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
@@ -119,9 +145,10 @@ function buildBar(salon) {
   // mostrador adelantado: deja un pasillo de ~60 cm para el camarero
   const barX = -ROOM.width / 2 + 1.45;
 
-  // mostrador con tapa de latón y trasbarra con estanterías
+  // mostrador con tapa de madera noble y vivo de latón en el canto
   salon.add(box(0.65, 1.05, barLength, materials.woodDark, barX, 0.525, 0));
-  salon.add(box(0.75, 0.04, barLength + 0.1, materials.brass, barX, 1.07, 0));
+  salon.add(box(0.75, 0.05, barLength + 0.1, materials.barWood, barX, 1.075, 0));
+  salon.add(box(0.03, 0.03, barLength + 0.1, materials.brass, barX + 0.37, 1.075, 0));
 
   const backX = -ROOM.width / 2 + 0.35;
   salon.add(box(0.35, 1.0, barLength, materials.woodDark, backX, 0.5, 0));

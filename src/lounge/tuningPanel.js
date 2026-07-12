@@ -23,8 +23,8 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     trasbarra: 1,
     velas: 1,
     reflejos: 0.3,
-    barraRugosidad: materials.brass.roughness,
-    barraReflejo: materials.brass.envMapIntensity,
+    barraRugosidad: materials.barWood.roughness,
+    barraReflejo: materials.barWood.envMapIntensity,
     sueloRugosidad: materials.woodFloor.roughness,
     sueloReflejo: materials.woodFloor.envMapIntensity,
     volcarValores() {
@@ -64,10 +64,10 @@ export function createTuningPanel({ scene, renderer, bloom }) {
 
   const materialsFolder = gui.addFolder('Materiales');
   materialsFolder.add(params, 'barraRugosidad', 0.1, 1, 0.05).onChange((v) => {
-    materials.brass.roughness = v;
+    materials.barWood.roughness = v;
   });
   materialsFolder.add(params, 'barraReflejo', 0, 1.5, 0.05).onChange((v) => {
-    materials.brass.envMapIntensity = v;
+    materials.barWood.envMapIntensity = v;
   });
   materialsFolder.add(params, 'sueloRugosidad', 0.2, 1, 0.05).onChange((v) => {
     materials.woodFloor.roughness = v;

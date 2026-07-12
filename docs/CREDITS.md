@@ -28,6 +28,14 @@ crédito de esta tabla).
 | Animated Human (camarero) | Quaternius | CC0 | [poly.pizza/m/c3Ibh9I3udk](https://poly.pizza/m/c3Ibh9I3udk) |
 | Character Animated (músicos) | Quaternius | CC0 | [poly.pizza/m/DgOCW9ZCRJ](https://poly.pizza/m/DgOCW9ZCRJ) |
 
+
+## Texturas (Poly Haven, CC0)
+
+| Textura | Uso | Fuente |
+|---|---|---|
+| Dark Wood | tapa de la barra | [polyhaven.com/a/dark_wood](https://polyhaven.com/a/dark_wood) |
+| Herringbone Parquet | suelo del salón | [polyhaven.com/a/herringbone_parquet](https://polyhaven.com/a/herringbone_parquet) |
+
 ## Tipografías del letrero
 
 | Asset | Autor | Licencia | Fuente |
