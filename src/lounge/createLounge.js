@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 
 import { buildSalon, ROOM } from './salon';
 import { addSalonLights } from './lights';
 import { furnishSalon } from './furnish';
 import { addLetrero } from './letrero';
+import { createWalkControls } from './walkControls';
 
 // jaula de la cámara: margen respecto a muros, suelo y techo para que la
 // órbita nunca atraviese la sala (la tercera persona de IUL-28 traerá su
@@ -40,16 +40,10 @@ export function createLounge(canvas) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.26;
 
-  // cámara libre para inspeccionar el blockout; la sustituye la tercera
-  // persona en IUL-28
-  const controls = new OrbitControls(camera, canvas);
-  controls.target.set(0, 1.2, 0);
-  controls.enableDamping = true;
-  controls.minPolarAngle = 0.85; // no subir por encima de las lámparas
-  controls.maxPolarAngle = Math.PI / 2 + 0.05;
-  controls.minDistance = 1;
-  controls.maxDistance = 6;
-  controls.update();
+  // paseo en primera persona (precursor de la tercera persona de IUL-28)
+  const walk = createWalkControls(camera, canvas);
+  camera.position.set(0, 1.7, 4.6);
+  camera.lookAt(-3, 1.5, 0); // al entrar, la mirada cae hacia la barra
 
   buildSalon(scene);
   addSalonLights(scene);
@@ -73,7 +67,7 @@ export function createLounge(canvas) {
   function tick() {
     const delta = clock.getDelta();
     for (const update of updatables) update(delta);
-    controls.update();
+    walk.update(delta);
     clampCameraToRoom(camera);
     renderer.render(scene, camera);
     stats.update();
