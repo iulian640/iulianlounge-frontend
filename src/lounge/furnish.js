@@ -108,13 +108,8 @@ function manifest() {
     at: [1.6, 0, 4.7],
   });
 
-  // alfombra grande burdeos bajo la zona de mesas (el GLB viene en vertical:
-  // se tumba con rotationX antes de medirla)
-  props.push({
-    url: HUNT + 'rug-burgundy.glb',
-    opts: { footprint: 5.5, rotationX: -Math.PI / 2 },
-    at: [-1.2, 0.012, -0.1],
-  });
+  // (la alfombra del hunt se descartó: el GLB traía la matriz cocinada en
+  // vertical y ni con pivote se dejaba tumbar — vetada por Iulian)
 
   // (los apliques de pared son procedurales en salon.js — el sconce.glb del
   // hunt traía geometría corrupta que reventaba el bloom)

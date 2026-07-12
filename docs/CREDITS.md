@@ -23,7 +23,6 @@ crédito de esta tabla).
 | Saxophone | jeremy | CC-BY 3.0 | [poly.pizza/m/6A2UAKdCNy7](https://poly.pizza/m/6A2UAKdCNy7) |
 | Bass Violin | Paul Spooner | CC-BY 3.0 | [poly.pizza/m/5w58dUJPYQc](https://poly.pizza/m/5w58dUJPYQc) |
 | Gramophone | Don Carson | CC-BY 3.0 | [poly.pizza/m/9MZ0sCt1REv](https://poly.pizza/m/9MZ0sCt1REv) |
-| Rug | Quaternius | CC0 | [poly.pizza/m/7H5qKjuxVY](https://poly.pizza/m/7H5qKjuxVY) |
 | Ceiling Fan | sirkitree | CC-BY 3.0 | [poly.pizza/m/1Np_P5zJdpE](https://poly.pizza/m/1Np_P5zJdpE) |
 | Standing lamp | jeremy | CC-BY 3.0 | [poly.pizza/m/7AqWZQIaCQf](https://poly.pizza/m/7AqWZQIaCQf) |
 | Animated Human (camarero) | Quaternius | CC0 | [poly.pizza/m/c3Ibh9I3udk](https://poly.pizza/m/c3Ibh9I3udk) |
@@ -42,4 +41,5 @@ crédito de esta tabla).
 - Cash register de Poly by Google — el GLB solo traía la bandeja.
 - Sconce light de jrich01 — geometría corrupta (NaN) que rompía el bloom;
   sustituido por apliques procedurales.
+- Rug de Quaternius — matriz cocinada en vertical, imposible de tumbar; vetada.
 - Armchair de CreativeTrio — sin usar (material único blanco, difícil de retintar).

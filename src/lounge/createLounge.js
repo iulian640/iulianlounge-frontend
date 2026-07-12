@@ -42,7 +42,7 @@ export function createLounge(canvas) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 1.3;
 
   // bloom sutil: solo lo emissive (letrero, bombillas, velas) gana halo —
   // "un único glow lo convierte en pieza de arte; diez lo convierten en feria"

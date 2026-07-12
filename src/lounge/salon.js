@@ -29,7 +29,8 @@ export const LAMPS = [
 ];
 
 const materials = {
-  woodFloor: new THREE.MeshStandardMaterial({ color: '#2c1f16', roughness: 0.9 }),
+  // suelo semibrillante: los charcos de luz se reflejan como en las referencias
+  woodFloor: new THREE.MeshStandardMaterial({ color: '#33241a', roughness: 0.5 }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
@@ -128,6 +129,18 @@ function buildBar(salon) {
   // libre en altura para el gramófono
   salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 1.55, -0.35));
   salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 2.05, -0.35));
+
+  // panel retroiluminado tras las repisas (las botellas brillan desde detrás)
+  const backglow = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 1.0, 5.4),
+    new THREE.MeshStandardMaterial({
+      color: '#c47a42',
+      emissive: '#ff9d5c',
+      emissiveIntensity: 0.9,
+    }),
+  );
+  backglow.position.set(-ROOM.width / 2 + 0.12, 1.85, -0.35);
+  salon.add(backglow);
 
   // botellas en la repisa baja — variantes de color, cero assets
   // (la repisa alta la ocupa el champán que coloca furnish.js)
