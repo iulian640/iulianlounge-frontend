@@ -82,8 +82,9 @@ export function addSalonLights(scene) {
     scene.add(glow);
   }
 
-  // 3 — baño de candilejas sobre la cortina
-  const footlights = tag(new THREE.PointLight(GOLD, 3, 3.5, 2), 'accent');
+  // 3 — baño de candilejas sobre la cortina (rebalanceado a la mezcla de
+  // exposición 2.2; con mando propio 'escenario' en el panel)
+  const footlights = tag(new THREE.PointLight(GOLD, 1.2, 3, 2), 'escenario');
   footlights.position.set(3.2, 0.7, -3.2);
   scene.add(footlights);
 
@@ -94,7 +95,7 @@ export function addSalonLights(scene) {
   scene.add(signGlow);
 
   // foco del escenario
-  const spot = tag(new THREE.SpotLight(GOLD, 50, 14, 0.5, 0.5, 2), 'accent');
+  const spot = tag(new THREE.SpotLight(GOLD, 18, 14, 0.5, 0.5, 2), 'escenario');
   spot.position.set(3.2, ROOM.height - 0.2, -1.4);
   spot.target.position.set(3.2, 0.4, -ROOM.depth / 2 + 1.35);
   spot.castShadow = true;

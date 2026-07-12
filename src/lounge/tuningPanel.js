@@ -23,6 +23,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     trasbarra: 1,
     velas: 1,
     letrero: 1,
+    escenario: 1,
     reflejos: 0.65,
     barraDifuminado: 1,
     barraBarniz: materials.barWood.clearcoat,
@@ -69,6 +70,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     const texto = scene.getObjectByName('letrero-texto');
     if (texto) texto.material.emissiveIntensity = 1.7 * v;
   });
+  gui.add(params, 'escenario', 0, 2, 0.05).onChange(applyMultiplier('escenario'));
   gui.add(params, 'reflejos', 0, 2, 0.05).onChange((v) => {
     scene.environmentIntensity = v;
   });

@@ -90,6 +90,17 @@ export const materials = {
   brass: new THREE.MeshStandardMaterial({ color: '#c9a45c', metalness: 1, roughness: 0.5, envMapIntensity: 0.55 }),
   velvet: new THREE.MeshStandardMaterial({ color: '#3d1b20', roughness: 1 }),
   leather: new THREE.MeshStandardMaterial({ color: '#4a2c1e', roughness: 0.7 }),
+  // tablas de madera del escenario, con veta real (misma familia que la barra)
+  stageWood: new THREE.MeshPhysicalMaterial({
+    color: '#96826c',
+    map: woodTexture('/textures/bar-wood-diff.jpg', 2.2, 1.5),
+    normalMap: woodTexture('/textures/bar-wood-normal.jpg', 2.2, 1.5, false),
+    normalScale: new THREE.Vector2(0.7, 0.7),
+    roughness: 0.8,
+    anisotropy: 0.6,
+    anisotropyRotation: Math.PI / 2,
+    envMapIntensity: 0.3,
+  }),
   shade: new THREE.MeshStandardMaterial({
     color: '#1c2a26',
     roughness: 0.6,
@@ -306,8 +317,8 @@ function buildLampFixtures(salon) {
 
 function buildStage(salon) {
   const stage = new THREE.Group();
-  stage.add(box(3.6, 0.4, 2.4, materials.woodDark, 0, 0.2, 0));
-  stage.add(box(3.6, 0.04, 2.4, materials.brass, 0, 0.42, 0));
+  stage.add(box(3.6, 0.4, 2.4, materials.stageWood, 0, 0.2, 0));
+  stage.add(box(3.62, 0.03, 2.42, materials.brass, 0, 0.415, 0));
 
   // candilejas art déco al borde del escenario
   for (let i = 0; i < 5; i++) {
