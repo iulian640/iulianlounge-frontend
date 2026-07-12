@@ -75,8 +75,27 @@ export function createLounge(canvas) {
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
-  furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error));
-  addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error));
+  const ready = Promise.all([
+    furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error)),
+    addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
+  ]);
+
+  // reflejos de entorno: con el club ya amueblado, se captura un cubemap
+  // desde el centro de la sala y se usa como envMap PBR — el latón, el suelo
+  // y las copas reflejan el PROPIO local (letrero, trasbarra encendida)
+  ready.then(() => {
+    const cubeTarget = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
+    const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
+    cubeCamera.position.set(0, 1.6, 0);
+    scene.add(cubeCamera);
+    cubeCamera.update(renderer, scene);
+    scene.remove(cubeCamera);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromCubemap(cubeTarget.texture).texture;
+    scene.environmentIntensity = 0.3;
+    pmrem.dispose();
+  });
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);

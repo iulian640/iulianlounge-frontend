@@ -20,6 +20,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     lamparas: 1,
     trasbarra: 1,
     velas: 1,
+    reflejos: 0.3,
     volcarValores() {
       const dump = { ...params };
       delete dump.volcarValores;
@@ -50,6 +51,9 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     }
     const backglow = scene.getObjectByName('backglow');
     if (backglow) backglow.material.emissiveIntensity = 0.45 * v;
+  });
+  gui.add(params, 'reflejos', 0, 1, 0.05).onChange((v) => {
+    scene.environmentIntensity = v;
   });
   gui.add(params, 'volcarValores').name('▶ volcar valores a consola');
 
