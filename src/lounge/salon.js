@@ -14,8 +14,8 @@ export const TABLE_SPOTS = [
 
 // posiciones de las lámparas — las consume también lights.js
 export const LAMPS = [
-  { x: -6.0, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
-  { x: -6.0, y: 2.45, z: 1.8, intensity: 26 },
+  { x: -6.35, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
+  { x: -6.35, y: 2.45, z: 1.8, intensity: 26 },
   ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 16 })),
   { x: 4.6, y: 2.25, z: 2.2, intensity: 16, shadow: true }, // blackjack
 ];
@@ -107,7 +107,8 @@ function buildShell(salon) {
 
 function buildBar(salon) {
   const barLength = 7;
-  const barX = -ROOM.width / 2 + 1.1;
+  // mostrador adelantado: deja un pasillo de ~60 cm para el camarero
+  const barX = -ROOM.width / 2 + 1.45;
 
   // mostrador con tapa de latón y trasbarra con estanterías
   salon.add(box(0.65, 1.05, barLength, materials.woodDark, barX, 0.525, 0));

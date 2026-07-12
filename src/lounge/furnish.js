@@ -9,7 +9,7 @@ import { ROOM, TABLE_SPOTS } from './salon';
 
 const KENNEY = '/models/kenney/';
 const HUNT = '/models/hunt/';
-const BAR_X = -ROOM.width / 2 + 1.1;
+const BAR_X = -ROOM.width / 2 + 1.45;
 const BACKBAR_X = -ROOM.width / 2 + 0.35;
 const STAGE_Y = 0.4;
 
@@ -177,11 +177,12 @@ function manifest() {
     { url: HUNT + 'musician.glb', opts: { height: 1.72, rotationY: Math.PI - 0.5, animate: 'Idle', recolor: musicianRecolor }, at: [4.35, STAGE_Y, -3.85] },
   );
 
-  // el camarero, trabajando detrás de la barra
+  // el camarero, en su pasillo detrás de la barra (Idle: el clip Working de
+  // Quaternius es de picar piedra agachado, nada que ver con secar vasos)
   props.push({
     url: HUNT + 'barman.glb',
-    opts: { height: 1.78, rotationY: Math.PI / 2, animate: 'Working', recolor: { Texture: '#6f6f76' } },
-    at: [-7.28, 0, 0.4],
+    opts: { height: 1.78, rotationY: Math.PI / 2, animate: 'Idle', recolor: { Texture: '#585862' } },
+    at: [-7.15, 0, 0.4],
   });
 
   return props;
