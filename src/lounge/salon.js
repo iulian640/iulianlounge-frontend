@@ -12,6 +12,14 @@ export const TABLE_SPOTS = [
   [-3.2, -1.6],
 ];
 
+// apliques de pared: posición y hacia dónde miran (los consume lights.js)
+export const SCONCES = [
+  { x: 7.88, z: -1.3, rotY: -Math.PI / 2 }, // pared este
+  { x: 7.88, z: 1.3, rotY: -Math.PI / 2 },
+  { x: -1.5, z: 5.38, rotY: Math.PI }, // flancos de la puerta
+  { x: 1.5, z: 5.38, rotY: Math.PI },
+];
+
 // posiciones de las lámparas — las consume también lights.js
 export const LAMPS = [
   { x: -6.35, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
@@ -171,6 +179,32 @@ function buildTables(salon) {
   }
 }
 
+function buildSconces(salon) {
+  // apliques procedurales de latón (el modelo cazado traía geometría corrupta)
+  for (const { x, z, rotY } of SCONCES) {
+    const sconce = new THREE.Group();
+
+    const plate = box(0.05, 0.24, 0.09, materials.brass, 0, 0, 0.025);
+    sconce.add(plate);
+
+    const arm = box(0.04, 0.04, 0.16, materials.brass, 0, 0.06, 0.12);
+    sconce.add(arm);
+
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.03, 0.09, 12), materials.brass);
+    cup.position.set(0, 0.09, 0.2);
+    cup.castShadow = true;
+    sconce.add(cup);
+
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 8), materials.bulb);
+    bulb.position.set(0, 0.16, 0.2);
+    sconce.add(bulb);
+
+    sconce.position.set(x, 2.2, z);
+    sconce.rotation.y = rotY;
+    salon.add(sconce);
+  }
+}
+
 function buildLampFixtures(salon) {
   // la luz necesita origen visible: cable + pantalla + bombilla por lámpara
   for (const { x, y, z } of LAMPS) {
@@ -226,6 +260,7 @@ export function buildSalon(scene) {
   buildBar(salon);
   buildTables(salon);
   buildLampFixtures(salon);
+  buildSconces(salon);
   buildStage(salon);
 
   scene.add(salon);

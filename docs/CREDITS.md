@@ -18,13 +18,11 @@ crédito de esta tabla).
 | Barstool | Poly by Google | CC-BY 3.0 | [poly.pizza/m/63U8J3bGSaO](https://poly.pizza/m/63U8J3bGSaO) |
 | Cocktail Glass | MilkAndBanana | CC0 | [poly.pizza/m/FCpfirIQ0a](https://poly.pizza/m/FCpfirIQ0a) |
 | Cognac Glass | MilkAndBanana | CC0 | [poly.pizza/m/RHMny72Uxd](https://poly.pizza/m/RHMny72Uxd) |
-| Cash register | Poly by Google | CC-BY 3.0 | [poly.pizza/m/crXBxFOkCIp](https://poly.pizza/m/crXBxFOkCIp) |
 | Bottle of Champagne | jeremy | CC-BY 3.0 | [poly.pizza/m/fCWg2Z6OSku](https://poly.pizza/m/fCWg2Z6OSku) |
 | Piano (de cola) | jeremy | CC-BY 3.0 | [poly.pizza/m/7U-93vxPOER](https://poly.pizza/m/7U-93vxPOER) |
 | Saxophone | jeremy | CC-BY 3.0 | [poly.pizza/m/6A2UAKdCNy7](https://poly.pizza/m/6A2UAKdCNy7) |
 | Bass Violin | Paul Spooner | CC-BY 3.0 | [poly.pizza/m/5w58dUJPYQc](https://poly.pizza/m/5w58dUJPYQc) |
 | Gramophone | Don Carson | CC-BY 3.0 | [poly.pizza/m/9MZ0sCt1REv](https://poly.pizza/m/9MZ0sCt1REv) |
-| Sconce light | jrich01 | CC-BY 3.0 | [poly.pizza/m/iLXKjr9t4A](https://poly.pizza/m/iLXKjr9t4A) |
 | Rug | Quaternius | CC0 | [poly.pizza/m/7H5qKjuxVY](https://poly.pizza/m/7H5qKjuxVY) |
 | Ceiling Fan | sirkitree | CC-BY 3.0 | [poly.pizza/m/1Np_P5zJdpE](https://poly.pizza/m/1Np_P5zJdpE) |
 | Standing lamp | jeremy | CC-BY 3.0 | [poly.pizza/m/7AqWZQIaCQf](https://poly.pizza/m/7AqWZQIaCQf) |
@@ -39,5 +37,9 @@ crédito de esta tabla).
 
 ## Retirados (siguen en git history)
 
-Piano vertical de Poly by Google (CC-BY 3.0, poly.pizza/m/1YoE664mJTd) —
-sustituido por el piano de cola de jeremy.
+- Piano vertical de Poly by Google (CC-BY 3.0, poly.pizza/m/1YoE664mJTd) —
+  sustituido por el piano de cola de jeremy.
+- Cash register de Poly by Google — el GLB solo traía la bandeja.
+- Sconce light de jrich01 — geometría corrupta (NaN) que rompía el bloom;
+  sustituido por apliques procedurales.
+- Armchair de CreativeTrio — sin usar (material único blanco, difícil de retintar).

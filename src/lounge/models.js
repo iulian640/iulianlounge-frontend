@@ -18,8 +18,16 @@ export function loadProp(url, { height, footprint, rotationY = 0, rotationX = 0,
       url,
       (gltf) => {
         const model = gltf.scene;
+        const corrupt = [];
         model.traverse((child) => {
           if (child.isMesh) {
+            // desinfectante: una malla con NaN envenena el pase de bloom
+            // y deja el frame entero en negro (nos pasó con sconce.glb)
+            const positions = child.geometry?.attributes?.position?.array;
+            if (positions && !positions.every(Number.isFinite)) {
+              corrupt.push(child);
+              return;
+            }
             child.castShadow = true;
             child.receiveShadow = true;
             const rule = recolor[child.material?.name];
@@ -30,23 +38,35 @@ export function loadProp(url, { height, footprint, rotationY = 0, rotationX = 0,
             }
           }
         });
+        for (const mesh of corrupt) {
+          console.warn('[models] malla con geometría corrupta descartada en', url);
+          mesh.removeFromParent();
+        }
 
-        if (rotationX) model.rotation.x = rotationX;
+        // OJO GLTF: los nodos pueden traer matriz cocinada (matrixAutoUpdate
+        // false) e ignorar rotation directa — se rota siempre vía un pivote nuestro
+        let target = model;
+        if (rotationX) {
+          const pivot = new THREE.Group();
+          pivot.add(model);
+          pivot.rotation.x = rotationX;
+          target = pivot;
+        }
 
-        const bounds = new THREE.Box3().setFromObject(model);
+        const bounds = new THREE.Box3().setFromObject(target);
         const size = bounds.getSize(new THREE.Vector3());
         const scale = footprint ? footprint / Math.max(size.x, size.z) : height / size.y;
-        model.scale.setScalar(scale);
+        target.scale.setScalar(scale);
 
-        const scaled = new THREE.Box3().setFromObject(model);
+        const scaled = new THREE.Box3().setFromObject(target);
         const center = scaled.getCenter(new THREE.Vector3());
-        model.position.x -= center.x;
-        model.position.z -= center.z;
-        model.position.y -= scaled.min.y;
+        target.position.x -= center.x;
+        target.position.z -= center.z;
+        target.position.y -= scaled.min.y;
 
         const prop = new THREE.Group();
         prop.name = url.split('/').pop().replace('.glb', '');
-        prop.add(model);
+        prop.add(target);
         prop.rotation.y = rotationY;
 
         if (animate && gltf.animations.length > 0) {

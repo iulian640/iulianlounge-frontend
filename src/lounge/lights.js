@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { LAMPS, ROOM } from './salon';
+import { LAMPS, ROOM, SCONCES } from './salon';
 
 // La atmósfera la hace la luz, no el polycount (CONCEPT.md):
 // ambiente casi apagado + fuentes puntuales cálidas (~2800 K) con origen.
@@ -23,6 +23,13 @@ export function addSalonLights(scene) {
       light.shadow.bias = -0.005;
     }
     scene.add(light);
+  }
+
+  // el brillo de cada aplique de pared
+  for (const { x, z, rotY } of SCONCES) {
+    const glow = new THREE.PointLight(WARM, 3, 3.5, 2);
+    glow.position.set(x + Math.sin(rotY) * 0.3, 2.4, z + Math.cos(rotY) * 0.3);
+    scene.add(glow);
   }
 
   // resplandor del letrero sobre la pared oeste

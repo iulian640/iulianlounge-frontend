@@ -71,21 +71,9 @@ function manifest() {
     });
   }
 
-  // el mostrador: caja registradora de época y cristalería
+  // el mostrador: cristalería (la caja registradora del hunt resultó ser un
+  // modelo defectuoso — solo traía la bandeja; descartada)
   props.push(
-    {
-      url: HUNT + 'cash-register.glb',
-      opts: {
-        footprint: 0.45, // modelo chato: por altura salía tamaño cenicero-de-gigante
-        rotationY: Math.PI / 2,
-        recolor: {
-          mat22: { color: '#c9a45c', metalness: 1, roughness: 0.4 },
-          mat18: { color: '#e8cd8f', metalness: 1, roughness: 0.35 },
-          mat21: '#efe5cc',
-        },
-      },
-      at: [BAR_X, 1.09, -2.5],
-    },
     { url: HUNT + 'cocktail-glass.glb', opts: { height: 0.16, recolor: { 'Solid_-_25%.036': GLASS } }, at: [BAR_X, 1.09, 0.4] },
     { url: HUNT + 'cocktail-glass.glb', opts: { height: 0.16, recolor: { 'Solid_-_25%.036': GLASS } }, at: [BAR_X + 0.12, 1.09, 1.5] },
     { url: HUNT + 'cognac-glass.glb', opts: { height: 0.12, recolor: { 'Solid_-_25%.037': GLASS } }, at: [BAR_X - 0.1, 1.09, -0.8] },
@@ -127,22 +115,13 @@ function manifest() {
     at: [-1.2, 0.012, -0.1],
   });
 
-  // apliques de latón con bombilla Edison (pared este y flancos de la puerta)
-  const sconceRecolor = {
-    'Material.001': { color: '#c9a45c', metalness: 1, roughness: 0.4 },
-    'Material.004': { color: '#ffd9a0', emissive: '#ffb46b', emissiveIntensity: 1.6 },
-  };
-  props.push(
-    { url: HUNT + 'sconce.glb', opts: { height: 0.55, rotationY: -Math.PI / 2, recolor: sconceRecolor }, at: [ROOM.width / 2 - 0.24, 2.15, -1.3], sconce: true },
-    { url: HUNT + 'sconce.glb', opts: { height: 0.55, rotationY: -Math.PI / 2, recolor: sconceRecolor }, at: [ROOM.width / 2 - 0.24, 2.15, 1.3], sconce: true },
-    { url: HUNT + 'sconce.glb', opts: { height: 0.55, rotationY: Math.PI, recolor: sconceRecolor }, at: [-1.5, 2.15, ROOM.depth / 2 - 0.24], sconce: true },
-    { url: HUNT + 'sconce.glb', opts: { height: 0.55, rotationY: Math.PI, recolor: sconceRecolor }, at: [1.5, 2.15, ROOM.depth / 2 - 0.24], sconce: true },
-  );
+  // (los apliques de pared son procedurales en salon.js — el sconce.glb del
+  // hunt traía geometría corrupta que reventaba el bloom)
 
   // ventiladores de techo perezosos
   props.push(
-    { url: HUNT + 'ceiling-fan.glb', opts: { footprint: 1.5, recolor: { mat19: '#3a2417' } }, at: [0.5, ROOM.height - 0.42, -2.6], fan: true },
-    { url: HUNT + 'ceiling-fan.glb', opts: { footprint: 1.5, recolor: { mat19: '#3a2417' } }, at: [-4.2, ROOM.height - 0.42, 1.2], fan: true },
+    { url: HUNT + 'ceiling-fan.glb', opts: { footprint: 1.5, recolor: { mat19: '#3a2417' } }, at: [0.5, ROOM.height - 0.55, -2.6], fan: true },
+    { url: HUNT + 'ceiling-fan.glb', opts: { footprint: 1.5, recolor: { mat19: '#3a2417' } }, at: [-4.2, ROOM.height - 0.55, 1.2], fan: true },
   );
 
   // lámpara de pie junto al escenario
@@ -192,7 +171,7 @@ function manifest() {
 
 export async function furnishSalon(scene, updatables) {
   const results = await Promise.allSettled(
-    manifest().map(async ({ url, opts, at, fan, sconce, lightAt }) => {
+    manifest().map(async ({ url, opts, at, fan, lightAt }) => {
       const prop = await loadProp(url, opts);
       prop.position.set(at[0], at[1], at[2]);
       scene.add(prop);
@@ -204,15 +183,10 @@ export async function furnishSalon(scene, updatables) {
           model.rotation.y += delta * 1.1;
         });
       }
-      if (sconce || lightAt) {
-        // lucecita cálida pegada al aplique / lámpara
+      if (lightAt) {
+        // lucecita cálida pegada a la lámpara
         const glow = new THREE.PointLight('#ffb46b', 3, 3.5, 2);
-        if (lightAt) {
-          glow.position.set(lightAt[0], lightAt[1], lightAt[2]);
-        } else {
-          const inward = Math.abs(at[0]) > Math.abs(at[2]) ? [-Math.sign(at[0]) * 0.4, 0, 0] : [0, 0, -Math.sign(at[2]) * 0.4];
-          glow.position.set(at[0] + inward[0], at[1] + 0.15, at[2] + inward[2]);
-        }
+        glow.position.set(lightAt[0], lightAt[1], lightAt[2]);
         scene.add(glow);
       }
     }),
