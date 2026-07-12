@@ -54,11 +54,11 @@ export const materials = {
   woodFloor: new THREE.MeshPhysicalMaterial({
     color: '#8a7160',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
-    roughness: 0.71, // = sueloDifuminado 0.55 en el panel
+    roughness: 0.61, // = sueloDifuminado 0.4 en el panel (mezcla Iulian 2026-07-12)
     normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     normalScale: new THREE.Vector2(0.8, 0.8),
-    clearcoat: 0,
-    clearcoatRoughness: 0.4,
+    clearcoat: 0.4, // = sueloBarniz 0.4 en el panel
+    clearcoatRoughness: 0.32, // = sueloDifuminado 0.4 × 0.8
     clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
     anisotropy: 0.9,

@@ -73,7 +73,7 @@ export async function createLounge(canvas) {
     renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media);
     renderer.setSize(window.innerWidth, window.innerHeight);
   };
-  setQuality('media');
+  setQuality('alta'); // por defecto a tope (decisión de Iulian: 120fps sobrados)
 
   if (import.meta.env.DEV) {
     // mandos de depuración en consola + panel de afinado del director de arte
@@ -88,6 +88,18 @@ export async function createLounge(canvas) {
   camera.position.set(0, 1.7, 4.6);
   camera.lookAt(-3, 1.5, 0); // al entrar, la mirada cae hacia la barra
 
+  // el gancho al LoadingManager se instala ANTES de disparar ninguna carga:
+  // así onLoad no puede habérsenos escapado y el timeout es solo red de seguridad
+  const texturesSettled = new Promise((resolve) => {
+    const manager = THREE.DefaultLoadingManager;
+    const previous = manager.onLoad;
+    manager.onLoad = () => {
+      if (previous) previous();
+      resolve();
+    };
+    setTimeout(resolve, 8000); // red de seguridad si alguna carga se queda colgada
+  });
+
   buildSalon(scene);
   addSalonLights(scene);
 
@@ -98,20 +110,17 @@ export async function createLounge(canvas) {
     addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
   ]);
 
-  // reflejos de entorno: con el club ya amueblado Y las texturas cargadas,
-  // se captura un cubemap desde el centro de la sala y se usa como envMap —
-  // la barra, el suelo y las copas reflejan el PROPIO local
-  const texturesSettled = new Promise((resolve) => {
-    const manager = THREE.DefaultLoadingManager;
-    const previous = manager.onLoad;
-    manager.onLoad = () => {
-      if (previous) previous();
-      resolve();
-    };
-    setTimeout(resolve, 3000); // red de seguridad si todo cargó antes de engancharnos
-  });
+  // ORDEN DE ARRANQUE (todo detrás del telón de carga, la vista espera esta
+  // promesa): amueblar → primer render (compila los pipelines del pass MRT,
+  // el congelón de ~3s que antes se comía el usuario en pleno tick) →
+  // capturar reflejos → recompilación con envMap (mucho más barata que
+  // compilar de cero CON envMap: medido 0.8s vs 10s) → congelar sombras →
+  // frame de estreno. Nada de renderer.compileAsync(scene, camera): eso
+  // compilaría el render directo a canvas, que nunca se usa.
+  await Promise.all([ready, texturesSettled]);
+  postProcessing.render();
 
-  Promise.all([ready, texturesSettled]).then(async () => {
+  {
     const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType });
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
     cubeCamera.position.set(0, 1.6, 0);
@@ -165,7 +174,7 @@ export async function createLounge(canvas) {
     // ahorra su recálculo en cada frame
     renderer.shadowMap.autoUpdate = false;
     renderer.shadowMap.needsUpdate = true;
-  });
+  }
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -188,5 +197,22 @@ export async function createLounge(canvas) {
     stats.update();
     requestAnimationFrame(tick);
   }
+
+  // calentón ANTES de levantar el telón: barrida de 4 orientaciones para que
+  // el primer giro del jugador no encuentre NADA sin preparar (medido: sin
+  // esto, el primer giro pegaba un tirón de ~1.5s aunque la escena entera se
+  // hubiera dibujado una vez — hay trabajo perezoso ligado a la orientación)
+  // cada orientación en su PROPIO frame (rAF entre medias): el trabajo vive
+  // en el proceso GPU de Chrome, y encadenar renders en una sola tarea no le
+  // deja rematar la compilación — repartido en frames reales sí
+  const yawInicial = camera.rotation.y;
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  for (let paso = 0; paso < 12; paso++) {
+    camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2;
+    postProcessing.render();
+    await nextFrame();
+  }
+  camera.rotation.y = yawInicial;
+  postProcessing.render(); // frame de estreno con la mirada de entrada
   tick();
 }

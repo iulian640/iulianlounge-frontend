@@ -7,8 +7,8 @@
 ## P1 — máximo impacto
 
 - [x] **Bloom** (letrero, velas, apliques con halo) — hecho 2026-07-12
-- [ ] **Suelo con tablones**: el color plano mata el lujo. Textura de madera
-      CC0 (ambientCG/Poly Haven) con repeat, o tablones procedurales.
+- [x] **Suelo con tablones** — hecho 2026-07-12: parquet de espiga Poly Haven
+      con clearcoat (barniz regulable desde el panel).
 - [ ] **Arquitectura de la caja**: cornisa perimetral, pilastras entre los
       cuadros, arco/moldura en la puerta de entrada. La caja desnuda parece
       local de ensayo.

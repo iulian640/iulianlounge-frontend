@@ -16,7 +16,7 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
   };
 
   const params = {
-    calidad: 'media',
+    calidad: 'alta',
     exposicion: renderer.toneMappingExposure,
     bloomFuerza: bloom.strength.value,
     relleno: 1,
@@ -28,7 +28,7 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
     reflejos: 0.65,
     barraDifuminado: 1,
     barraBarniz: materials.barWood.clearcoat,
-    sueloDifuminado: 0.55,
+    sueloDifuminado: 0.4,
     sueloBarniz: materials.woodFloor.clearcoat,
     barraVeta: materials.barWood.anisotropy,
     sueloVeta: materials.woodFloor.anisotropy,
