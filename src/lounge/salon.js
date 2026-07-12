@@ -42,24 +42,35 @@ function woodTexture(url, repeatX, repeatY, isColor = true) {
 
 export const materials = {
   // parquet de espiga con laca (clearcoat): la madera sola apenas refleja
-  // de frente por física; la capa de barniz sí, y es regulable
+  // de frente por física; la capa de barniz sí, y es regulable. El relieve
+  // (normalMap TAMBIÉN en la laca) y el desgaste (clearcoatRoughnessMap)
+  // rompen el reflejo por la veta — sin ellos parece agua, no suelo
   woodFloor: new THREE.MeshPhysicalMaterial({
     color: '#8a7160',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
     roughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
     roughness: 0.85,
+    normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
+    normalScale: new THREE.Vector2(0.8, 0.8),
     clearcoat: 0.5,
-    clearcoatRoughness: 0.35,
+    clearcoatRoughness: 0.45,
+    clearcoatRoughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
+    clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
+    clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
     envMapIntensity: 0.7,
   }),
   // la tapa de la barra: madera noble lacada — clearcoat = el barniz,
-  // clearcoatRoughness = el difuminado del reflejo
+  // clearcoatRoughness = el difuminado del reflejo; la veta rompe la laca
   barWood: new THREE.MeshPhysicalMaterial({
     color: '#a08874',
     map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
     roughness: 0.6,
+    normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
+    normalScale: new THREE.Vector2(0.5, 0.5),
     clearcoat: 1,
-    clearcoatRoughness: 0.2,
+    clearcoatRoughness: 0.25,
+    clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
+    clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
     envMapIntensity: 0.8,
   }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),

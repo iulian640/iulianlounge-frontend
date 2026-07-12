@@ -48,10 +48,16 @@ export function addSalonLights(scene) {
   shelfGlowB.position.set(-ROOM.width / 2 + 0.55, 1.85, 1.2);
   scene.add(shelfGlowB);
 
-  // 3 — una lucecita por vela de mesa (les da cara a las butacas)
+  // 3 — una lucecita por vela de mesa: más naranja y más débil que las
+  // lámparas, corto alcance, y CON sombra — la mesa debe bloquear su luz
+  // hacia el suelo (los mapas de sombra se congelan tras la carga, así que
+  // estas sombras extra salen casi gratis)
   for (const [x, z] of TABLE_SPOTS) {
-    const candle = tag(new THREE.PointLight('#ff9d5c', 1.6, 2.8, 2), 'candle');
-    candle.position.set(x - 0.09, 1.0, z + 0.06);
+    const candle = tag(new THREE.PointLight('#ff8438', 1.1, 2.0, 2), 'candle');
+    candle.position.set(x - 0.09, 0.98, z + 0.06);
+    candle.castShadow = true;
+    candle.shadow.mapSize.set(512, 512);
+    candle.shadow.bias = -0.01;
     scene.add(candle);
   }
 
