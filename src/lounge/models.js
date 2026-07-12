@@ -7,7 +7,9 @@ const loader = new GLTFLoader();
 // que se escala a una medida objetivo en metros y se apoya centrado en y=0.
 // - height: altura objetivo (muebles, personajes)
 // - footprint: diámetro objetivo en planta (piezas planas: alfombras)
-export function loadProp(url, { height, footprint, rotationY = 0 } = {}) {
+// - recolor: viste el asset con la paleta del club, por nombre de material
+//   ({ wood: '#3a2417', metal: { color: '#c9a45c', metalness: 1 } })
+export function loadProp(url, { height, footprint, rotationY = 0, recolor = {} } = {}) {
   return new Promise((resolve, reject) => {
     loader.load(
       url,
@@ -17,6 +19,12 @@ export function loadProp(url, { height, footprint, rotationY = 0 } = {}) {
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            const rule = recolor[child.material?.name];
+            if (rule) {
+              const { color, ...rest } = typeof rule === 'string' ? { color: rule } : rule;
+              if (color) child.material.color.set(color);
+              Object.assign(child.material, rest);
+            }
           }
         });
 

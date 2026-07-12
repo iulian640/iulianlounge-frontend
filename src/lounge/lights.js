@@ -10,7 +10,7 @@ const GOLD = '#e8cd8f';
 
 export function addSalonLights(scene) {
   // relleno mínimo para que lo no iluminado no sea negro absoluto
-  scene.add(new THREE.AmbientLight('#2a332e', 0.7));
+  scene.add(new THREE.AmbientLight('#2a332e', 0.55));
 
   // una PointLight por lámpara colgante (posiciones compartidas con salon.js);
   // la luz cuelga justo bajo el borde de la pantalla para que el cono caiga hacia abajo

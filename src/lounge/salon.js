@@ -17,11 +17,11 @@ export const LAMPS = [
   { x: -6.0, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
   { x: -6.0, y: 2.45, z: 1.8, intensity: 26 },
   ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 16 })),
-  { x: 4.6, y: 2.25, z: 2.2, intensity: 22, shadow: true }, // blackjack
+  { x: 4.6, y: 2.25, z: 2.2, intensity: 16, shadow: true }, // blackjack
 ];
 
 const materials = {
-  woodFloor: new THREE.MeshStandardMaterial({ color: '#3b2a1d', roughness: 0.85 }),
+  woodFloor: new THREE.MeshStandardMaterial({ color: '#2c1f16', roughness: 0.9 }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
@@ -37,8 +37,8 @@ const materials = {
   }),
   bulb: new THREE.MeshStandardMaterial({
     color: '#ffd9a0',
-    emissive: '#ffd9a0',
-    emissiveIntensity: 3,
+    emissive: '#ffb46b',
+    emissiveIntensity: 2.2,
   }),
   marquee: new THREE.MeshStandardMaterial({
     color: '#ffd9a0',
@@ -136,15 +136,36 @@ function buildBar(salon) {
   salon.add(sign);
 }
 
+function brassRim(radius, y) {
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.015, 8, 48), materials.brass);
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = y;
+  rim.castShadow = true;
+  return rim;
+}
+
 function buildTables(salon) {
-  // mesa de blackjack (semicírculo aproximado con un cilindro en blockout)
+  // mesa de blackjack con canto de latón
   const bj = new THREE.Group();
-  bj.add(cylinder(1.15, 0.08, materials.felt, 0, 0.78, 0));
-  bj.add(cylinder(0.18, 0.74, materials.woodDark, 0, 0.37, 0));
+  bj.add(cylinder(0.95, 0.07, materials.felt, 0, 0.785, 0));
+  bj.add(brassRim(0.95, 0.79));
+  bj.add(cylinder(0.16, 0.75, materials.woodDark, 0, 0.375, 0));
+  bj.add(cylinder(0.45, 0.04, materials.woodDark, 0, 0.02, 0));
   bj.position.set(4.6, 0, 2.2);
   bj.name = 'mesa-blackjack';
   salon.add(bj);
-  // las mesas redondas y demás mobiliario los pone furnish.js (assets low-poly)
+
+  // mesas redondas de madera oscura con canto de latón
+  // (las sillas alrededor las pone furnish.js)
+  for (const [x, z] of TABLE_SPOTS) {
+    const table = new THREE.Group();
+    table.add(cylinder(0.42, 0.05, materials.woodDark, 0, 0.745, 0));
+    table.add(brassRim(0.42, 0.75));
+    table.add(cylinder(0.07, 0.72, materials.woodDark, 0, 0.36, 0));
+    table.add(cylinder(0.24, 0.04, materials.woodDark, 0, 0.02, 0));
+    table.position.set(x, 0, z);
+    salon.add(table);
+  }
 }
 
 function buildLampFixtures(salon) {
