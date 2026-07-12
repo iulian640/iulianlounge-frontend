@@ -10,6 +10,7 @@ import { addLetrero } from './letrero';
 import { createWalkControls } from './walkControls';
 import { addArchitecture } from './decor/architecture';
 import { addDoor } from './decor/door';
+import { addHatDisplay } from './decor/hatDisplay';
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
 // en vite.config.js — con fallback automático a WebGL2 si el navegador no
@@ -115,6 +116,10 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // geometría pura, cero luces
   addArchitecture(scene);
   addDoor(scene);
+  // expositor de fedoras retroiluminado (referencia speakeasyIdeas de Iulian;
+  // germen visual de la tienda del club) — luz por tiras emissive + puntuales
+  // cortas sin sombra, cero sombras nuevas
+  addHatDisplay(scene);
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
