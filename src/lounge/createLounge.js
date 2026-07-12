@@ -8,6 +8,7 @@ import { addSalonLights } from './lights';
 import { furnishSalon } from './furnish';
 import { addLetrero } from './letrero';
 import { createWalkControls } from './walkControls';
+import { addArchitecture } from './decor/architecture';
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
 // en vite.config.js — con fallback automático a WebGL2 si el navegador no
@@ -102,6 +103,9 @@ export async function createLounge(canvas) {
 
   buildSalon(scene);
   addSalonLights(scene);
+  // pieza 1 rescatada del lote (2026-07-13): cornisa, pilastras, zócalo y
+  // moldura de la puerta — geometría pura, cero luces
+  addArchitecture(scene);
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
