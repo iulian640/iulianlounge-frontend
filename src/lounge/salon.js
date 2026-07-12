@@ -22,8 +22,8 @@ export const SCONCES = [
 
 // posiciones de las lámparas — las consume también lights.js
 export const LAMPS = [
-  { x: -6.35, y: 2.45, z: -1.8, intensity: 18, shadow: true }, // barra
-  { x: -6.35, y: 2.45, z: 1.8, intensity: 18 },
+  { x: -6.35, y: 2.45, z: -1.8, intensity: 11, shadow: true }, // barra
+  { x: -6.35, y: 2.45, z: 1.8, intensity: 11 },
   ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 11 })),
   { x: 4.6, y: 2.25, z: 2.2, intensity: 12, shadow: true }, // blackjack
 ];
@@ -52,13 +52,14 @@ export const materials = {
     roughness: 0.85,
     normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     normalScale: new THREE.Vector2(0.8, 0.8),
-    clearcoat: 0.5,
-    clearcoatRoughness: 0.45,
+    clearcoat: 0.3,
+    clearcoatRoughness: 0.6,
     clearcoatRoughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
     clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
-    // brillo estirado en diagonal, siguiendo la espiga (corre a ±45°)
-    anisotropy: 0.35,
+    // brillo estirado en diagonal, siguiendo la espiga — SUTIL: alto se ve
+    // como espaguetis porque la espiga alterna la veta a ±45°
+    anisotropy: 0.12,
     anisotropyRotation: Math.PI / 4,
     envMapIntensity: 0.7,
   }),
@@ -75,7 +76,7 @@ export const materials = {
     clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
     // el brillo corre a lo largo del mostrador, como la veta
-    anisotropy: 0.6,
+    anisotropy: 0.35,
     anisotropyRotation: Math.PI / 2,
     envMapIntensity: 0.8,
   }),

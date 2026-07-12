@@ -18,12 +18,13 @@ const GOLD = '#e8cd8f';
 const EMBER = '#c47a42';
 
 // las luces se etiquetan por capa (userData.kind) para el panel de afinado;
-// todas alcanzan el suelo (capa 1) SALVO las velas — así una vela ilumina
-// su alrededor sin dejar reflejo en la laca
+// todas alcanzan el suelo (capa 1) SALVO velas (no deben reflejarse en la
+// laca) y trasbarra (el mostrador la bloquea en la realidad, pero RectArea
+// no proyecta sombras — se lo prohibimos por capa)
 function tag(light, kind) {
   light.userData.kind = kind;
   light.userData.baseIntensity = light.intensity;
-  if (kind !== 'candle') light.layers.enable(1);
+  if (kind !== 'candle' && kind !== 'shelf') light.layers.enable(1);
   return light;
 }
 
@@ -45,12 +46,21 @@ export function addSalonLights(scene) {
     scene.add(light);
   }
 
-  // 3 — la trasbarra retroiluminada con luz de ÁREA (RectAreaLight): un
-  // panel luminoso de verdad tras las botellas, no puntuales fingiendo
-  const shelfLight = tag(new THREE.RectAreaLight(WARM, 4, 5.4, 1.0), 'shelf');
-  shelfLight.position.set(-ROOM.width / 2 + 0.18, 1.85, -0.35);
-  shelfLight.lookAt(0, 1.4, -0.35);
-  scene.add(shelfLight);
+  // 3 — la trasbarra retroiluminada: tres puntuales CON SOMBRA pegadas al
+  // panel (la RectAreaLight se descartó: no puede proyectar sombras y su luz
+  // atravesaba el mostrador pintando una banda en el suelo — cazado por
+  // Iulian y confirmado por bisección apagando luces una a una)
+  // presupuesto de sombras: máximo 8 luces con sombra en total — cada mapa
+  // de sombra consume una unidad de textura en TODOS los shaders, y el del
+  // suelo (6 mapas + entorno) revienta el límite de 16 de WebGL
+  for (const z of [-1.8, 1.8]) {
+    const shelfGlow = tag(new THREE.PointLight(WARM, 3.5, 4, 2), 'shelf');
+    shelfGlow.position.set(-ROOM.width / 2 + 0.5, 1.8, z);
+    shelfGlow.castShadow = true;
+    shelfGlow.shadow.mapSize.set(512, 512);
+    shelfGlow.shadow.bias = -0.008;
+    scene.add(shelfGlow);
+  }
 
   // 3 — una lucecita por vela de mesa: más naranja y más débil que las
   // lámparas, corto alcance, y CON sombra — la mesa debe bloquear su luz
@@ -65,9 +75,9 @@ export function addSalonLights(scene) {
     scene.add(candle);
   }
 
-  // 3 — el brillo de cada aplique de pared
+  // 3 — el brillo de cada aplique de pared (estos SÍ bañan el suelo)
   for (const { x, z, rotY } of SCONCES) {
-    const glow = new THREE.PointLight(WARM, 3, 3.5, 2);
+    const glow = tag(new THREE.PointLight(WARM, 3, 3.5, 2), 'accent');
     glow.position.set(x + Math.sin(rotY) * 0.3, 2.4, z + Math.cos(rotY) * 0.3);
     scene.add(glow);
   }
@@ -77,7 +87,8 @@ export function addSalonLights(scene) {
   footlights.position.set(3.2, 0.7, -3.2);
   scene.add(footlights);
 
-  // resplandor del letrero sobre la pared oeste
+  // resplandor del letrero sobre la pared oeste (sin sombra: resultó
+  // inocente de la banda del suelo, y el presupuesto de sombras manda)
   const signGlow = tag(new THREE.PointLight(GOLD, 6, 6, 2), 'accent');
   signGlow.position.set(-ROOM.width / 2 + 0.7, 2.85, 0);
   scene.add(signGlow);

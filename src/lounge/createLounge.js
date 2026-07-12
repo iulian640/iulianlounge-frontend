@@ -105,7 +105,17 @@ export function createLounge(canvas) {
     // la captura: si entran en el cubemap, la laca del suelo los unta como
     // globos gigantes con paralaje falso
     const hidden = [];
+    const dimmed = [];
     try {
+      // la trasbarra se apaga durante la captura: su pared encendida en el
+      // cubemap acaba reflejada en el suelo delante de la barra, donde el
+      // mostrador debería taparla (los envMaps no conocen la oclusión)
+      scene.traverse((o) => {
+        if (o.isLight && o.userData.kind === 'shelf') {
+          dimmed.push([o, o.intensity]);
+          o.intensity = 0;
+        }
+      });
       scene.traverse((o) => {
         // solo lo que de verdad brilla: emissive de COLOR no-negro con
         // intensidad real (ojo: emissiveIntensity vale 1 por defecto en TODO
@@ -129,6 +139,7 @@ export function createLounge(canvas) {
       console.error('[lounge] captura de entorno fallida:', error);
     } finally {
       for (const o of hidden) o.visible = true;
+      for (const [light, intensity] of dimmed) light.intensity = intensity;
       scene.remove(cubeCamera);
     }
     console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length);
