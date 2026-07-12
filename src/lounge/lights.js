@@ -89,7 +89,7 @@ export function addSalonLights(scene) {
 
   // resplandor del letrero sobre la pared oeste (sin sombra: resultó
   // inocente de la banda del suelo, y el presupuesto de sombras manda)
-  const signGlow = tag(new THREE.PointLight(GOLD, 6, 6, 2), 'accent');
+  const signGlow = tag(new THREE.PointLight(GOLD, 6, 6, 2), 'letrero');
   signGlow.position.set(-ROOM.width / 2 + 0.7, 2.85, 0);
   scene.add(signGlow);
 

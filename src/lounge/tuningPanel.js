@@ -22,6 +22,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     lamparas: 1,
     trasbarra: 1,
     velas: 1,
+    letrero: 1,
     reflejos: 0.5,
     barraDifuminado: 1,
     barraBarniz: materials.barWood.clearcoat,
@@ -61,6 +62,12 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     }
     const backglow = scene.getObjectByName('backglow');
     if (backglow) backglow.material.emissiveIntensity = 0.45 * v;
+  });
+  gui.add(params, 'letrero', 0, 2, 0.05).onChange((v) => {
+    // las letras y su baño de luz sobre la pared, a la vez
+    applyMultiplier('letrero')(v);
+    const texto = scene.getObjectByName('letrero-texto');
+    if (texto) texto.material.emissiveIntensity = 1.7 * v;
   });
   gui.add(params, 'reflejos', 0, 2, 0.05).onChange((v) => {
     scene.environmentIntensity = v;

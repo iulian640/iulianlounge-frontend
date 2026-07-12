@@ -29,6 +29,7 @@ export async function addLetrero(scene) {
       emissiveIntensity: 1.7,
     }),
   );
+  text.name = 'letrero-texto'; // el panel de afinado regula su brillo
   // pared oeste, sobre la trasbarra, mirando a la sala, centrado en su marco
   text.rotation.y = Math.PI / 2;
   text.position.set(-ROOM.width / 2 + 0.18, 2.81, 0);
