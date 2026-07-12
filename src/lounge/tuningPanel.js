@@ -71,11 +71,15 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   materialsFolder.add(params, 'barraDifuminado', 0, 0.8, 0.02).onChange((v) => {
     materials.barWood.clearcoatRoughness = v;
   });
+  // los dos mandos del suelo gobiernan TODO su brillo: laca + capa base +
+  // reflejo de entorno a la vez (antes solo tocaban la laca y apenas se notaba)
   materialsFolder.add(params, 'sueloBarniz', 0, 1, 0.05).onChange((v) => {
     materials.woodFloor.clearcoat = v;
+    materials.woodFloor.envMapIntensity = 0.2 + v * 0.8;
   });
-  materialsFolder.add(params, 'sueloDifuminado', 0, 0.8, 0.02).onChange((v) => {
-    materials.woodFloor.clearcoatRoughness = v;
+  materialsFolder.add(params, 'sueloDifuminado', 0, 1, 0.02).onChange((v) => {
+    materials.woodFloor.clearcoatRoughness = v * 0.8;
+    materials.woodFloor.roughness = 0.5 + v * 0.7; // >1 se recorta: mate total
   });
   materialsFolder.add(params, 'barraVeta', 0, 1, 0.05).onChange((v) => {
     materials.barWood.anisotropy = v;

@@ -49,19 +49,19 @@ export const materials = {
     color: '#8a7160',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
     roughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
-    roughness: 0.85,
+    roughness: 0.95,
     normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     normalScale: new THREE.Vector2(0.8, 0.8),
-    clearcoat: 0.3,
+    clearcoat: 0.25,
     clearcoatRoughness: 0.6,
     clearcoatRoughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
     clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
     // brillo estirado en diagonal, siguiendo la espiga — SUTIL: alto se ve
     // como espaguetis porque la espiga alterna la veta a ±45°
-    anisotropy: 0.12,
+    anisotropy: 0.08,
     anisotropyRotation: Math.PI / 4,
-    envMapIntensity: 0.7,
+    envMapIntensity: 0.35,
   }),
   // la tapa de la barra: madera noble lacada — clearcoat = el barniz,
   // clearcoatRoughness = el difuminado del reflejo; la veta rompe la laca
