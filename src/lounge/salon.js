@@ -45,21 +45,21 @@ export const materials = {
   // de frente por física; la capa de barniz sí, y es regulable. El relieve
   // (normalMap TAMBIÉN en la laca) y el desgaste (clearcoatRoughnessMap)
   // rompen el reflejo por la veta — sin ellos parece agua, no suelo
+  // misma receta EXACTA que la barra (petición de Iulian: que el suelo se
+  // configure igual que su combinación favorita, barniz 0 + veta 1): base
+  // fija 0.6 SIN mapa de rugosidad — el mapa fotográfico le cambiaba la
+  // respuesta a los mandos y nunca se comportaba como la barra
   woodFloor: new THREE.MeshPhysicalMaterial({
     color: '#8a7160',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
-    roughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
-    roughness: 1.0,
+    roughness: 0.71, // = sueloDifuminado 0.55 en el panel
     normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     normalScale: new THREE.Vector2(0.8, 0.8),
-    clearcoat: 0.15,
-    clearcoatRoughness: 0.7,
-    clearcoatRoughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
+    clearcoat: 0,
+    clearcoatRoughness: 0.4,
     clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
-    // brillo estirado en diagonal, siguiendo la espiga — SUTIL: alto se ve
-    // como espaguetis porque la espiga alterna la veta a ±45°
-    anisotropy: 0.05,
+    anisotropy: 0.9,
     anisotropyRotation: Math.PI / 4,
     envMapIntensity: 0.25,
   }),
@@ -71,12 +71,13 @@ export const materials = {
     roughness: 0.6,
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     normalScale: new THREE.Vector2(0.5, 0.5),
-    clearcoat: 1,
-    clearcoatRoughness: 0.25,
+    // defecto = la mezcla favorita de Iulian: sin laca, veta a tope
+    clearcoat: 0,
+    clearcoatRoughness: 0.32,
     clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
     // el brillo corre a lo largo del mostrador, como la veta
-    anisotropy: 0.35,
+    anisotropy: 1,
     anisotropyRotation: Math.PI / 2,
     envMapIntensity: 0.8,
   }),

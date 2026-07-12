@@ -23,9 +23,9 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     trasbarra: 1,
     velas: 1,
     reflejos: 0.5,
-    barraDifuminado: materials.barWood.clearcoatRoughness,
+    barraDifuminado: 0.4,
     barraBarniz: materials.barWood.clearcoat,
-    sueloDifuminado: materials.woodFloor.clearcoatRoughness,
+    sueloDifuminado: 0.55,
     sueloBarniz: materials.woodFloor.clearcoat,
     barraVeta: materials.barWood.anisotropy,
     sueloVeta: materials.woodFloor.anisotropy,
@@ -66,23 +66,23 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     scene.environmentIntensity = v;
   });
 
+  // "difuminado" = desenfoque REAL del reflejo de las luces: gobierna la
+  // rugosidad de la capa base Y de la laca A LA VEZ (a 0, espejo de agua;
+  // a 1, la luz se esparce en un charco suave). Misma semántica en barra y suelo.
+  const blur = (material) => (v) => {
+    material.roughness = 0.35 + v * 0.65;
+    material.clearcoatRoughness = v * 0.8;
+  };
+
   const materialsFolder = gui.addFolder('Materiales');
   materialsFolder.add(params, 'barraBarniz', 0, 1, 0.05).onChange((v) => {
     materials.barWood.clearcoat = v;
   });
-  materialsFolder.add(params, 'barraDifuminado', 0, 0.8, 0.02).onChange((v) => {
-    materials.barWood.clearcoatRoughness = v;
-  });
-  // los dos mandos del suelo gobiernan TODO su brillo: laca + capa base +
-  // reflejo de entorno a la vez (antes solo tocaban la laca y apenas se notaba)
+  materialsFolder.add(params, 'barraDifuminado', 0, 1, 0.02).onChange(blur(materials.barWood));
   materialsFolder.add(params, 'sueloBarniz', 0, 1, 0.05).onChange((v) => {
     materials.woodFloor.clearcoat = v;
-    materials.woodFloor.envMapIntensity = 0.2 + v * 0.8;
   });
-  materialsFolder.add(params, 'sueloDifuminado', 0, 1, 0.02).onChange((v) => {
-    materials.woodFloor.clearcoatRoughness = v * 0.8;
-    materials.woodFloor.roughness = 0.5 + v * 0.7; // >1 se recorta: mate total
-  });
+  materialsFolder.add(params, 'sueloDifuminado', 0, 1, 0.02).onChange(blur(materials.woodFloor));
   materialsFolder.add(params, 'barraVeta', 0, 1, 0.05).onChange((v) => {
     materials.barWood.anisotropy = v;
   });
