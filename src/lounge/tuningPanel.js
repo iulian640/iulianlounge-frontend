@@ -67,13 +67,13 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
       light.intensity = light.userData.baseIntensity * v;
     }
     const backglow = scene.getObjectByName('backglow');
-    if (backglow) backglow.material.emissiveIntensity = 0.45 * v;
+    if (backglow) backglow.material.emissiveIntensity = 0.18 * v; // base = mezcla 2026-07-13 (trasbarra 0.4)
   });
   gui.add(params, 'letrero', 0, 2, 0.05).onChange((v) => {
     // las letras y su baño de luz sobre la pared, a la vez
     applyMultiplier('letrero')(v);
     const texto = scene.getObjectByName('letrero-texto');
-    if (texto) texto.material.emissiveIntensity = 1.7 * v;
+    if (texto) texto.material.emissiveIntensity = 0.85 * v; // base = mezcla 2026-07-13 (letrero 0.5)
   });
   gui.add(params, 'escenario', 0, 2, 0.05).onChange(applyMultiplier('escenario'));
   gui.add(params, 'reflejos', 0, 2, 0.05).onChange((v) => {

@@ -1,17 +1,18 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { createLounge } from '@/lounge/createLounge';
 
 const canvas = ref(null);
 const entering = ref(true); // el telón: tapa la compilación de shaders y la carga
 const progress = ref(0); // 0..1, lo reporta createLounge por tramos reales
+let lounge = null; // handle con dispose(), para matar el lounge al desmontar
 
 onMounted(async () => {
   try {
     // async: el renderer WebGPU se inicializa de forma asíncrona; la promesa
     // resuelve con la sala amueblada, los pipelines compilados y un primer
     // frame ya renderizado — solo entonces se levanta el telón
-    await createLounge(canvas.value, (value) => {
+    lounge = await createLounge(canvas.value, (value) => {
       // nunca retrocede: las cargas sueltas pueden reportar desordenadas
       progress.value = Math.max(progress.value, value);
     });
@@ -23,6 +24,14 @@ onMounted(async () => {
     await new Promise((resolve) => setTimeout(resolve, 700));
     entering.value = false;
   }
+});
+
+// al desmontar (navegar a otra vista, o remontaje por HMR al guardar un
+// fichero) el lounge anterior se apaga de verdad: sin esto se iban apilando
+// lounges invisibles y la pestaña se atascaba más con cada guardado
+onUnmounted(() => {
+  lounge?.dispose();
+  lounge = null;
 });
 </script>
 

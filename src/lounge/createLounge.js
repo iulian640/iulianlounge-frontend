@@ -69,7 +69,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
   const scenePass = pass(scene, camera, { samples: 1 });
   scenePass.setMRT(mrt({ output, emissive }));
   const scenePassColor = scenePass.getTextureNode('output');
-  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.25, 0.5, 0);
+  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0); // mezcla Iulian 2026-07-13
   bloomPass.resolutionScale = 0.5; // el halo no necesita resolución completa
   postProcessing.outputNode = scenePassColor.add(bloomPass);
 
@@ -81,12 +81,13 @@ export async function createLounge(canvas, onProgress = () => {}) {
   };
   setQuality('alta'); // por defecto a tope (decisión de Iulian: 120fps sobrados)
 
+  let panel = null; // instancia lil-gui, para destruirla en dispose()
   if (import.meta.env.DEV) {
     // mandos de depuración en consola + panel de afinado del director de arte
     window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials, setQuality };
-    import('./tuningPanel').then(({ createTuningPanel }) =>
-      createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality }),
-    );
+    import('./tuningPanel').then(({ createTuningPanel }) => {
+      panel = createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality });
+    });
   }
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
@@ -202,15 +203,23 @@ export async function createLounge(canvas, onProgress = () => {}) {
   const stats = new Stats();
   document.body.appendChild(stats.dom);
 
-  window.addEventListener('resize', () => {
+  const onResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  };
+  window.addEventListener('resize', onResize);
 
   const timer = new THREE.Timer();
 
+  // interruptor de vida: dispose() lo apaga y el bucle muere en el siguiente
+  // frame. Sin esto, cada remontaje del componente (HMR de Vite al guardar
+  // un fichero) apilaba un lounge entero corriendo invisible — bucle de
+  // render, listeners y escena en GPU incluidos.
+  let alive = true;
+
   function tick() {
+    if (!alive) return;
     timer.update();
     const delta = timer.getDelta();
     for (const update of updatables) update(delta);
@@ -220,6 +229,15 @@ export async function createLounge(canvas, onProgress = () => {}) {
     stats.update();
     requestAnimationFrame(tick);
   }
+
+  const dispose = () => {
+    alive = false;
+    window.removeEventListener('resize', onResize);
+    walk.dispose();
+    panel?.destroy();
+    stats.dom.remove();
+    renderer.dispose();
+  };
 
   // calentón ANTES de levantar el telón: barrida de 4 orientaciones para que
   // el primer giro del jugador no encuentre NADA sin preparar (medido: sin
@@ -241,4 +259,6 @@ export async function createLounge(canvas, onProgress = () => {}) {
   postProcessing.render(); // frame de estreno con la mirada de entrada
   onProgress(1);
   tick();
+
+  return { dispose };
 }

@@ -70,7 +70,7 @@ export function addSalonLights(scene) {
   // OJO presupuesto de texturas WebGL (16 por shader): el suelo usa 7 mapas,
   // la RectArea añade 2 (tablas LTC) y cada luz con sombra 1 más — con la
   // rect solo caben 6 sombras en total en la escena
-  const shelfPanel = tag(new THREE.RectAreaLight(WARM, 3.5, 5.4, 0.9), 'shelf');
+  const shelfPanel = tag(new THREE.RectAreaLight(WARM, 1.4, 5.4, 0.9), 'shelf'); // mezcla 2026-07-13 (0.4)
   shelfPanel.position.set(-ROOM.width / 2 + 0.22, 1.5, -0.35);
   shelfPanel.lookAt(-ROOM.width / 2 + 1.4, 3.4, -0.35);
   scene.add(shelfPanel);
@@ -103,7 +103,7 @@ export function addSalonLights(scene) {
 
   // resplandor del letrero sobre la pared oeste (sin sombra: resultó
   // inocente de la banda del suelo, y el presupuesto de sombras manda)
-  const signGlow = tag(new THREE.PointLight(GOLD, 6.3, 6, 2), 'letrero');
+  const signGlow = tag(new THREE.PointLight(GOLD, 3.15, 6, 2), 'letrero'); // mezcla 2026-07-13 (0.5)
   signGlow.position.set(-ROOM.width / 2 + 0.7, 2.85, 0);
   scene.add(signGlow);
 

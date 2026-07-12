@@ -233,7 +233,7 @@ function buildBar(salon) {
     new THREE.MeshStandardMaterial({
       color: '#c47a42',
       emissive: '#ff9d5c',
-      emissiveIntensity: 0.45,
+      emissiveIntensity: 0.18, // mezcla 2026-07-13 (trasbarra 0.4)
     }),
   );
   backglow.name = 'backglow';

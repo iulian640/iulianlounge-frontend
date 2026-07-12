@@ -13,8 +13,10 @@ export function createWalkControls(camera, canvas) {
   canvas.addEventListener('click', () => controls.lock());
 
   const keys = new Set();
-  window.addEventListener('keydown', (event) => keys.add(event.code));
-  window.addEventListener('keyup', (event) => keys.delete(event.code));
+  const onKeyDown = (event) => keys.add(event.code);
+  const onKeyUp = (event) => keys.delete(event.code);
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
 
   function update(delta) {
     if (!controls.isLocked) return;
@@ -29,5 +31,14 @@ export function createWalkControls(camera, canvas) {
     camera.position.y = EYE_HEIGHT; // los pies en el suelo
   }
 
-  return { controls, update };
+  // suelta los listeners de window y el pointer lock: sin esto, cada
+  // remontaje del componente (HMR de Vite) dejaba un juego de listeners vivo
+  function dispose() {
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+    controls.unlock();
+    controls.dispose();
+  }
+
+  return { controls, update, dispose };
 }
