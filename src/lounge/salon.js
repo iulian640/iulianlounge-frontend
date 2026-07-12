@@ -136,9 +136,10 @@ function buildBar(salon) {
     new THREE.MeshStandardMaterial({
       color: '#c47a42',
       emissive: '#ff9d5c',
-      emissiveIntensity: 0.9,
+      emissiveIntensity: 0.45,
     }),
   );
+  backglow.name = 'backglow';
   backglow.position.set(-ROOM.width / 2 + 0.12, 1.85, -0.35);
   salon.add(backglow);
 

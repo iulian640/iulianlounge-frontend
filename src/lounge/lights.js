@@ -14,21 +14,28 @@ const WARM = '#ffa666';
 const GOLD = '#e8cd8f';
 const EMBER = '#c47a42';
 
+// las luces se etiquetan por capa (userData.kind) para el panel de afinado
+function tag(light, kind) {
+  light.userData.kind = kind;
+  light.userData.baseIntensity = light.intensity;
+  return light;
+}
+
 export function addSalonLights(scene) {
   // 1 — fill con gradiente (techo cálido, suelo ámbar oscuro)
-  scene.add(new THREE.HemisphereLight('#4a3527', '#241610', 0.55));
+  scene.add(tag(new THREE.HemisphereLight('#4a3527', '#241610', 0.55), 'fill'));
 
   // 4 — rebote falso: dos puntuales anchas, tenues, sin sombra, a media altura
-  const bounceA = new THREE.PointLight(EMBER, 3, 16, 2);
+  const bounceA = tag(new THREE.PointLight(EMBER, 3, 16, 2), 'bounce');
   bounceA.position.set(-2, 1.1, 0.5);
   scene.add(bounceA);
-  const bounceB = new THREE.PointLight(EMBER, 2.5, 14, 2);
+  const bounceB = tag(new THREE.PointLight(EMBER, 2.5, 14, 2), 'bounce');
   bounceB.position.set(4, 1.1, 0);
   scene.add(bounceB);
 
   // 2 — una PointLight por lámpara colgante (posiciones compartidas con salon.js)
   for (const { x, y, z, intensity, shadow } of LAMPS) {
-    const light = new THREE.PointLight(WARM, intensity, 12, 2);
+    const light = tag(new THREE.PointLight(WARM, intensity, 12, 2), 'lamp');
     light.position.set(x, y - 0.02, z);
     if (shadow) {
       light.castShadow = true;
@@ -40,16 +47,16 @@ export function addSalonLights(scene) {
 
   // 3 — la trasbarra retroiluminada (el truco de las referencias: las
   // botellas brillan porque la luz viene de DETRÁS)
-  const shelfGlowA = new THREE.PointLight(WARM, 5, 4, 2);
+  const shelfGlowA = tag(new THREE.PointLight(WARM, 2.5, 4, 2), 'shelf');
   shelfGlowA.position.set(-ROOM.width / 2 + 0.55, 1.85, -1.6);
   scene.add(shelfGlowA);
-  const shelfGlowB = new THREE.PointLight(WARM, 5, 4, 2);
+  const shelfGlowB = tag(new THREE.PointLight(WARM, 2.5, 4, 2), 'shelf');
   shelfGlowB.position.set(-ROOM.width / 2 + 0.55, 1.85, 1.2);
   scene.add(shelfGlowB);
 
   // 3 — una lucecita por vela de mesa (les da cara a las butacas)
   for (const [x, z] of TABLE_SPOTS) {
-    const candle = new THREE.PointLight('#ff9d5c', 1.6, 2.8, 2);
+    const candle = tag(new THREE.PointLight('#ff9d5c', 1.6, 2.8, 2), 'candle');
     candle.position.set(x - 0.09, 1.0, z + 0.06);
     scene.add(candle);
   }

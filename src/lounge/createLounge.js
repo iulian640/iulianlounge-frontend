@@ -58,8 +58,11 @@ export function createLounge(canvas) {
   composer.addPass(new OutputPass());
 
   if (import.meta.env.DEV) {
-    // mandos de depuración en consola: __lounge.bloom.strength = ...
+    // mandos de depuración en consola + panel de afinado del director de arte
     window.__lounge = { scene, camera, bloom, renderer };
+    import('./tuningPanel').then(({ createTuningPanel }) =>
+      createTuningPanel({ scene, renderer, bloom }),
+    );
   }
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
