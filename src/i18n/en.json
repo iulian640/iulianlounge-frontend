@@ -1,0 +1,12 @@
+{
+  "club": {
+    "name": "Iulian's"
+  },
+  "currency": {
+    "name": "Shrutebucks"
+  },
+  "ui": {
+    "loading": "Warming up the marquee…",
+    "language": "Language"
+  }
+}

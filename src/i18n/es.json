@@ -1,0 +1,12 @@
+{
+  "club": {
+    "name": "Iulian's"
+  },
+  "currency": {
+    "name": "chikilicuatres"
+  },
+  "ui": {
+    "loading": "Encendiendo el letrero…",
+    "language": "Idioma"
+  }
+}

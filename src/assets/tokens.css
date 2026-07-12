@@ -1,0 +1,27 @@
+/*
+ * Tokens de diseño de Iulian's — fuente de verdad: docs/design/style-tile.html
+ * Regla semántica: ganar = oro, perder = burdeos. El oro se gana, nada brilla gratis.
+ */
+:root {
+  /* paleta del club */
+  --medianoche: #0b1514; /* fondo — la sala a oscuras */
+  --fieltro: #111f1d; /* superficie base */
+  --tapete: #172925; /* superficie elevada / hover */
+  --laton: #c9a45c; /* estructura: bordes, líneas, etiquetas */
+  --oro: #e8cd8f; /* reservado: dinero, logros, el letrero */
+  --marfil: #efe5cc; /* texto principal y papel */
+  --humo: #93a69e; /* texto secundario */
+  --burdeos: #b0524c; /* pérdidas, deudas, peligro */
+  --linea: rgba(201, 164, 92, 0.28);
+  --linea-suave: rgba(201, 164, 92, 0.14);
+
+  /* tipografía — cuatro voces, cuatro oficios */
+  --f-letrero: 'Limelight', serif; /* SOLO el letrero (es el logo) */
+  --f-titulo: 'Cormorant', Georgia, serif; /* títulos de sala y sección */
+  --f-ui: 'Jost', 'Segoe UI', sans-serif; /* cuerpo y UI */
+  --f-mono: 'IBM Plex Mono', Consolas, monospace; /* números, telegramas, terminal */
+
+  /* ritmo */
+  --duracion-corta: 150ms;
+  --duracion-media: 300ms;
+}
