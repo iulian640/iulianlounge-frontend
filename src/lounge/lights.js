@@ -50,17 +50,17 @@ export function addSalonLights(scene) {
   // panel (la RectAreaLight se descartó: no puede proyectar sombras y su luz
   // atravesaba el mostrador pintando una banda en el suelo — cazado por
   // Iulian y confirmado por bisección apagando luces una a una)
-  // presupuesto de sombras: máximo 8 luces con sombra en total — cada mapa
-  // de sombra consume una unidad de textura en TODOS los shaders, y el del
-  // suelo (6 mapas + entorno) revienta el límite de 16 de WebGL
-  for (const z of [-1.8, 1.8]) {
-    const shelfGlow = tag(new THREE.PointLight(WARM, 3.5, 4, 2), 'shelf');
-    shelfGlow.position.set(-ROOM.width / 2 + 0.5, 1.8, z);
-    shelfGlow.castShadow = true;
-    shelfGlow.shadow.mapSize.set(512, 512);
-    shelfGlow.shadow.bias = -0.008;
-    scene.add(shelfGlow);
-  }
+  // híbrido: RectArea INCLINADA HACIA ARRIBA (baño suave y continuo en
+  // botellas y pared; mirando al techo casi nada de su energía cae al suelo
+  // — no puede proyectar sombras, así que se la orienta para no necesitarlas)
+  // + dos puntuales con sombra a media potencia para el bajo de las repisas.
+  // OJO presupuesto de texturas WebGL (16 por shader): el suelo usa 7 mapas,
+  // la RectArea añade 2 (tablas LTC) y cada luz con sombra 1 más — con la
+  // rect solo caben 6 sombras en total en la escena
+  const shelfPanel = tag(new THREE.RectAreaLight(WARM, 3.5, 5.4, 0.9), 'shelf');
+  shelfPanel.position.set(-ROOM.width / 2 + 0.22, 1.5, -0.35);
+  shelfPanel.lookAt(-ROOM.width / 2 + 1.4, 3.4, -0.35);
+  scene.add(shelfPanel);
 
   // 3 — una lucecita por vela de mesa: más naranja y más débil que las
   // lámparas, corto alcance, y CON sombra — la mesa debe bloquear su luz
