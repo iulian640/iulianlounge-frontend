@@ -31,15 +31,16 @@ const GLASS = {
 };
 
 function chesterfieldsAround(x, z) {
+  // proporciones de las referencias: butaca alta (1 m) sobre mesita de cóctel
   const pieces = [];
   for (let i = 0; i < 3; i++) {
     const angle = (i / 3) * Math.PI * 2 + 0.5;
-    const chairX = x + Math.cos(angle) * 1.05;
-    const chairZ = z + Math.sin(angle) * 1.05;
+    const chairX = x + Math.cos(angle) * 0.95;
+    const chairZ = z + Math.sin(angle) * 0.95;
     const rotationY = Math.atan2(x - chairX, z - chairZ); // mirando a la mesa
     pieces.push({
       url: HUNT + 'chesterfield.glb',
-      opts: { height: 0.85, rotationY, recolor: { F44336: { color: '#5a2830', roughness: 0.7 } } },
+      opts: { height: 1.0, rotationY, recolor: { F44336: { color: '#5a2830', roughness: 0.7 } } },
       at: [chairX, 0, chairZ],
     });
   }
@@ -57,7 +58,7 @@ function manifest() {
     props.push({
       url: HUNT + 'cognac-glass.glb',
       opts: { height: 0.11, recolor: { 'Solid_-_25%.037': GLASS } },
-      at: [x + 0.16, 0.77, z - 0.1],
+      at: [x + 0.12, 0.77, z - 0.07],
     });
   }
 

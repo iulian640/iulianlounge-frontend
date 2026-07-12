@@ -42,7 +42,7 @@ export function createLounge(canvas) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.26;
+  renderer.toneMappingExposure = 1.1;
 
   // bloom sutil: solo lo emissive (letrero, bombillas, velas) gana halo —
   // "un único glow lo convierte en pieza de arte; diez lo convierten en feria"
@@ -50,9 +50,9 @@ export function createLounge(canvas) {
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.15,
-    0.4,
-    1.3,
+    0.1,
+    0.5,
+    1.4,
   );
   composer.addPass(bloom);
   composer.addPass(new OutputPass());

@@ -5,12 +5,13 @@ import { LAMPS, ROOM, SCONCES } from './salon';
 // La atmósfera la hace la luz, no el polycount (CONCEPT.md):
 // ambiente casi apagado + fuentes puntuales cálidas (~2800 K) con origen.
 
-const WARM = '#ffb46b';
+// más rojo y más bajo, como en las referencias: charcos de luz, no relleno
+const WARM = '#ff9d5c';
 const GOLD = '#e8cd8f';
 
 export function addSalonLights(scene) {
   // relleno mínimo para que lo no iluminado no sea negro absoluto
-  scene.add(new THREE.AmbientLight('#2a332e', 0.55));
+  scene.add(new THREE.AmbientLight('#2b2420', 0.4));
 
   // una PointLight por lámpara colgante (posiciones compartidas con salon.js);
   // la luz cuelga justo bajo el borde de la pantalla para que el cono caiga hacia abajo
@@ -38,7 +39,7 @@ export function addSalonLights(scene) {
   scene.add(signGlow);
 
   // foco del escenario
-  const spot = new THREE.SpotLight(GOLD, 70, 14, 0.5, 0.5, 2);
+  const spot = new THREE.SpotLight(GOLD, 50, 14, 0.5, 0.5, 2);
   spot.position.set(3.2, ROOM.height - 0.2, -1.4);
   spot.target.position.set(3.2, 0.4, -ROOM.depth / 2 + 1.35);
   spot.castShadow = true;

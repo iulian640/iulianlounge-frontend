@@ -22,10 +22,10 @@ export const SCONCES = [
 
 // posiciones de las lámparas — las consume también lights.js
 export const LAMPS = [
-  { x: -6.35, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
-  { x: -6.35, y: 2.45, z: 1.8, intensity: 26 },
-  ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 16 })),
-  { x: 4.6, y: 2.25, z: 2.2, intensity: 16, shadow: true }, // blackjack
+  { x: -6.35, y: 2.45, z: -1.8, intensity: 18, shadow: true }, // barra
+  { x: -6.35, y: 2.45, z: 1.8, intensity: 18 },
+  ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 11 })),
+  { x: 4.6, y: 2.25, z: 2.2, intensity: 12, shadow: true }, // blackjack
 ];
 
 const materials = {
@@ -161,16 +161,16 @@ function buildTables(salon) {
   bj.name = 'mesa-blackjack';
   salon.add(bj);
 
-  // mesas redondas de madera oscura con canto de latón y vela
-  // (las butacas alrededor las pone furnish.js)
+  // mesitas de cóctel (Ø64, como en las referencias: la butaca manda sobre
+  // la mesa) de madera oscura con canto de latón y vela
   for (const [x, z] of TABLE_SPOTS) {
     const table = new THREE.Group();
-    table.add(cylinder(0.42, 0.05, materials.woodDark, 0, 0.745, 0));
-    table.add(brassRim(0.42, 0.75));
-    table.add(cylinder(0.07, 0.72, materials.woodDark, 0, 0.36, 0));
-    table.add(cylinder(0.24, 0.04, materials.woodDark, 0, 0.02, 0));
+    table.add(cylinder(0.32, 0.05, materials.woodDark, 0, 0.745, 0));
+    table.add(brassRim(0.32, 0.75));
+    table.add(cylinder(0.06, 0.72, materials.woodDark, 0, 0.36, 0));
+    table.add(cylinder(0.2, 0.04, materials.woodDark, 0, 0.02, 0));
 
-    const candle = cylinder(0.028, 0.09, materials.bulb, -0.12, 0.815, 0.08, 10);
+    const candle = cylinder(0.028, 0.09, materials.bulb, -0.09, 0.815, 0.06, 10);
     candle.castShadow = false;
     table.add(candle);
 
