@@ -54,14 +54,6 @@ function manifest() {
     });
   }
 
-  // rincón de sofás junto a la pared este
-  props.push(
-    { url: KENNEY + 'loungeSofaLong.glb', opts: { height: 0.75, rotationY: -Math.PI / 2, recolor: CLUB }, at: [7.0, 0, 3.4] },
-    { url: KENNEY + 'rugRound.glb', opts: { footprint: 3, recolor: CLUB }, at: [5.9, 0.012, 3.4] },
-    { url: KENNEY + 'tableCoffee.glb', opts: { height: 0.45, recolor: CLUB }, at: [5.8, 0, 3.4] },
-    { url: KENNEY + 'lampRoundFloor.glb', opts: { height: 1.65, recolor: CLUB }, at: [7.1, 0, 2.1] },
-  );
-
   // guardarropa junto a la entrada, radio en la trasbarra, plantas
   props.push(
     { url: KENNEY + 'coatRackStanding.glb', opts: { height: 1.7, recolor: CLUB }, at: [1.6, 0, 4.7] },
