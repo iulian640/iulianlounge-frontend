@@ -84,6 +84,16 @@ export const materials = {
     envMapIntensity: 0.8,
   }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
+  // madera noble CON VETA para la carpintería que se mira de cerca (puerta,
+  // cornisa, pilastras, zócalo): la misma textura de la barra teñida oscura
+  // — el color multiplica al mapa, por eso es más claro que woodDark
+  woodTrim: new THREE.MeshStandardMaterial({
+    color: '#8a6448',
+    map: woodTexture('/textures/bar-wood-diff.jpg', 1.2, 1.2),
+    normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1.2, 1.2, false),
+    normalScale: new THREE.Vector2(0.6, 0.6),
+    roughness: 0.75,
+  }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
   felt: new THREE.MeshStandardMaterial({ color: '#172925', roughness: 1 }),

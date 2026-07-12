@@ -73,7 +73,7 @@ const CORNICE_WALLS = [
 
 function buildCornice(group) {
   for (const { length, rotY, x, z } of CORNICE_WALLS) {
-    const strip = mesh(corniceGeometry(length), materials.woodDark);
+    const strip = mesh(corniceGeometry(length), materials.woodTrim);
     strip.rotation.y = rotY;
     strip.position.set(x, ROOM.height, z);
     group.add(strip);
@@ -97,17 +97,17 @@ function buildPilaster(group, z) {
   const shaftHeight = PILASTER_TOP_Y - PILASTER_BASE_H;
 
   // basa
-  group.add(box(PILASTER_WIDTH + 0.05, PILASTER_BASE_H, PILASTER_DEPTH + 0.02, materials.woodDark, x, PILASTER_BASE_H / 2, z));
+  group.add(box(PILASTER_WIDTH + 0.05, PILASTER_BASE_H, PILASTER_DEPTH + 0.02, materials.woodTrim, x, PILASTER_BASE_H / 2, z));
 
   // fuste
-  group.add(box(PILASTER_WIDTH, shaftHeight, PILASTER_DEPTH, materials.woodDark, x, PILASTER_BASE_H + shaftHeight / 2, z));
+  group.add(box(PILASTER_WIDTH, shaftHeight, PILASTER_DEPTH, materials.woodTrim, x, PILASTER_BASE_H + shaftHeight / 2, z));
 
   // vivo de latón centrado en el fuste
   group.add(box(0.02, shaftHeight - 0.1, 0.01, materials.brass, x - PILASTER_DEPTH / 2 - 0.005, PILASTER_BASE_H + shaftHeight / 2, z));
 
   // capitel sencillo: bloque escalonado
   const capitalY = PILASTER_TOP_Y;
-  group.add(box(PILASTER_WIDTH + 0.08, 0.1, PILASTER_DEPTH + 0.05, materials.woodDark, x, capitalY + 0.05, z));
+  group.add(box(PILASTER_WIDTH + 0.08, 0.1, PILASTER_DEPTH + 0.05, materials.woodTrim, x, capitalY + 0.05, z));
   group.add(box(PILASTER_WIDTH + 0.14, 0.03, PILASTER_DEPTH + 0.09, materials.brass, x, capitalY + 0.115, z));
 }
 
@@ -126,7 +126,7 @@ function buildBaseboardRun(group, width, x, z, rotY = 0) {
   // x/z ya son la cara interior del muro; el zócalo solo asoma medio
   // grosor propio hacia el salón (igual que el remate norte/este de
   // salon.js, pero medido desde la cara interior en vez del centro del muro)
-  const wood = box(width, 0.9, 0.06, materials.woodDark, 0, 0.45, 0.03);
+  const wood = box(width, 0.9, 0.06, materials.woodTrim, 0, 0.45, 0.03);
   const brassTrim = box(width, 0.03, 0.07, materials.brass, 0, 0.92, 0.03);
   const run = new THREE.Group();
   run.add(wood);
@@ -162,17 +162,17 @@ function buildDoorSurround(group) {
 
   for (const side of [-1, 1]) {
     const x = side * (DOOR_WIDTH / 2 + jambWidth / 2);
-    group.add(box(jambWidth, jambHeight, depth, materials.woodDark, x, jambHeight / 2, surroundZ));
+    group.add(box(jambWidth, jambHeight, depth, materials.woodTrim, x, jambHeight / 2, surroundZ));
     group.add(box(0.02, jambHeight - 0.06, 0.01, materials.brass, x - side * (jambWidth / 2 + 0.005), jambHeight / 2, surroundZ));
   }
 
   // dintel
-  group.add(box(DOOR_WIDTH + jambWidth * 2, jambWidth, depth, materials.woodDark, 0, jambHeight, surroundZ));
+  group.add(box(DOOR_WIDTH + jambWidth * 2, jambWidth, depth, materials.woodTrim, 0, jambHeight, surroundZ));
   group.add(box(DOOR_WIDTH + jambWidth * 2, 0.02, 0.01, materials.brass, 0, jambHeight + jambWidth / 2 + 0.01, surroundZ));
 
   // arco de medio punto sobre el dintel, en madera con hilo de latón
   const archRadius = DOOR_WIDTH / 2 + jambWidth;
-  const woodArch = mesh(new THREE.TorusGeometry(archRadius, 0.05, 8, 24, Math.PI), materials.woodDark);
+  const woodArch = mesh(new THREE.TorusGeometry(archRadius, 0.05, 8, 24, Math.PI), materials.woodTrim);
   woodArch.position.set(0, jambHeight, surroundZ);
   group.add(woodArch);
 
@@ -200,3 +200,4 @@ export function addArchitecture(scene) {
   scene.add(architecture);
   return architecture;
 }
+

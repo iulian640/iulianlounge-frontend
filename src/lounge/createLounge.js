@@ -9,6 +9,7 @@ import { furnishSalon } from './furnish';
 import { addLetrero } from './letrero';
 import { createWalkControls } from './walkControls';
 import { addArchitecture } from './decor/architecture';
+import { addDoor } from './decor/door';
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
 // en vite.config.js — con fallback automático a WebGL2 si el navegador no
@@ -32,7 +33,10 @@ function clampCameraToRoom(camera) {
   p.y = THREE.MathUtils.clamp(p.y, CAMERA_BOUNDS.yMin, CAMERA_BOUNDS.yMax);
 }
 
-export async function createLounge(canvas) {
+// onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
+// 0→0.6 descarga de assets (LoadingManager), 0.6→0.7 compilación + reflejos,
+// 0.7→1 la barrida de calentamiento (12 pasos reales de GPU)
+export async function createLounge(canvas, onProgress = () => {}) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#0b1514');
   scene.fog = new THREE.FogExp2('#0b1514', 0.022); // el humo del club
@@ -98,14 +102,19 @@ export async function createLounge(canvas) {
       if (previous) previous();
       resolve();
     };
+    manager.onProgress = (url, loaded, total) => {
+      if (total > 0) onProgress((loaded / total) * 0.6);
+    };
     setTimeout(resolve, 8000); // red de seguridad si alguna carga se queda colgada
   });
 
   buildSalon(scene);
   addSalonLights(scene);
-  // pieza 1 rescatada del lote (2026-07-13): cornisa, pilastras, zócalo y
-  // moldura de la puerta — geometría pura, cero luces
+  // piezas rescatadas del lote (2026-07-13), de una en una con OK de Iulian:
+  // arquitectura (cornisa/pilastras/zócalo/arco) y puerta con mirilla —
+  // geometría pura, cero luces
   addArchitecture(scene);
+  addDoor(scene);
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
@@ -122,7 +131,12 @@ export async function createLounge(canvas) {
   // frame de estreno. Nada de renderer.compileAsync(scene, camera): eso
   // compilaría el render directo a canvas, que nunca se usa.
   await Promise.all([ready, texturesSettled]);
-  postProcessing.render();
+  // el objetivo se anuncia ANTES del congelón de compilación y se esperan dos
+  // frames para que la transición CSS arranque: la barra planea hacia 0.68 en
+  // el compositor mientras el hilo principal está congelado compilando
+  onProgress(0.68);
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  postProcessing.render(); // el congelón de compilación vive aquí
 
   {
     const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType });
@@ -211,12 +225,15 @@ export async function createLounge(canvas) {
   // deja rematar la compilación — repartido en frames reales sí
   const yawInicial = camera.rotation.y;
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  onProgress(0.7);
   for (let paso = 0; paso < 12; paso++) {
     camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2;
     postProcessing.render();
     await nextFrame();
+    onProgress(0.7 + ((paso + 1) / 12) * 0.3);
   }
   camera.rotation.y = yawInicial;
   postProcessing.render(); // frame de estreno con la mirada de entrada
+  onProgress(1);
   tick();
 }
