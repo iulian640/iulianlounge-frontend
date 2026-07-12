@@ -1,6 +1,9 @@
 import * as THREE from 'three';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
 import { LAMPS, ROOM, SCONCES, TABLE_SPOTS } from './salon';
+
+RectAreaLightUniformsLib.init();
 
 // Iluminación en capas (referencias de Pictures/speakeasyIdeas + práctica
 // three.js): la penumbra rica no es menos luz, es más FUENTES y más rebote,
@@ -42,14 +45,12 @@ export function addSalonLights(scene) {
     scene.add(light);
   }
 
-  // 3 — la trasbarra retroiluminada (el truco de las referencias: las
-  // botellas brillan porque la luz viene de DETRÁS)
-  const shelfGlowA = tag(new THREE.PointLight(WARM, 2.5, 4, 2), 'shelf');
-  shelfGlowA.position.set(-ROOM.width / 2 + 0.55, 1.85, -1.6);
-  scene.add(shelfGlowA);
-  const shelfGlowB = tag(new THREE.PointLight(WARM, 2.5, 4, 2), 'shelf');
-  shelfGlowB.position.set(-ROOM.width / 2 + 0.55, 1.85, 1.2);
-  scene.add(shelfGlowB);
+  // 3 — la trasbarra retroiluminada con luz de ÁREA (RectAreaLight): un
+  // panel luminoso de verdad tras las botellas, no puntuales fingiendo
+  const shelfLight = tag(new THREE.RectAreaLight(WARM, 4, 5.4, 1.0), 'shelf');
+  shelfLight.position.set(-ROOM.width / 2 + 0.18, 1.85, -0.35);
+  shelfLight.lookAt(0, 1.4, -0.35);
+  scene.add(shelfLight);
 
   // 3 — una lucecita por vela de mesa: más naranja y más débil que las
   // lámparas, corto alcance, y CON sombra — la mesa debe bloquear su luz
