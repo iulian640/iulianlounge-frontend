@@ -23,8 +23,11 @@ export async function addLetrero(scene) {
 
   const text = new THREE.Mesh(
     geometry,
+    // color base NEGRO: las letras no reciben luz de las lámparas — solo
+    // emiten. Si recibieran, cada letra cruzaría el umbral del bloom en un
+    // momento distinto y se "encenderían" una a una al subir el mando
     new THREE.MeshStandardMaterial({
-      color: '#ffd9a0',
+      color: '#000000',
       emissive: '#ffc887',
       emissiveIntensity: 1.7,
     }),
