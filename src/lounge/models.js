@@ -9,9 +9,10 @@ const loader = new GLTFLoader();
 // - footprint: diámetro objetivo en planta (piezas planas: alfombras)
 // - recolor: viste el asset con la paleta del club, por nombre de material
 //   ({ wood: '#3a2417', metal: { color: '#c9a45c', metalness: 1 } })
+// - rotationX: corrige modelos tumbados en otro eje (se aplica ANTES de medir)
 // - animate: regex del clip a reproducir ('Idle', 'Working'); deja la función
 //   de avance en prop.userData.update(dt)
-export function loadProp(url, { height, footprint, rotationY = 0, recolor = {}, animate } = {}) {
+export function loadProp(url, { height, footprint, rotationY = 0, rotationX = 0, recolor = {}, animate } = {}) {
   return new Promise((resolve, reject) => {
     loader.load(
       url,
@@ -29,6 +30,8 @@ export function loadProp(url, { height, footprint, rotationY = 0, recolor = {}, 
             }
           }
         });
+
+        if (rotationX) model.rotation.x = rotationX;
 
         const bounds = new THREE.Box3().setFromObject(model);
         const size = bounds.getSize(new THREE.Vector3());

@@ -76,7 +76,7 @@ function manifest() {
     {
       url: HUNT + 'cash-register.glb',
       opts: {
-        height: 0.35,
+        footprint: 0.45, // modelo chato: por altura salía tamaño cenicero-de-gigante
         rotationY: Math.PI / 2,
         recolor: {
           mat22: { color: '#c9a45c', metalness: 1, roughness: 0.4 },
@@ -119,10 +119,11 @@ function manifest() {
     at: [1.6, 0, 4.7],
   });
 
-  // alfombra grande burdeos bajo la zona de mesas
+  // alfombra grande burdeos bajo la zona de mesas (el GLB viene en vertical:
+  // se tumba con rotationX antes de medirla)
   props.push({
     url: HUNT + 'rug-burgundy.glb',
-    opts: { footprint: 5.5 },
+    opts: { footprint: 5.5, rotationX: -Math.PI / 2 },
     at: [-1.2, 0.012, -0.1],
   });
 
