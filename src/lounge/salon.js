@@ -90,16 +90,17 @@ export const materials = {
   brass: new THREE.MeshStandardMaterial({ color: '#c9a45c', metalness: 1, roughness: 0.5, envMapIntensity: 0.55 }),
   velvet: new THREE.MeshStandardMaterial({ color: '#3d1b20', roughness: 1 }),
   leather: new THREE.MeshStandardMaterial({ color: '#4a2c1e', roughness: 0.7 }),
-  // tablas de madera del escenario, con veta real (misma familia que la barra)
+  // tablas de madera del escenario — MATE como el suelo: sin reflejos
+  // definidos, la luz se esparce en charco suave
   stageWood: new THREE.MeshPhysicalMaterial({
     color: '#96826c',
     map: woodTexture('/textures/bar-wood-diff.jpg', 2.2, 1.5),
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 2.2, 1.5, false),
     normalScale: new THREE.Vector2(0.7, 0.7),
-    roughness: 0.8,
-    anisotropy: 0.6,
+    roughness: 1,
+    anisotropy: 0.3,
     anisotropyRotation: Math.PI / 2,
-    envMapIntensity: 0.3,
+    envMapIntensity: 0.15,
   }),
   shade: new THREE.MeshStandardMaterial({
     color: '#1c2a26',
