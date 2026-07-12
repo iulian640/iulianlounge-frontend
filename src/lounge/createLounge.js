@@ -95,6 +95,12 @@ export function createLounge(canvas) {
     scene.environment = pmrem.fromCubemap(cubeTarget.texture).texture;
     scene.environmentIntensity = 0.3;
     pmrem.dispose();
+
+    // la escena es estática: congelar los mapas de sombra tras la carga
+    // ahorra su recálculo en cada frame (las sombras de los personajes en
+    // idle quedan fijas — imperceptible y muy barato)
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
   });
 
   const stats = new Stats();

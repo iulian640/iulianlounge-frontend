@@ -28,14 +28,14 @@ export const LAMPS = [
   { x: 4.6, y: 2.25, z: 2.2, intensity: 12, shadow: true }, // blackjack
 ];
 
-const materials = {
+export const materials = {
   // suelo semibrillante: los charcos de luz se reflejan como en las referencias
-  woodFloor: new THREE.MeshStandardMaterial({ color: '#33241a', roughness: 0.5 }),
+  woodFloor: new THREE.MeshStandardMaterial({ color: '#33241a', roughness: 0.6, envMapIntensity: 0.4 }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
   felt: new THREE.MeshStandardMaterial({ color: '#172925', roughness: 1 }),
-  brass: new THREE.MeshStandardMaterial({ color: '#c9a45c', metalness: 1, roughness: 0.35 }),
+  brass: new THREE.MeshStandardMaterial({ color: '#c9a45c', metalness: 1, roughness: 0.5, envMapIntensity: 0.55 }),
   velvet: new THREE.MeshStandardMaterial({ color: '#3d1b20', roughness: 1 }),
   leather: new THREE.MeshStandardMaterial({ color: '#4a2c1e', roughness: 0.7 }),
   shade: new THREE.MeshStandardMaterial({

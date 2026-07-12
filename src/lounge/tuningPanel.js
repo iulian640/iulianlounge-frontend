@@ -1,5 +1,7 @@
 import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
+import { materials } from './salon';
+
 // Panel de afinado de luz (solo DEV): el director de arte ajusta en SU
 // pantalla y vuelca los valores por consola para dejarlos fijos en código.
 
@@ -21,6 +23,10 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     trasbarra: 1,
     velas: 1,
     reflejos: 0.3,
+    barraRugosidad: materials.brass.roughness,
+    barraReflejo: materials.brass.envMapIntensity,
+    sueloRugosidad: materials.woodFloor.roughness,
+    sueloReflejo: materials.woodFloor.envMapIntensity,
     volcarValores() {
       const dump = { ...params };
       delete dump.volcarValores;
@@ -55,6 +61,21 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   gui.add(params, 'reflejos', 0, 1, 0.05).onChange((v) => {
     scene.environmentIntensity = v;
   });
+
+  const materialsFolder = gui.addFolder('Materiales');
+  materialsFolder.add(params, 'barraRugosidad', 0.1, 1, 0.05).onChange((v) => {
+    materials.brass.roughness = v;
+  });
+  materialsFolder.add(params, 'barraReflejo', 0, 1.5, 0.05).onChange((v) => {
+    materials.brass.envMapIntensity = v;
+  });
+  materialsFolder.add(params, 'sueloRugosidad', 0.2, 1, 0.05).onChange((v) => {
+    materials.woodFloor.roughness = v;
+  });
+  materialsFolder.add(params, 'sueloReflejo', 0, 1.5, 0.05).onChange((v) => {
+    materials.woodFloor.envMapIntensity = v;
+  });
+
   gui.add(params, 'volcarValores').name('▶ volcar valores a consola');
 
   return gui;
