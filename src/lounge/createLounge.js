@@ -2,9 +2,26 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 
-import { buildSalon } from './salon';
+import { buildSalon, ROOM } from './salon';
 import { addSalonLights } from './lights';
 import { furnishSalon } from './furnish';
+
+// jaula de la cámara: margen respecto a muros, suelo y techo para que la
+// órbita nunca atraviese la sala (la tercera persona de IUL-28 traerá su
+// propia colisión)
+const CAMERA_BOUNDS = {
+  x: ROOM.width / 2 - 0.5,
+  z: ROOM.depth / 2 - 0.5,
+  yMin: 0.4,
+  yMax: ROOM.height - 0.4,
+};
+
+function clampCameraToRoom(camera) {
+  const p = camera.position;
+  p.x = THREE.MathUtils.clamp(p.x, -CAMERA_BOUNDS.x, CAMERA_BOUNDS.x);
+  p.z = THREE.MathUtils.clamp(p.z, -CAMERA_BOUNDS.z, CAMERA_BOUNDS.z);
+  p.y = THREE.MathUtils.clamp(p.y, CAMERA_BOUNDS.yMin, CAMERA_BOUNDS.yMax);
+}
 
 export function createLounge(canvas) {
   const scene = new THREE.Scene();
@@ -27,7 +44,10 @@ export function createLounge(canvas) {
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 1.2, 0);
   controls.enableDamping = true;
+  controls.minPolarAngle = 0.85; // no subir por encima de las lámparas
   controls.maxPolarAngle = Math.PI / 2 + 0.05;
+  controls.minDistance = 1;
+  controls.maxDistance = 6;
   controls.update();
 
   buildSalon(scene);
@@ -45,6 +65,7 @@ export function createLounge(canvas) {
 
   function tick() {
     controls.update();
+    clampCameraToRoom(camera);
     renderer.render(scene, camera);
     stats.update();
     requestAnimationFrame(tick);
