@@ -9,7 +9,9 @@ const loader = new GLTFLoader();
 // - footprint: diámetro objetivo en planta (piezas planas: alfombras)
 // - recolor: viste el asset con la paleta del club, por nombre de material
 //   ({ wood: '#3a2417', metal: { color: '#c9a45c', metalness: 1 } })
-export function loadProp(url, { height, footprint, rotationY = 0, recolor = {} } = {}) {
+// - animate: regex del clip a reproducir ('Idle', 'Working'); deja la función
+//   de avance en prop.userData.update(dt)
+export function loadProp(url, { height, footprint, rotationY = 0, recolor = {}, animate } = {}) {
   return new Promise((resolve, reject) => {
     loader.load(
       url,
@@ -42,6 +44,15 @@ export function loadProp(url, { height, footprint, rotationY = 0, recolor = {} }
         const prop = new THREE.Group();
         prop.add(model);
         prop.rotation.y = rotationY;
+
+        if (animate && gltf.animations.length > 0) {
+          const pattern = new RegExp(animate, 'i');
+          const clip = gltf.animations.find((a) => pattern.test(a.name)) ?? gltf.animations[0];
+          const mixer = new THREE.AnimationMixer(model);
+          mixer.clipAction(clip).play();
+          prop.userData.update = (delta) => mixer.update(delta);
+        }
+
         resolve(prop);
       },
       undefined,

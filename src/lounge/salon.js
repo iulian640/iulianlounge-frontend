@@ -115,25 +115,20 @@ function buildBar(salon) {
 
   const backX = -ROOM.width / 2 + 0.35;
   salon.add(box(0.35, 1.0, barLength, materials.woodDark, backX, 0.5, 0));
-  for (const shelfY of [1.55, 2.05]) {
-    salon.add(box(0.28, 0.05, barLength - 0.8, materials.woodDark, backX, shelfY, 0));
+  salon.add(box(0.28, 0.05, barLength - 0.8, materials.woodDark, backX, 1.55, 0));
+  salon.add(box(0.28, 0.05, barLength - 0.8, materials.woodDark, backX, 2.05, 0));
 
-    // botellas — variantes de color, cero assets (mitigación del riesgo nº 2)
-    for (let i = 0; i < 12; i++) {
-      const z = -(barLength - 1.4) / 2 + i * ((barLength - 1.4) / 11);
-      const bottle = new THREE.MeshStandardMaterial({
-        color: bottleColors[i % bottleColors.length],
-        roughness: 0.15,
-      });
-      salon.add(cylinder(0.05, 0.3, bottle, backX, shelfY + 0.175, z, 10));
-    }
+  // botellas en la repisa baja — variantes de color, cero assets
+  // (la repisa alta la ocupa el champán que coloca furnish.js)
+  for (let i = 0; i < 12; i++) {
+    const z = -(barLength - 1.4) / 2 + i * ((barLength - 1.4) / 11);
+    const bottle = new THREE.MeshStandardMaterial({
+      color: bottleColors[i % bottleColors.length],
+      roughness: 0.15,
+    });
+    salon.add(cylinder(0.05, 0.3, bottle, backX, 1.55 + 0.175, z, 10));
   }
-
-  // letrero "Iulian's" — placeholder emissive, candidato a bloom (CONCEPT.md)
-  const sign = box(0.08, 0.5, 2.6, materials.marquee, -ROOM.width / 2 + 0.15, 2.85, 0);
-  sign.castShadow = false;
-  sign.name = 'letrero';
-  salon.add(sign);
+  // el letrero "IULIAN'S" con letras 3D lo monta letrero.js
 }
 
 function brassRim(radius, y) {
@@ -155,14 +150,19 @@ function buildTables(salon) {
   bj.name = 'mesa-blackjack';
   salon.add(bj);
 
-  // mesas redondas de madera oscura con canto de latón
-  // (las sillas alrededor las pone furnish.js)
+  // mesas redondas de madera oscura con canto de latón y vela
+  // (las butacas alrededor las pone furnish.js)
   for (const [x, z] of TABLE_SPOTS) {
     const table = new THREE.Group();
     table.add(cylinder(0.42, 0.05, materials.woodDark, 0, 0.745, 0));
     table.add(brassRim(0.42, 0.75));
     table.add(cylinder(0.07, 0.72, materials.woodDark, 0, 0.36, 0));
     table.add(cylinder(0.24, 0.04, materials.woodDark, 0, 0.02, 0));
+
+    const candle = cylinder(0.028, 0.09, materials.bulb, -0.12, 0.815, 0.08, 10);
+    candle.castShadow = false;
+    table.add(candle);
+
     table.position.set(x, 0, z);
     salon.add(table);
   }

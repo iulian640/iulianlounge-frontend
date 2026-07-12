@@ -5,6 +5,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { buildSalon, ROOM } from './salon';
 import { addSalonLights } from './lights';
 import { furnishSalon } from './furnish';
+import { addLetrero } from './letrero';
 
 // jaula de la cámara: margen respecto a muros, suelo y techo para que la
 // órbita nunca atraviese la sala (la tercera persona de IUL-28 traerá su
@@ -52,7 +53,11 @@ export function createLounge(canvas) {
 
   buildSalon(scene);
   addSalonLights(scene);
-  furnishSalon(scene).catch((error) => console.error('[lounge] amueblado incompleto:', error));
+
+  // animaciones activas (camarero, banda, ventiladores)
+  const updatables = [];
+  furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error));
+  addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error));
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -63,7 +68,11 @@ export function createLounge(canvas) {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
+  const clock = new THREE.Clock();
+
   function tick() {
+    const delta = clock.getDelta();
+    for (const update of updatables) update(delta);
     controls.update();
     clampCameraToRoom(camera);
     renderer.render(scene, camera);
