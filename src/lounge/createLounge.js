@@ -98,8 +98,33 @@ export function createLounge(canvas) {
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
     cubeCamera.position.set(0, 1.6, 0);
     scene.add(cubeCamera);
-    cubeCamera.update(renderer, scene);
-    scene.remove(cubeCamera);
+
+    // los emissives (bombillas, letrero, trasbarra) se ocultan SOLO durante
+    // la captura: si entran en el cubemap, la laca del suelo los unta como
+    // globos gigantes con paralaje falso
+    const hidden = [];
+    try {
+      scene.traverse((o) => {
+        // solo lo que de verdad brilla: emissive de COLOR no-negro con
+        // intensidad real (ojo: emissiveIntensity vale 1 por defecto en TODO
+        // material aunque el emissive sea negro — filtrar solo por intensidad
+        // oculta la sala entera y el PMREM de una escena vacía sale corrupto)
+        const emissive = o.material?.emissive;
+        const glows =
+          emissive && emissive.r + emissive.g + emissive.b > 0.1 && o.material.emissiveIntensity > 0.3;
+        if (o.isMesh && o.visible && glows) {
+          o.visible = false;
+          hidden.push(o);
+        }
+      });
+      cubeCamera.update(renderer, scene);
+    } catch (error) {
+      console.error('[lounge] captura de entorno fallida:', error);
+    } finally {
+      for (const o of hidden) o.visible = true;
+      scene.remove(cubeCamera);
+    }
+    console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromCubemap(cubeTarget.texture).texture;
