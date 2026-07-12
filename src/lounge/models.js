@@ -45,6 +45,7 @@ export function loadProp(url, { height, footprint, rotationY = 0, rotationX = 0,
         model.position.y -= scaled.min.y;
 
         const prop = new THREE.Group();
+        prop.name = url.split('/').pop().replace('.glb', '');
         prop.add(model);
         prop.rotation.y = rotationY;
 

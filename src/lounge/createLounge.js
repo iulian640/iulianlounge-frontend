@@ -48,10 +48,19 @@ export function createLounge(canvas) {
   // "un único glow lo convierte en pieza de arte; diez lo convierten en feria"
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(
-    new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.45, 1.25),
+  const bloom = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.15,
+    0.4,
+    1.3,
   );
+  composer.addPass(bloom);
   composer.addPass(new OutputPass());
+
+  if (import.meta.env.DEV) {
+    // mandos de depuración en consola: __lounge.bloom.strength = ...
+    window.__lounge = { scene, camera, bloom, renderer };
+  }
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
   const walk = createWalkControls(camera, canvas);

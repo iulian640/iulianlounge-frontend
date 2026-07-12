@@ -19,6 +19,7 @@ export async function addLetrero(scene) {
   });
   geometry.computeBoundingBox();
   const width = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
+  geometry.center(); // el origen de TextGeometry no está centrado
 
   const text = new THREE.Mesh(
     geometry,
@@ -28,9 +29,9 @@ export async function addLetrero(scene) {
       emissiveIntensity: 1.7,
     }),
   );
-  // pared oeste, sobre la trasbarra, mirando a la sala
+  // pared oeste, sobre la trasbarra, mirando a la sala, centrado en su marco
   text.rotation.y = Math.PI / 2;
-  text.position.set(-ROOM.width / 2 + 0.18, 2.62, width / 2);
+  text.position.set(-ROOM.width / 2 + 0.18, 2.81, 0);
 
   const backboard = new THREE.Mesh(
     new THREE.BoxGeometry(0.06, 0.8, width + 0.6),
