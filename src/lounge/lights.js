@@ -22,16 +22,10 @@ function tag(light, kind) {
 }
 
 export function addSalonLights(scene) {
-  // 1 — fill con gradiente (techo cálido, suelo ámbar oscuro)
-  scene.add(tag(new THREE.HemisphereLight('#4a3527', '#241610', 0.55), 'fill'));
-
-  // 4 — rebote falso: dos puntuales anchas, tenues, sin sombra, a media altura
-  const bounceA = tag(new THREE.PointLight(EMBER, 3, 16, 2), 'bounce');
-  bounceA.position.set(-2, 1.1, 0.5);
-  scene.add(bounceA);
-  const bounceB = tag(new THREE.PointLight(EMBER, 2.5, 14, 2), 'bounce');
-  bounceB.position.set(4, 1.1, 0);
-  scene.add(bounceB);
+  // 1 — fill con gradiente (techo cálido, suelo ámbar oscuro); hace también
+  // de rebote falso — las puntuales de rebote se retiraron porque el barniz
+  // del suelo las reflejaba como un globo gigante
+  scene.add(tag(new THREE.HemisphereLight('#4a3527', '#241610', 0.7), 'fill'));
 
   // 2 — una PointLight por lámpara colgante (posiciones compartidas con salon.js)
   for (const { x, y, z, intensity, shadow } of LAMPS) {

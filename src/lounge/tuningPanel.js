@@ -18,7 +18,6 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     exposicion: renderer.toneMappingExposure,
     bloomFuerza: bloom.strength,
     relleno: 1,
-    rebote: 1,
     lamparas: 1,
     trasbarra: 1,
     velas: 1,
@@ -48,7 +47,6 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     bloom.strength = v;
   });
   gui.add(params, 'relleno', 0, 2, 0.05).onChange(applyMultiplier('fill'));
-  gui.add(params, 'rebote', 0, 2, 0.05).onChange(applyMultiplier('bounce'));
   gui.add(params, 'lamparas', 0, 2, 0.05).onChange(applyMultiplier('lamp'));
   gui.add(params, 'velas', 0, 2, 0.05).onChange(applyMultiplier('candle'));
   gui.add(params, 'trasbarra', 0, 2, 0.05).onChange((v) => {
