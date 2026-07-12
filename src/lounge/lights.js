@@ -67,7 +67,7 @@ export function addSalonLights(scene) {
   // hacia el suelo (los mapas de sombra se congelan tras la carga, así que
   // estas sombras extra salen casi gratis)
   for (const [x, z] of TABLE_SPOTS) {
-    const candle = tag(new THREE.PointLight('#ff8438', 1.1, 2.0, 2), 'candle');
+    const candle = tag(new THREE.PointLight('#ff8438', 0.66, 2.0, 2), 'candle');
     candle.position.set(x - 0.09, 0.98, z + 0.06);
     candle.castShadow = true;
     candle.shadow.mapSize.set(512, 512);
@@ -89,7 +89,7 @@ export function addSalonLights(scene) {
 
   // resplandor del letrero sobre la pared oeste (sin sombra: resultó
   // inocente de la banda del suelo, y el presupuesto de sombras manda)
-  const signGlow = tag(new THREE.PointLight(GOLD, 6, 6, 2), 'letrero');
+  const signGlow = tag(new THREE.PointLight(GOLD, 6.3, 6, 2), 'letrero');
   signGlow.position.set(-ROOM.width / 2 + 0.7, 2.85, 0);
   scene.add(signGlow);
 

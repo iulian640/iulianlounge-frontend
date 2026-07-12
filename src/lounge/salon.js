@@ -21,11 +21,13 @@ export const SCONCES = [
 ];
 
 // posiciones de las lámparas — las consume también lights.js
+// (intensidades = mezcla final de Iulian: lámparas al 25%, la luz la ponen
+// la trasbarra, el letrero y las velas)
 export const LAMPS = [
-  { x: -6.35, y: 2.45, z: -1.8, intensity: 11, shadow: true }, // barra
-  { x: -6.35, y: 2.45, z: 1.8, intensity: 11 },
-  ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 11 })),
-  { x: 4.6, y: 2.25, z: 2.2, intensity: 12, shadow: true }, // blackjack
+  { x: -6.35, y: 2.45, z: -1.8, intensity: 2.75, shadow: true }, // barra
+  { x: -6.35, y: 2.45, z: 1.8, intensity: 2.75 },
+  ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 2.75 })),
+  { x: 4.6, y: 2.25, z: 2.2, intensity: 3, shadow: true }, // blackjack
 ];
 
 // texturas CC0 de Poly Haven (ver docs/CREDITS.md)

@@ -29,7 +29,7 @@ export async function addLetrero(scene) {
     new THREE.MeshStandardMaterial({
       color: '#000000',
       emissive: '#ffc887',
-      emissiveIntensity: 1.7,
+      emissiveIntensity: 1.79, // mezcla final de Iulian (letrero 1.05)
     }),
   );
   text.name = 'letrero-texto'; // el panel de afinado regula su brillo

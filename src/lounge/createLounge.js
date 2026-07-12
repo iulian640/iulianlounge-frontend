@@ -43,7 +43,7 @@ export function createLounge(canvas) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.3;
+  renderer.toneMappingExposure = 2.2; // mezcla final de Iulian (2026-07-12)
 
   // bloom sutil: solo lo emissive (letrero, bombillas, velas) gana halo —
   // "un único glow lo convierte en pieza de arte; diez lo convierten en feria"
@@ -146,7 +146,7 @@ export function createLounge(canvas) {
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromCubemap(cubeTarget.texture).texture;
-    scene.environmentIntensity = 0.5;
+    scene.environmentIntensity = 0.65; // mezcla final de Iulian
     pmrem.dispose();
 
     // la escena es estática: congelar los mapas de sombra tras la carga
