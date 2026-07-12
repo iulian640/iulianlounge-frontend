@@ -41,21 +41,26 @@ function woodTexture(url, repeatX, repeatY, isColor = true) {
 }
 
 export const materials = {
-  // parquet de espiga, muy años 20; el tinte oscurece la foto hacia la paleta
-  woodFloor: new THREE.MeshStandardMaterial({
+  // parquet de espiga con laca (clearcoat): la madera sola apenas refleja
+  // de frente por física; la capa de barniz sí, y es regulable
+  woodFloor: new THREE.MeshPhysicalMaterial({
     color: '#8a7160',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
     roughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
     roughness: 0.85,
-    envMapIntensity: 0.4,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.35,
+    envMapIntensity: 0.7,
   }),
-  // la tapa de la barra: madera noble barnizada (nada de latón macizo)
-  barWood: new THREE.MeshStandardMaterial({
+  // la tapa de la barra: madera noble lacada — clearcoat = el barniz,
+  // clearcoatRoughness = el difuminado del reflejo
+  barWood: new THREE.MeshPhysicalMaterial({
     color: '#a08874',
     map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
-    roughnessMap: woodTexture('/textures/bar-wood-rough.jpg', 1, 3.5, false),
-    roughness: 0.7,
-    envMapIntensity: 0.6,
+    roughness: 0.6,
+    clearcoat: 1,
+    clearcoatRoughness: 0.2,
+    envMapIntensity: 0.8,
   }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),

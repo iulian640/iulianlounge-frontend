@@ -22,11 +22,11 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     lamparas: 1,
     trasbarra: 1,
     velas: 1,
-    reflejos: 0.3,
-    barraRugosidad: materials.barWood.roughness,
-    barraReflejo: materials.barWood.envMapIntensity,
-    sueloRugosidad: materials.woodFloor.roughness,
-    sueloReflejo: materials.woodFloor.envMapIntensity,
+    reflejos: 0.5,
+    barraDifuminado: materials.barWood.clearcoatRoughness,
+    barraBarniz: materials.barWood.clearcoat,
+    sueloDifuminado: materials.woodFloor.clearcoatRoughness,
+    sueloBarniz: materials.woodFloor.clearcoat,
     volcarValores() {
       const dump = { ...params };
       delete dump.volcarValores;
@@ -58,22 +58,22 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     const backglow = scene.getObjectByName('backglow');
     if (backglow) backglow.material.emissiveIntensity = 0.45 * v;
   });
-  gui.add(params, 'reflejos', 0, 1, 0.05).onChange((v) => {
+  gui.add(params, 'reflejos', 0, 2, 0.05).onChange((v) => {
     scene.environmentIntensity = v;
   });
 
   const materialsFolder = gui.addFolder('Materiales');
-  materialsFolder.add(params, 'barraRugosidad', 0.1, 1, 0.05).onChange((v) => {
-    materials.barWood.roughness = v;
+  materialsFolder.add(params, 'barraBarniz', 0, 1, 0.05).onChange((v) => {
+    materials.barWood.clearcoat = v;
   });
-  materialsFolder.add(params, 'barraReflejo', 0, 1.5, 0.05).onChange((v) => {
-    materials.barWood.envMapIntensity = v;
+  materialsFolder.add(params, 'barraDifuminado', 0, 0.8, 0.02).onChange((v) => {
+    materials.barWood.clearcoatRoughness = v;
   });
-  materialsFolder.add(params, 'sueloRugosidad', 0.2, 1, 0.05).onChange((v) => {
-    materials.woodFloor.roughness = v;
+  materialsFolder.add(params, 'sueloBarniz', 0, 1, 0.05).onChange((v) => {
+    materials.woodFloor.clearcoat = v;
   });
-  materialsFolder.add(params, 'sueloReflejo', 0, 1.5, 0.05).onChange((v) => {
-    materials.woodFloor.envMapIntensity = v;
+  materialsFolder.add(params, 'sueloDifuminado', 0, 0.8, 0.02).onChange((v) => {
+    materials.woodFloor.clearcoatRoughness = v;
   });
 
   gui.add(params, 'volcarValores').name('▶ volcar valores a consola');

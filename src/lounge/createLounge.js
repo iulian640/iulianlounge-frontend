@@ -5,7 +5,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { buildSalon, ROOM } from './salon';
+import { buildSalon, materials, ROOM } from './salon';
 import { addSalonLights } from './lights';
 import { furnishSalon } from './furnish';
 import { addLetrero } from './letrero';
@@ -59,7 +59,7 @@ export function createLounge(canvas) {
 
   if (import.meta.env.DEV) {
     // mandos de depuración en consola + panel de afinado del director de arte
-    window.__lounge = { scene, camera, bloom, renderer };
+    window.__lounge = { scene, camera, bloom, renderer, materials };
     import('./tuningPanel').then(({ createTuningPanel }) =>
       createTuningPanel({ scene, renderer, bloom }),
     );
@@ -80,10 +80,20 @@ export function createLounge(canvas) {
     addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
   ]);
 
-  // reflejos de entorno: con el club ya amueblado, se captura un cubemap
-  // desde el centro de la sala y se usa como envMap PBR — el latón, el suelo
-  // y las copas reflejan el PROPIO local (letrero, trasbarra encendida)
-  ready.then(() => {
+  // reflejos de entorno: con el club ya amueblado Y las texturas cargadas,
+  // se captura un cubemap desde el centro de la sala y se usa como envMap
+  // PBR — la barra, el suelo y las copas reflejan el PROPIO local
+  const texturesSettled = new Promise((resolve) => {
+    const manager = THREE.DefaultLoadingManager;
+    const previous = manager.onLoad;
+    manager.onLoad = () => {
+      if (previous) previous();
+      resolve();
+    };
+    setTimeout(resolve, 3000); // red de seguridad si todo cargó antes de engancharnos
+  });
+
+  Promise.all([ready, texturesSettled]).then(() => {
     const cubeTarget = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
     cubeCamera.position.set(0, 1.6, 0);
@@ -93,7 +103,7 @@ export function createLounge(canvas) {
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromCubemap(cubeTarget.texture).texture;
-    scene.environmentIntensity = 0.3;
+    scene.environmentIntensity = 0.5;
     pmrem.dispose();
 
     // la escena es estática: congelar los mapas de sombra tras la carga
