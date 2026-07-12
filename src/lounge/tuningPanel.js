@@ -23,7 +23,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     trasbarra: 1,
     velas: 1,
     reflejos: 0.5,
-    barraDifuminado: 0.4,
+    barraDifuminado: 1,
     barraBarniz: materials.barWood.clearcoat,
     sueloDifuminado: 0.55,
     sueloBarniz: materials.woodFloor.clearcoat,

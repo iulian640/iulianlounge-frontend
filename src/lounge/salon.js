@@ -68,12 +68,12 @@ export const materials = {
   barWood: new THREE.MeshPhysicalMaterial({
     color: '#a08874',
     map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
-    roughness: 0.6,
+    roughness: 1, // = barraDifuminado 1 en el panel
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     normalScale: new THREE.Vector2(0.5, 0.5),
-    // defecto = la mezcla favorita de Iulian: sin laca, veta a tope
-    clearcoat: 0,
-    clearcoatRoughness: 0.32,
+    // defecto = la mezcla de Iulian: barniz 1, difuminado 1, veta 1
+    clearcoat: 1,
+    clearcoatRoughness: 0.8,
     clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
     // el brillo corre a lo largo del mostrador, como la veta
