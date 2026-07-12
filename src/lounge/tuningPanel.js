@@ -43,7 +43,9 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     }
   };
 
-  const gui = new GUI({ title: "Afinado Iulian's" });
+  // la hora en el título delata pestañas rancias sirviendo código viejo
+  const loadedAt = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const gui = new GUI({ title: `Afinado Iulian's · ${loadedAt}` });
   gui.add(params, 'exposicion', 0.4, 2.2, 0.05).onChange((v) => {
     renderer.toneMappingExposure = v;
   });
