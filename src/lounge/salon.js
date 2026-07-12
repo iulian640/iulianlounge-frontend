@@ -255,6 +255,9 @@ function buildLampFixtures(salon) {
   // la luz necesita origen visible: cable + pantalla + bombilla por lámpara
   for (const { x, y, z } of LAMPS) {
     const fixture = new THREE.Group();
+    // fuera de la captura de entorno: la pantalla iluminada, vista de cerca
+    // por el cubemap, se proyecta en la laca como un disco gigante
+    fixture.userData.hideFromEnv = true;
 
     const cordHeight = ROOM.height - (y + 0.3);
     fixture.add(cylinder(0.012, cordHeight, materials.woodDark, 0, y + 0.3 + cordHeight / 2, 0, 6));

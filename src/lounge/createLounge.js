@@ -108,11 +108,16 @@ export function createLounge(canvas) {
         // solo lo que de verdad brilla: emissive de COLOR no-negro con
         // intensidad real (ojo: emissiveIntensity vale 1 por defecto en TODO
         // material aunque el emissive sea negro — filtrar solo por intensidad
-        // oculta la sala entera y el PMREM de una escena vacía sale corrupto)
+        // oculta la sala entera y el PMREM de una escena vacía sale corrupto),
+        // más lo marcado hideFromEnv (los faroles: sus pantallas iluminadas
+        // de cerca salen como discos gigantes en la laca)
         const emissive = o.material?.emissive;
         const glows =
-          emissive && emissive.r + emissive.g + emissive.b > 0.1 && o.material.emissiveIntensity > 0.3;
-        if (o.isMesh && o.visible && glows) {
+          o.isMesh &&
+          emissive &&
+          emissive.r + emissive.g + emissive.b > 0.1 &&
+          o.material.emissiveIntensity > 0.3;
+        if (o.visible && (glows || o.userData.hideFromEnv)) {
           o.visible = false;
           hidden.push(o);
         }
