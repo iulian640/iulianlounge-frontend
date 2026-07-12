@@ -116,13 +116,15 @@ function buildBar(salon) {
 
   const backX = -ROOM.width / 2 + 0.35;
   salon.add(box(0.35, 1.0, barLength, materials.woodDark, backX, 0.5, 0));
-  salon.add(box(0.28, 0.05, barLength - 0.8, materials.woodDark, backX, 1.55, 0));
-  salon.add(box(0.28, 0.05, barLength - 0.8, materials.woodDark, backX, 2.05, 0));
+  // repisas acortadas y desplazadas: el extremo sur de la trasbarra queda
+  // libre en altura para el gramófono
+  salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 1.55, -0.35));
+  salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 2.05, -0.35));
 
   // botellas en la repisa baja — variantes de color, cero assets
   // (la repisa alta la ocupa el champán que coloca furnish.js)
   for (let i = 0; i < 12; i++) {
-    const z = -(barLength - 1.4) / 2 + i * ((barLength - 1.4) / 11);
+    const z = -2.8 + i * (4.9 / 11);
     const bottle = new THREE.MeshStandardMaterial({
       color: bottleColors[i % bottleColors.length],
       roughness: 0.15,

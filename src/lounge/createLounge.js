@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 import { buildSalon, ROOM } from './salon';
 import { addSalonLights } from './lights';
@@ -40,6 +44,15 @@ export function createLounge(canvas) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.26;
 
+  // bloom sutil: solo lo emissive (letrero, bombillas, velas) gana halo —
+  // "un único glow lo convierte en pieza de arte; diez lo convierten en feria"
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(
+    new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.35, 0.65, 0.9),
+  );
+  composer.addPass(new OutputPass());
+
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
   const walk = createWalkControls(camera, canvas);
   camera.position.set(0, 1.7, 4.6);
@@ -60,6 +73,7 @@ export function createLounge(canvas) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
   });
 
   const clock = new THREE.Clock();
@@ -69,7 +83,7 @@ export function createLounge(canvas) {
     for (const update of updatables) update(delta);
     walk.update(delta);
     clampCameraToRoom(camera);
-    renderer.render(scene, camera);
+    composer.render();
     stats.update();
     requestAnimationFrame(tick);
   }

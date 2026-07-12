@@ -104,11 +104,12 @@ function manifest() {
     });
   }
 
-  // gramófono de trompa en la trasbarra (el moodboard en un solo objeto)
+  // gramófono de trompa en el extremo sur de la trasbarra, ya sin repisa
+  // encima (el moodboard en un solo objeto)
   props.push({
     url: HUNT + 'gramophone.glb',
     opts: { height: 0.55, rotationY: Math.PI / 2 },
-    at: [BACKBAR_X, 1.0, 3.1],
+    at: [BACKBAR_X, 1.0, 3.0],
   });
 
   // guardarropa junto a la entrada
