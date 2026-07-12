@@ -5,7 +5,8 @@
 const canvas = ref(null);
 
 onMounted(() => {
-  createLounge(canvas.value);
+  // async: el renderer WebGPU se inicializa de forma asíncrona
+  createLounge(canvas.value).catch((error) => console.error('[lounge]', error));
 })
 </script>
 

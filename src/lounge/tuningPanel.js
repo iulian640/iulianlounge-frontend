@@ -17,7 +17,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
 
   const params = {
     exposicion: renderer.toneMappingExposure,
-    bloomFuerza: bloom.strength,
+    bloomFuerza: bloom.strength.value,
     relleno: 1,
     lamparas: 1,
     trasbarra: 1,
@@ -47,12 +47,13 @@ export function createTuningPanel({ scene, renderer, bloom }) {
 
   // la hora en el título delata pestañas rancias sirviendo código viejo
   const loadedAt = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  const gui = new GUI({ title: `Afinado Iulian's · ${loadedAt}` });
+  const backend = window.__loungeBackend || '?';
+  const gui = new GUI({ title: `Afinado · ${loadedAt} · ${backend}` });
   gui.add(params, 'exposicion', 0.4, 2.2, 0.05).onChange((v) => {
     renderer.toneMappingExposure = v;
   });
-  gui.add(params, 'bloomFuerza', 0, 0.5, 0.01).onChange((v) => {
-    bloom.strength = v;
+  gui.add(params, 'bloomFuerza', 0, 1, 0.01).onChange((v) => {
+    bloom.strength.value = v; // BloomNode (WebGPU): uniformes con .value
   });
   gui.add(params, 'relleno', 0, 2, 0.05).onChange(applyMultiplier('fill'));
   gui.add(params, 'lamparas', 0, 2, 0.05).onChange(applyMultiplier('lamp'));

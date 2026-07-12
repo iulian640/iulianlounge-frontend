@@ -1,9 +1,12 @@
 import * as THREE from 'three';
-import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { RectAreaLightTexturesLib } from 'three/addons/lights/RectAreaLightTexturesLib.js';
 
 import { LAMPS, ROOM, SCONCES, TABLE_SPOTS } from './salon';
 
-RectAreaLightUniformsLib.init();
+// texturas LTC de la RectAreaLight para el motor WebGPU
+if (THREE.RectAreaLightNode?.setLTC) {
+  THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
+}
 
 // Iluminación en capas (referencias de Pictures/speakeasyIdeas + práctica
 // three.js): la penumbra rica no es menos luz, es más FUENTES y más rebote,

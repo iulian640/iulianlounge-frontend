@@ -11,8 +11,11 @@ export default defineConfig({
     vueDevTools(),
   ],
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+    alias: [
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+      // motor WebGPU: todos los import 'three' (nuestros y los de los addons)
+      // resuelven al build WebGPU; 'three/tsl' y 'three/webgpu' no se tocan
+      { find: /^three$/, replacement: 'three/webgpu' },
+    ],
   },
 })
