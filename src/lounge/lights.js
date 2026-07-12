@@ -84,8 +84,10 @@ export function addSalonLights(scene) {
 
   // 3 — baño de candilejas sobre la cortina (rebalanceado a la mezcla de
   // exposición 2.2; con mando propio 'escenario' en el panel)
-  const footlights = tag(new THREE.PointLight(GOLD, 1.2, 3, 2), 'escenario');
-  footlights.position.set(3.2, 0.7, -3.2);
+  // pegada a la cortina y elevada: baña el telón sin plantar un charco en
+  // mitad de la tarima (a 30 cm de las tablas encendía cualquier superficie)
+  const footlights = tag(new THREE.PointLight(GOLD, 1.2, 2.5, 2), 'escenario');
+  footlights.position.set(3.2, 1.35, -4.55);
   scene.add(footlights);
 
   // resplandor del letrero sobre la pared oeste (sin sombra: resultó
