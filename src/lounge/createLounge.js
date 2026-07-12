@@ -34,6 +34,7 @@ export function createLounge(canvas) {
   scene.fog = new THREE.FogExp2('#0b1514', 0.022); // el humo del club
 
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.layers.enable(1); // el suelo vive en la capa 1 (velas sin reflejo)
   camera.position.set(0, 1.7, 4.6);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -97,6 +98,7 @@ export function createLounge(canvas) {
     const cubeTarget = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
     cubeCamera.position.set(0, 1.6, 0);
+    for (const face of cubeCamera.children) face.layers.enable(1); // que vea el suelo
     scene.add(cubeCamera);
 
     // los emissives (bombillas, letrero, trasbarra) se ocultan SOLO durante

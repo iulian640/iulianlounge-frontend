@@ -14,10 +14,13 @@ const WARM = '#ffa666';
 const GOLD = '#e8cd8f';
 const EMBER = '#c47a42';
 
-// las luces se etiquetan por capa (userData.kind) para el panel de afinado
+// las luces se etiquetan por capa (userData.kind) para el panel de afinado;
+// todas alcanzan el suelo (capa 1) SALVO las velas — así una vela ilumina
+// su alrededor sin dejar reflejo en la laca
 function tag(light, kind) {
   light.userData.kind = kind;
   light.userData.baseIntensity = light.intensity;
+  if (kind !== 'candle') light.layers.enable(1);
   return light;
 }
 
@@ -69,17 +72,17 @@ export function addSalonLights(scene) {
   }
 
   // 3 — baño de candilejas sobre la cortina
-  const footlights = new THREE.PointLight(GOLD, 3, 3.5, 2);
+  const footlights = tag(new THREE.PointLight(GOLD, 3, 3.5, 2), 'accent');
   footlights.position.set(3.2, 0.7, -3.2);
   scene.add(footlights);
 
   // resplandor del letrero sobre la pared oeste
-  const signGlow = new THREE.PointLight(GOLD, 6, 6, 2);
+  const signGlow = tag(new THREE.PointLight(GOLD, 6, 6, 2), 'accent');
   signGlow.position.set(-ROOM.width / 2 + 0.7, 2.85, 0);
   scene.add(signGlow);
 
   // foco del escenario
-  const spot = new THREE.SpotLight(GOLD, 50, 14, 0.5, 0.5, 2);
+  const spot = tag(new THREE.SpotLight(GOLD, 50, 14, 0.5, 0.5, 2), 'accent');
   spot.position.set(3.2, ROOM.height - 0.2, -1.4);
   spot.target.position.set(3.2, 0.4, -ROOM.depth / 2 + 1.35);
   spot.castShadow = true;

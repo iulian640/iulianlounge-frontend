@@ -26,6 +26,8 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     barraBarniz: materials.barWood.clearcoat,
     sueloDifuminado: materials.woodFloor.clearcoatRoughness,
     sueloBarniz: materials.woodFloor.clearcoat,
+    barraVeta: materials.barWood.anisotropy,
+    sueloVeta: materials.woodFloor.anisotropy,
     volcarValores() {
       const dump = { ...params };
       delete dump.volcarValores;
@@ -72,6 +74,12 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   });
   materialsFolder.add(params, 'sueloDifuminado', 0, 0.8, 0.02).onChange((v) => {
     materials.woodFloor.clearcoatRoughness = v;
+  });
+  materialsFolder.add(params, 'barraVeta', 0, 1, 0.05).onChange((v) => {
+    materials.barWood.anisotropy = v;
+  });
+  materialsFolder.add(params, 'sueloVeta', 0, 1, 0.05).onChange((v) => {
+    materials.woodFloor.anisotropy = v;
   });
 
   gui.add(params, 'volcarValores').name('▶ volcar valores a consola');

@@ -57,6 +57,9 @@ export const materials = {
     clearcoatRoughnessMap: woodTexture('/textures/floor-parquet-rough.jpg', 8, 5.5, false),
     clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
     clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
+    // brillo estirado en diagonal, siguiendo la espiga (corre a ±45°)
+    anisotropy: 0.35,
+    anisotropyRotation: Math.PI / 4,
     envMapIntensity: 0.7,
   }),
   // la tapa de la barra: madera noble lacada — clearcoat = el barniz,
@@ -71,6 +74,9 @@ export const materials = {
     clearcoatRoughness: 0.25,
     clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
     clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
+    // el brillo corre a lo largo del mostrador, como la veta
+    anisotropy: 0.6,
+    anisotropyRotation: Math.PI / 2,
     envMapIntensity: 0.8,
   }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
@@ -125,6 +131,9 @@ function buildShell(salon) {
 
   const floor = box(w, t, d, materials.woodFloor, 0, -t / 2, 0);
   floor.castShadow = false;
+  // el suelo vive SOLO en la capa 1: las velas (capa 0) no lo tocan — ni
+  // iluminación ni reflejos; el resto de luces habilitan la capa 1
+  floor.layers.set(1);
   salon.add(floor);
 
   const ceiling = box(w, t, d, materials.ceiling, 0, h + t / 2, 0);
