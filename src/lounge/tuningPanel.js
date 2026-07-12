@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
 import { materials } from './salon';
@@ -28,6 +29,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
     sueloBarniz: materials.woodFloor.clearcoat,
     barraVeta: materials.barWood.anisotropy,
     sueloVeta: materials.woodFloor.anisotropy,
+    verLuces: false,
     volcarValores() {
       const dump = { ...params };
       delete dump.volcarValores;
@@ -80,6 +82,20 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   });
   materialsFolder.add(params, 'sueloVeta', 0, 1, 0.05).onChange((v) => {
     materials.woodFloor.anisotropy = v;
+  });
+
+  // marcadores de posición de cada luz, para saber QUÉ se está afinando
+  let helpers = null;
+  gui.add(params, 'verLuces').name('ver luces (debug)').onChange((on) => {
+    if (on && !helpers) {
+      helpers = [];
+      scene.traverse((o) => {
+        if (o.isPointLight) helpers.push(new THREE.PointLightHelper(o, 0.12));
+        if (o.isSpotLight) helpers.push(new THREE.SpotLightHelper(o));
+      });
+      for (const h of helpers) scene.add(h);
+    }
+    if (helpers) for (const h of helpers) h.visible = on;
   });
 
   gui.add(params, 'volcarValores').name('▶ volcar valores a consola');
