@@ -40,9 +40,10 @@ export async function createLounge(canvas) {
   camera.layers.enable(1); // el suelo vive en la capa 1 (velas sin reflejo)
   camera.position.set(0, 1.7, 4.6);
 
-  const renderer = new THREE.WebGPURenderer({ canvas, antialias: true });
+  // antialias del canvas apagado: el render pasa por el pipeline de
+  // postproceso (offscreen), el MSAA del canvas solo costaría sin verse
+  const renderer = new THREE.WebGPURenderer({ canvas, antialias: false });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -55,19 +56,30 @@ export async function createLounge(canvas) {
   window.__loungeBackend = backendName;
 
   // bloom selectivo por MRT: la escena escribe color y emissive por separado,
-  // el halo se calcula SOLO sobre el emissive — se acabó pelear con umbrales
+  // el halo se calcula SOLO sobre el emissive — se acabó pelear con umbrales.
+  // samples: 1 = sin MSAA en el MRT (carísimo en doble target); el suavizado
+  // perceptible lo aporta la resolución de render de 'calidad'
   const postProcessing = new THREE.RenderPipeline(renderer);
-  const scenePass = pass(scene, camera);
+  const scenePass = pass(scene, camera, { samples: 1 });
   scenePass.setMRT(mrt({ output, emissive }));
   const scenePassColor = scenePass.getTextureNode('output');
   const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.25, 0.5, 0);
+  bloomPass.resolutionScale = 0.5; // el halo no necesita resolución completa
   postProcessing.outputNode = scenePassColor.add(bloomPass);
+
+  // presets de calidad = resolución real de render (el mayor coste de todos)
+  const QUALITY = { alta: Math.min(window.devicePixelRatio, 2), media: 1.25, baja: 1 };
+  const setQuality = (level) => {
+    renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+  setQuality('media');
 
   if (import.meta.env.DEV) {
     // mandos de depuración en consola + panel de afinado del director de arte
-    window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials };
+    window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials, setQuality };
     import('./tuningPanel').then(({ createTuningPanel }) =>
-      createTuningPanel({ scene, renderer, bloom: bloomPass }),
+      createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality }),
     );
   }
 

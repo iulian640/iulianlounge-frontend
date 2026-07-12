@@ -6,7 +6,7 @@ import { materials } from './salon';
 // Panel de afinado de luz (solo DEV): el director de arte ajusta en SU
 // pantalla y vuelca los valores por consola para dejarlos fijos en código.
 
-export function createTuningPanel({ scene, renderer, bloom }) {
+export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
   const lightsByKind = (kind) => {
     const found = [];
     scene.traverse((o) => {
@@ -16,6 +16,7 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   };
 
   const params = {
+    calidad: 'media',
     exposicion: renderer.toneMappingExposure,
     bloomFuerza: bloom.strength.value,
     relleno: 1,
@@ -49,6 +50,9 @@ export function createTuningPanel({ scene, renderer, bloom }) {
   const loadedAt = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   const backend = window.__loungeBackend || '?';
   const gui = new GUI({ title: `Afinado · ${loadedAt} · ${backend}` });
+  gui.add(params, 'calidad', ['alta', 'media', 'baja']).onChange((v) => {
+    if (setQuality) setQuality(v);
+  });
   gui.add(params, 'exposicion', 0.4, 2.2, 0.05).onChange((v) => {
     renderer.toneMappingExposure = v;
   });
