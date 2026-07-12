@@ -5,13 +5,18 @@ import * as THREE from 'three';
 
 export const ROOM = { width: 16, depth: 11, height: 3.6 };
 
+// posiciones de las mesas — las consumen furnish.js (muebles) y las lámparas
+export const TABLE_SPOTS = [
+  [-1.5, 1.8],
+  [1.2, -0.6],
+  [-3.2, -1.6],
+];
+
 // posiciones de las lámparas — las consume también lights.js
 export const LAMPS = [
   { x: -6.0, y: 2.45, z: -1.8, intensity: 26, shadow: true }, // barra
   { x: -6.0, y: 2.45, z: 1.8, intensity: 26 },
-  { x: -1.5, y: 2.1, z: 1.8, intensity: 16 }, // mesas
-  { x: 1.2, y: 2.1, z: -0.6, intensity: 16 },
-  { x: -3.2, y: 2.1, z: -1.6, intensity: 16 },
+  ...TABLE_SPOTS.map(([x, z]) => ({ x, y: 2.1, z, intensity: 16 })),
   { x: 4.6, y: 2.25, z: 2.2, intensity: 22, shadow: true }, // blackjack
 ];
 
@@ -61,14 +66,6 @@ function cylinder(radius, height, material, x, y, z, radialSegments = 24) {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   return mesh;
-}
-
-function stool(x, z, seatY = 0.75) {
-  const group = new THREE.Group();
-  group.add(cylinder(0.16, seatY - 0.06, materials.woodDark, 0, (seatY - 0.06) / 2, 0, 12));
-  group.add(cylinder(0.23, 0.09, materials.leather, 0, seatY - 0.045, 0));
-  group.position.set(x, 0, z);
-  return group;
 }
 
 function buildShell(salon) {
@@ -137,12 +134,6 @@ function buildBar(salon) {
   sign.castShadow = false;
   sign.name = 'letrero';
   salon.add(sign);
-
-  // taburetes de barra
-  for (let i = 0; i < 5; i++) {
-    const z = -barLength / 2 + 0.9 + i * ((barLength - 1.8) / 4);
-    salon.add(stool(barX + 0.78, z, 0.78));
-  }
 }
 
 function buildTables(salon) {
@@ -153,24 +144,7 @@ function buildTables(salon) {
   bj.position.set(4.6, 0, 2.2);
   bj.name = 'mesa-blackjack';
   salon.add(bj);
-
-  // mesas redondas con taburetes
-  const spots = [
-    [-1.5, 1.8],
-    [1.2, -0.6],
-    [-3.2, -1.6],
-  ];
-  for (const [x, z] of spots) {
-    const table = new THREE.Group();
-    table.add(cylinder(0.5, 0.05, materials.woodDark, 0, 0.75, 0));
-    table.add(cylinder(0.09, 0.73, materials.woodDark, 0, 0.365, 0));
-    for (let i = 0; i < 3; i++) {
-      const angle = (i / 3) * Math.PI * 2;
-      table.add(stool(Math.cos(angle) * 0.85, Math.sin(angle) * 0.85, 0.5));
-    }
-    table.position.set(x, 0, z);
-    salon.add(table);
-  }
+  // las mesas redondas y demás mobiliario los pone furnish.js (assets low-poly)
 }
 
 function buildLampFixtures(salon) {

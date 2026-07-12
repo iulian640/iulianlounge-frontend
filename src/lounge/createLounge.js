@@ -4,6 +4,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 
 import { buildSalon } from './salon';
 import { addSalonLights } from './lights';
+import { furnishSalon } from './furnish';
 
 export function createLounge(canvas) {
   const scene = new THREE.Scene();
@@ -31,6 +32,7 @@ export function createLounge(canvas) {
 
   buildSalon(scene);
   addSalonLights(scene);
+  furnishSalon(scene).catch((error) => console.error('[lounge] amueblado incompleto:', error));
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);
