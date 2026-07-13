@@ -120,16 +120,8 @@ function manifest() {
     { url: HUNT + 'ceiling-fan.glb', opts: { footprint: 1.5, recolor: { mat19: '#3a2417' } }, at: [-4.2, ROOM.height - 0.55, 1.2], fan: true },
   );
 
-  // lámpara de pie junto al escenario
-  props.push({
-    url: HUNT + 'standing-lamp.glb',
-    opts: {
-      height: 1.7,
-      recolor: { FFEB3B: { color: '#e8cd8f', emissive: '#ffb46b', emissiveIntensity: 0.5 }, DD9944: { color: '#8a6a33', metalness: 1, roughness: 0.45 } },
-    },
-    at: [1.1, 0, -4.55],
-    lightAt: [1.1, 1.5, -4.55],
-  });
+  // (la lámpara de pie GLB se retiró 2026-07-13: la sustituyen las
+  // victorianas procedurales de decor/floorLamps.js)
 
   // el escenario: piano de cola, saxo, contrabajo
   props.push(
