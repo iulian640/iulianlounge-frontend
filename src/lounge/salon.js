@@ -361,8 +361,8 @@ function buildStage(salon) {
     stage.add(footlight);
   }
 
-  // cortina de terciopelo al fondo
-  stage.add(box(3.9, ROOM.height - 0.5, 0.12, materials.velvet, 0, (ROOM.height - 0.5) / 2 + 0.4, -1.15));
+  // (la cortina plana de terciopelo se retiró 2026-07-13: el telón con
+  // pliegues, patas y cenefa lo monta decor/curtains.js)
 
   stage.position.set(3.2, 0, -ROOM.depth / 2 + 1.35);
   stage.name = 'escenario';
