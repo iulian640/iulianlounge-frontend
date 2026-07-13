@@ -11,6 +11,10 @@ import { createWalkControls } from './walkControls';
 import { addArchitecture } from './decor/architecture';
 import { addDoor } from './decor/door';
 import { addHatDisplay } from './decor/hatDisplay';
+import { addAshtrays } from './decor/ashtrays';
+import { addFloorLamps } from './decor/floorLamps';
+import { addStageSpots } from './decor/stageSpots';
+import { addSmoke } from './decor/smoke';
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
 // en vite.config.js — con fallback automático a WebGL2 si el navegador no
@@ -82,13 +86,14 @@ export async function createLounge(canvas, onProgress = () => {}) {
   setQuality('alta'); // por defecto a tope (decisión de Iulian: 120fps sobrados)
 
   let panel = null; // instancia lil-gui, para destruirla en dispose()
-  if (import.meta.env.DEV) {
+  const mountPanel = (smoke) => {
+    if (!import.meta.env.DEV) return;
     // mandos de depuración en consola + panel de afinado del director de arte
-    window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials, setQuality };
+    window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials, setQuality, smoke, stageSpots };
     import('./tuningPanel').then(({ createTuningPanel }) => {
-      panel = createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality });
+      panel = createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality, smoke, stageSpots });
     });
-  }
+  };
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
   const walk = createWalkControls(camera, canvas);
@@ -121,9 +126,21 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // germen visual de la tienda del club) — luz por tiras emissive + puntuales
   // cortas sin sombra, cero sombras nuevas
   addHatDisplay(scene);
+  // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
+  // del lado de la barra, y focos de trípode flanqueando el escenario —
+  // todo con luces sin sombra (el presupuesto de sombras manda)
+  addFloorLamps(scene);
+  const stageSpots = addStageSpots(scene);
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
+  // ceniceros con puros encendidos (brasas que laten) y sus volutas de humo:
+  // las puntas de los puros son los emisores. Antes de la captura de entorno
+  // para que el hideFromEnv del humo valga (no se hornea en el suelo)
+  const { tips } = addAshtrays(scene, updatables);
+  const smoke = addSmoke(scene, tips);
+  updatables.push(smoke.update);
+  mountPanel(smoke);
   const ready = Promise.all([
     furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error)),
     addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
@@ -231,13 +248,23 @@ export async function createLounge(canvas, onProgress = () => {}) {
   }
 
   const dispose = () => {
+    if (!alive) return; // idempotente: unmount y pagehide pueden llegar los dos
     alive = false;
     window.removeEventListener('resize', onResize);
+    window.removeEventListener('pagehide', dispose);
     walk.dispose();
     panel?.destroy();
     stats.dom.remove();
     renderer.dispose();
+    // renderer.dispose() NO destruye el GPUDevice: sin esto, cada remontaje
+    // (HMR) deja un device entero vivo en el proceso GPU del navegador — que
+    // es compartido y sobrevive a las recargas — y los arranques se van
+    // volviendo cada vez más lentos (síntoma cazado 2026-07-13)
+    renderer.backend?.device?.destroy?.();
   };
+  // la recarga (F5) no pasa por onUnmounted de Vue: pagehide es la única
+  // señal que llega antes de morir la página — soltamos el device ahí también
+  window.addEventListener('pagehide', dispose);
 
   // calentón ANTES de levantar el telón: barrida de 4 orientaciones para que
   // el primer giro del jugador no encuentre NADA sin preparar (medido: sin

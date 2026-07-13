@@ -6,7 +6,7 @@ import { materials } from './salon';
 // Panel de afinado de luz (solo DEV): el director de arte ajusta en SU
 // pantalla y vuelca los valores por consola para dejarlos fijos en código.
 
-export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
+export function createTuningPanel({ scene, renderer, bloom, setQuality, smoke, stageSpots }) {
   const lightsByKind = (kind) => {
     const found = [];
     scene.traverse((o) => {
@@ -21,6 +21,7 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
     bloomFuerza: bloom.strength.value,
     relleno: 1,
     lamparas: 1,
+    lamparasPie: 1,
     trasbarra: 1,
     velas: 1,
     letrero: 1,
@@ -32,6 +33,13 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
     sueloBarniz: materials.woodFloor.clearcoat,
     barraVeta: materials.barWood.anisotropy,
     sueloVeta: materials.woodFloor.anisotropy,
+    focoIntensidad: 1,
+    focoAnchura: 1,
+    focoHaz: stageSpots ? stageSpots.beamMaterial.opacity : 0,
+    focoLente: stageSpots ? stageSpots.lensMaterial.emissiveIntensity : 0,
+    humoOpacidad: smoke ? smoke.opacity.value : 0,
+    humoTamano: smoke ? smoke.scaleMul.value : 1,
+    humoSoplos: smoke ? smoke.mesh.count : 0,
     verLuces: false,
     volcarValores() {
       const dump = { ...params };
@@ -61,6 +69,7 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
   });
   gui.add(params, 'relleno', 0, 2, 0.05).onChange(applyMultiplier('fill'));
   gui.add(params, 'lamparas', 0, 2, 0.05).onChange(applyMultiplier('lamp'));
+  gui.add(params, 'lamparasPie', 0, 2, 0.05).name('lámparas pie').onChange(applyMultiplier('pie'));
   gui.add(params, 'velas', 0, 2, 0.05).onChange(applyMultiplier('candle'));
   gui.add(params, 'trasbarra', 0, 2, 0.05).onChange((v) => {
     for (const light of lightsByKind('shelf')) {
@@ -103,6 +112,40 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality }) {
   materialsFolder.add(params, 'sueloVeta', 0, 1, 0.05).onChange((v) => {
     materials.woodFloor.anisotropy = v;
   });
+
+  if (stageSpots) {
+    // los focos de trípode del escenario: luz, haz de niebla y lente
+    const focoFolder = gui.addFolder('Focos');
+    focoFolder.add(params, 'focoIntensidad', 0, 2, 0.05).name('intensidad').onChange(applyMultiplier('foco'));
+    focoFolder.add(params, 'focoAnchura', 0.5, 2.5, 0.05).name('anchura').onChange((v) => {
+      stageSpots.setWidth(v);
+    });
+    focoFolder.add(params, 'focoHaz', 0, 0.15, 0.005).name('haz').onChange((v) => {
+      stageSpots.beamMaterial.opacity = v;
+    });
+    focoFolder.add(params, 'focoLente', 0, 4, 0.1).name('lente').onChange((v) => {
+      stageSpots.lensMaterial.emissiveIntensity = v;
+    });
+  }
+
+  if (smoke) {
+    // las volutas de los puros: opacidad (uniform, en vivo) y nº de sprites
+    // (mesh.count recorta instancias sin recrear nada; el reparto de origen
+    // es round-robin, así que recortar adelgaza TODAS las volutas por igual)
+    const humoFolder = gui.addFolder('Humo');
+    humoFolder.add(params, 'humoOpacidad', 0, 0.2, 0.005).name('opacidad').onChange((v) => {
+      smoke.opacity.value = v;
+    });
+    humoFolder.add(params, 'humoTamano', 0.5, 5, 0.05).name('tamaño').onChange((v) => {
+      smoke.scaleMul.value = v;
+    });
+    humoFolder
+      .add(params, 'humoSoplos', 0, smoke.mesh.count, 15)
+      .name('sprites')
+      .onChange((v) => {
+        smoke.mesh.count = v;
+      });
+  }
 
   // marcadores de posición de cada luz, para saber QUÉ se está afinando
   let helpers = null;

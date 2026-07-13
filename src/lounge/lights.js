@@ -18,7 +18,6 @@ if (THREE.RectAreaLightNode?.setLTC) {
 
 const WARM = '#ffa666';
 const GOLD = '#e8cd8f';
-const EMBER = '#c47a42';
 
 // las luces se etiquetan por capa (userData.kind) para el panel de afinado;
 // todas alcanzan el suelo (capa 1) SALVO velas (no deben reflejarse en la
