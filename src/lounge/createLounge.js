@@ -14,6 +14,7 @@ import { addHatDisplay } from './decor/hatDisplay';
 import { addAshtrays } from './decor/ashtrays';
 import { addFloorLamps } from './decor/floorLamps';
 import { addStageSpots } from './decor/stageSpots';
+import { addCurtains } from './decor/curtains';
 import { addSmoke } from './decor/smoke';
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
@@ -115,6 +116,10 @@ export async function createLounge(canvas, onProgress = () => {}) {
     setTimeout(resolve, 8000); // red de seguridad si alguna carga se queda colgada
   });
 
+  // bisección de arranque: ?sin=cortinas,focos,lamparas,ceniceros,humo
+  // apaga piezas de decor para cazar cuellos de botella de carga (DEV)
+  const sin = new Set((new URLSearchParams(window.location.search).get('sin') ?? '').split(','));
+
   buildSalon(scene);
   addSalonLights(scene);
   // piezas rescatadas del lote (2026-07-13), de una en una con OK de Iulian:
@@ -129,17 +134,20 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
   // del lado de la barra, y focos de trípode flanqueando el escenario —
   // todo con luces sin sombra (el presupuesto de sombras manda)
-  addFloorLamps(scene);
-  const stageSpots = addStageSpots(scene);
+  if (!sin.has('lamparas')) addFloorLamps(scene);
+  const stageSpots = sin.has('focos') ? null : addStageSpots(scene);
+  // telón de fondo + patas recogidas + cenefa (sustituyen a la cortina
+  // plana que ponía salon.js)
+  if (!sin.has('cortinas')) addCurtains(scene);
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = [];
   // ceniceros con puros encendidos (brasas que laten) y sus volutas de humo:
   // las puntas de los puros son los emisores. Antes de la captura de entorno
   // para que el hideFromEnv del humo valga (no se hornea en el suelo)
-  const { tips } = addAshtrays(scene, updatables);
-  const smoke = addSmoke(scene, tips);
-  updatables.push(smoke.update);
+  const { tips } = sin.has('ceniceros') ? { tips: [] } : addAshtrays(scene, updatables);
+  const smoke = sin.has('humo') || tips.length === 0 ? null : addSmoke(scene, tips);
+  if (smoke) updatables.push(smoke.update);
   mountPanel(smoke);
   const ready = Promise.all([
     furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error)),

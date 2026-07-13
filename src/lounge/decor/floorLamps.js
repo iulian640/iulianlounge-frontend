@@ -144,6 +144,9 @@ export function addFloorLamps(scene) {
     const lamp = buildLamp();
     lamp.position.set(x, 0, z);
     lamp.name = 'lampara-pie';
+    // la lámpara entera fuera de la captura de entorno (no solo pantalla y
+    // fleco): menos variantes de pipeline que compilar en el arranque
+    lamp.userData.hideFromEnv = true;
     scene.add(lamp);
 
     // el baño rojizo de la referencia: corto y sin sombra, muere antes de

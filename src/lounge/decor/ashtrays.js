@@ -298,6 +298,10 @@ export function addAshtrays(scene, updatables) {
     ashtray.position.set(at[0], at[1], at[2]);
     ashtray.rotation.y = rotY;
     ashtray.name = `cenicero-${style}`;
+    // fuera de la captura de entorno: piezas pequeñas que no se aprecian
+    // en el reflejo del suelo, y cada material visible en el cubemap
+    // compila una segunda variante de pipeline (presupuesto de arranque)
+    ashtray.userData.hideFromEnv = true;
     scene.add(ashtray);
 
     const ember = restCigar(ashtray, style, lit);

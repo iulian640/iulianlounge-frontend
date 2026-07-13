@@ -44,7 +44,11 @@ const BAR_Z = -3.0;
 const BAR_FROM = 1.5; // extremos en x
 const BAR_TO = 4.9;
 const FIXTURES = 9;
-const LIT = new Set([1, 3, 5, 7]); // cuáles proyectan luz y haz de verdad
+const LIT = new Set([1, 3, 5, 7]); // cuáles llevan haz de niebla visible
+// solo dos llevan SpotLight REAL: cada luz de escena engorda el shader de
+// TODOS los materiales del salón (medido 2026-07-13: el decor nuevo entero
+// duplicaba el congelón de compilación) — los 4 conos visibles se quedan
+const REAL_LIGHTS = new Set([3, 5]);
 
 function barPoint(t) {
   // t = 0..1 a lo largo de la barra
@@ -120,6 +124,10 @@ export function addStageSpots(scene) {
   for (let i = 0; i < FIXTURES; i++) {
     const t = i / (FIXTURES - 1); // 0..1 a lo largo de la barra
     const fixture = buildFixture(t);
+    // fuera de la captura de entorno: cada material visible en el cubemap
+    // compila una segunda variante de pipeline, y estos foquitos ni se
+    // apreciarían en el reflejo del suelo
+    fixture.userData.hideFromEnv = true;
     scene.add(fixture);
 
     // cada foco apunta en abanico a su franja de la tarima
@@ -129,7 +137,7 @@ export function addStageSpots(scene) {
 
     if (!LIT.has(i)) continue;
 
-    // los que proyectan de verdad: haz de niebla + SpotLight sin sombra
+    // haz de niebla visible (los cuatro lo llevan)
     const distance = fixture.position.distanceTo(aim);
     const beamGeometry = new THREE.ConeGeometry(0.5, distance, 18, 1, true);
     beamGeometry.rotateX(-Math.PI / 2); // ápice a −Z…
@@ -139,6 +147,9 @@ export function addStageSpots(scene) {
     beam.userData.hideFromEnv = true;
     fixture.add(beam);
     beams.push(beam);
+
+    // ...pero solo dos proyectan luz de verdad (presupuesto de compilación)
+    if (!REAL_LIGHTS.has(i)) continue;
 
     const light = new THREE.SpotLight('#ffd9a0', 6, 10, 0.32, 0.5, 2);
     light.position.copy(fixture.position);
