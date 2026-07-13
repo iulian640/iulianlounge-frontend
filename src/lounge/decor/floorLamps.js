@@ -147,11 +147,12 @@ export function addFloorLamps(scene) {
     scene.add(lamp);
 
     // el baño rojizo de la referencia: corto y sin sombra, muere antes de
-    // cruzar la sala (misma técnica que las velas)
-    const glow = new THREE.PointLight('#ff8552', 4, 4, 2);
+    // cruzar la sala (misma técnica que las velas). Base 8 = la mezcla de
+    // Iulian 2026-07-13 (pidió el mando a 2 sobre la base 4 original)
+    const glow = new THREE.PointLight('#ff8552', 8, 4, 2);
     glow.position.set(x, SHADE_BOTTOM + 0.08, z);
     glow.userData.kind = 'pie';
-    glow.userData.baseIntensity = 4;
+    glow.userData.baseIntensity = 8;
     scene.add(glow);
   }
 }

@@ -137,13 +137,16 @@ function buildBaseboardRun(group, width, x, z, rotY = 0) {
 }
 
 function buildBaseboards(group) {
+  // los extremos se empotran 2 cm en el muro vecino: las esquinas quedan
+  // selladas contra el zócalo norte/este de salon.js (misma regla allí)
   // oeste (muro de la barra): tira completa, igual que el este en salon.js
-  buildBaseboardRun(group, ROOM.depth - 0.4, -innerX, 0, Math.PI / 2);
+  buildBaseboardRun(group, ROOM.depth - 0.16, -innerX, 0, Math.PI / 2);
 
-  // sur: partida a ambos lados del hueco de la puerta, como el muro mismo
+  // sur: partida a ambos lados del hueco de la puerta — del canto del
+  // hueco hasta la esquina
   const sideWidth = (ROOM.width - DOOR_WIDTH) / 2;
-  const segWidth = sideWidth - 0.4;
-  const segX = (DOOR_WIDTH + sideWidth) / 2;
+  const segWidth = sideWidth - 0.08;
+  const segX = DOOR_WIDTH / 2 + segWidth / 2;
   buildBaseboardRun(group, segWidth, -segX, innerZ, Math.PI);
   buildBaseboardRun(group, segWidth, segX, innerZ, Math.PI);
 }

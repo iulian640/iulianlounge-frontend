@@ -190,18 +190,21 @@ function buildShell(salon) {
   salon.add(box(sideWidth, h, t, materials.wall, (doorWidth + sideWidth) / 2, h / 2, d / 2));
   salon.add(box(doorWidth, h - doorHeight, t, materials.wall, 0, doorHeight + (h - doorHeight) / 2, d / 2));
 
-  // zócalo de madera con remate de latón (paredes norte y este); en la norte
-  // va partido en dos tramos para respetar el nicho del expositor
-  const skirtLeftWidth = nicheLeft - (-w / 2 + 0.2);
-  const skirtLeftX = -w / 2 + 0.2 + skirtLeftWidth / 2;
-  const skirtRightWidth = w / 2 - 0.2 - nicheRight;
+  // zócalo de madera CON VETA (woodTrim, como el del sur/oeste que monta
+  // decor/architecture — antes iba en woodDark plano y desentonaba) y
+  // remate de latón; en la norte va partido en dos tramos para respetar el
+  // nicho del expositor. Los extremos se empotran 2 cm en el muro vecino
+  // para que las esquinas queden selladas, sin huecos
+  const skirtLeftWidth = nicheLeft - (-w / 2 + 0.08);
+  const skirtLeftX = -w / 2 + 0.08 + skirtLeftWidth / 2;
+  const skirtRightWidth = w / 2 - 0.08 - nicheRight;
   const skirtRightX = nicheRight + skirtRightWidth / 2;
-  salon.add(box(skirtLeftWidth, 0.9, 0.06, materials.woodDark, skirtLeftX, 0.45, -d / 2 + 0.13));
+  salon.add(box(skirtLeftWidth, 0.9, 0.06, materials.woodTrim, skirtLeftX, 0.45, -d / 2 + 0.13));
   salon.add(box(skirtLeftWidth, 0.03, 0.07, materials.brass, skirtLeftX, 0.92, -d / 2 + 0.13));
-  salon.add(box(skirtRightWidth, 0.9, 0.06, materials.woodDark, skirtRightX, 0.45, -d / 2 + 0.13));
+  salon.add(box(skirtRightWidth, 0.9, 0.06, materials.woodTrim, skirtRightX, 0.45, -d / 2 + 0.13));
   salon.add(box(skirtRightWidth, 0.03, 0.07, materials.brass, skirtRightX, 0.92, -d / 2 + 0.13));
-  salon.add(box(0.06, 0.9, d - 0.4, materials.woodDark, w / 2 - 0.13, 0.45, 0));
-  salon.add(box(0.07, 0.03, d - 0.4, materials.brass, w / 2 - 0.13, 0.92, 0));
+  salon.add(box(0.06, 0.9, d - 0.16, materials.woodTrim, w / 2 - 0.13, 0.45, 0));
+  salon.add(box(0.07, 0.03, d - 0.16, materials.brass, w / 2 - 0.13, 0.92, 0));
 
   // cuadros con marco de latón en la pared este
   for (const z of [-2.6, 0, 2.6]) {
