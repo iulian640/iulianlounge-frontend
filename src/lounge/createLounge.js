@@ -277,12 +277,22 @@ export async function createLounge(canvas, onProgress = () => {}) {
           hidden.push(o)
         }
       })
+      // toda la captura se pinta con UN material neutro (marrón de la sala):
+      // cada material visible en el cubemap compilaba su segunda variante de
+      // pipeline — medido en el laboratorio 2026-07-14: −7 programas,
+      // compilación −34%, arranque total −30%, y capturas del reflejo del
+      // suelo indistinguibles del control
+      scene.overrideMaterial = new THREE.MeshStandardMaterial({
+        color: '#3a2f28',
+        roughness: 0.9,
+      })
       cubeCamera.update(renderer, scene)
       scene.environment = cubeTarget.texture
       scene.environmentIntensity = 0.65 // mezcla final de Iulian
     } catch (error) {
       console.error('[lounge] captura de entorno fallida (seguimos sin reflejos):', error)
     } finally {
+      scene.overrideMaterial = null
       for (const o of hidden) o.visible = true
       for (const [light, intensity] of dimmed) light.intensity = intensity
       scene.remove(cubeCamera)
