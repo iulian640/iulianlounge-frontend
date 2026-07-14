@@ -110,15 +110,16 @@ export const materials = {
   velvet: new THREE.MeshStandardMaterial({ color: '#3d1b20', roughness: 1 }),
   leather: new THREE.MeshStandardMaterial({ color: '#4a2c1e', roughness: 0.7 }),
   // tablas de madera del escenario — MATE como el suelo: sin reflejos
-  // definidos, la luz se esparce en charco suave
-  stageWood: new THREE.MeshPhysicalMaterial({
+  // definidos, la luz se esparce en charco suave. Standard, no Physical: la
+  // anisotropía 0.3 era imperceptible en madera mate (envMapIntensity 0.15)
+  // y el Physical+aniso formaba él solo un programa de shader de los gordos
+  // (coste fijo en la compilación del arranque)
+  stageWood: new THREE.MeshStandardMaterial({
     color: '#96826c',
     map: woodTexture('/textures/bar-wood-diff.jpg', 2.2, 1.5),
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 2.2, 1.5, false),
     normalScale: new THREE.Vector2(0.7, 0.7),
     roughness: 1,
-    anisotropy: 0.3,
-    anisotropyRotation: Math.PI / 2,
     envMapIntensity: 0.15,
   }),
   shade: new THREE.MeshStandardMaterial({
