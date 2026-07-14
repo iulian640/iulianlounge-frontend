@@ -346,6 +346,29 @@ function buildBarPaneling(salon, barX, barLength) {
     salon.add(relief(0.03, 0.51, 0.055, 0.54, z + 0.4025))
     salon.add(relief(0.035, 0.46, 0.7, 0.54, z)) // primer escalón
     salon.add(relief(0.05, 0.32, 0.56, 0.54, z)) // tablero central
+
+    // detalles de latón del panel (el latón de la casa: cero materiales
+    // nuevos, cero luces): un filete fino recorriendo el tablero central
+    // sobre el primer escalón — eco del vivo de la tapa — y una roseta
+    // en cada esquina del marco, como la tachuela de una chesterfield
+    const filete = (height, length, dy, dz) => {
+      const strip = box(0.014, height, length, materials.brass, FRONT + 0.042, 0.54 + dy, z + dz)
+      strip.castShadow = false // demasiado fino para sombra: solo ruido
+      return strip
+    }
+    salon.add(filete(0.012, 0.64, 0.194, 0))
+    salon.add(filete(0.012, 0.64, -0.194, 0))
+    salon.add(filete(0.376, 0.012, 0, 0.314))
+    salon.add(filete(0.376, 0.012, 0, -0.314))
+    for (const dy of [-0.2825, 0.2825]) {
+      for (const dz of [-0.4025, 0.4025]) {
+        const roseta = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), materials.brass)
+        roseta.scale.x = 0.5 // media cúpula asomando del marco
+        roseta.position.set(FRONT + 0.03, 0.54 + dy, z + dz)
+        roseta.castShadow = false
+        salon.add(roseta)
+      }
+    }
   }
 
   // los extremos del mostrador: zócalo, riel y un panel enmarcado pequeño
@@ -362,6 +385,28 @@ function buildBarPaneling(salon, barX, barLength) {
     salon.add(cap(0.03, 0.055, 0.51, 0.54, barX + 0.2225))
     salon.add(cap(0.035, 0.36, 0.46, 0.54))
     salon.add(cap(0.05, 0.24, 0.32, 0.54))
+
+    // los mismos detalles de latón que el frente: filete alrededor del
+    // tablero y roseta en cada esquina del marco
+    const zFilete = zFace + side * 0.042
+    const fileteLateral = (width, height, dx, dy) => {
+      const strip = box(width, height, 0.014, materials.brass, barX + dx, 0.54 + dy, zFilete)
+      strip.castShadow = false
+      return strip
+    }
+    salon.add(fileteLateral(0.32, 0.012, 0, 0.194))
+    salon.add(fileteLateral(0.32, 0.012, 0, -0.194))
+    salon.add(fileteLateral(0.012, 0.376, 0.154, 0))
+    salon.add(fileteLateral(0.012, 0.376, -0.154, 0))
+    for (const dy of [-0.2825, 0.2825]) {
+      for (const dx of [-0.2225, 0.2225]) {
+        const roseta = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), materials.brass)
+        roseta.scale.z = 0.5 // media cúpula asomando del marco
+        roseta.position.set(barX + dx, 0.54 + dy, zFace + side * 0.03)
+        roseta.castShadow = false
+        salon.add(roseta)
+      }
+    }
   }
 }
 
