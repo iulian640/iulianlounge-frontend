@@ -140,6 +140,12 @@ export const materials = {
   }),
 }
 
+// el cuerpo del mostrador: la misma madera con veta de la carpintería, un
+// punto más oscura para que pilastras y marcos destaquen encima (clone =
+// comparte texturas y programa de shader con woodTrim, solo cambia el tinte)
+materials.woodPanel = materials.woodTrim.clone()
+materials.woodPanel.color.set('#63432f')
+
 const bottleColors = ['#5a6b3a', '#7a4a24', '#3d5a52', '#8a6a33', '#4a3040']
 
 function box(width, height, depth, material, x, y, z) {
@@ -237,7 +243,7 @@ function buildBar(salon) {
   const barX = -ROOM.width / 2 + 1.45
 
   // mostrador con tapa de madera noble y vivo de latón en el canto
-  salon.add(box(0.65, 1.05, barLength, materials.woodDark, barX, 0.525, 0))
+  salon.add(box(0.65, 1.05, barLength, materials.woodPanel, barX, 0.525, 0))
   salon.add(box(0.75, 0.05, barLength + 0.1, materials.barWood, barX, 1.075, 0))
   salon.add(box(0.03, 0.03, barLength + 0.1, materials.brass, barX + 0.37, 1.075, 0))
 
@@ -272,6 +278,67 @@ function buildBar(salon) {
     salon.add(cylinder(0.05, 0.3, bottle, backX, 1.55 + 0.175, z, 10))
   }
   // el letrero "IULIAN'S" con letras 3D lo monta letrero.js
+
+  buildBarPaneling(salon, barX, barLength)
+}
+
+// El frente del mostrador (referencia speakeasyIdeas: el mueble de bar con
+// paneles enmarcados): zócalo oscuro, siete pilastras con basa y capitel
+// partiendo el frente en seis tramos, cada tramo con su panel realzado en
+// dos escalones, y un riel corrido bajo el vuelo de la tapa. Los extremos
+// llevan su propio panel. Todo carpintería woodTrim (la madera con veta que
+// se mira de cerca) sobre el armazón oscuro — materiales ya existentes,
+// cero programas de shader nuevos.
+function buildBarPaneling(salon, barX, barLength) {
+  const FRONT = barX + 0.325 // el plano de la cara que mira al salón
+
+  // caja en relieve sobre el frente: nace 1 cm dentro del armazón para que
+  // ninguna cara quede coplanar (z-fighting)
+  const relief = (proud, height, length, y, z, material = materials.woodTrim) =>
+    box(proud + 0.01, height, length, material, FRONT + (proud - 0.01) / 2, y, z)
+
+  // zócalo oscuro a ras de suelo y riel alto bajo el vuelo de la tapa
+  salon.add(relief(0.045, 0.14, barLength + 0.02, 0.07, 0, materials.woodDark))
+  salon.add(relief(0.035, 0.09, barLength + 0.02, 0.985, 0))
+
+  // el paso que comparten pilastras y paneles
+  const PITCH = 1.14
+
+  // siete pilastras con basa y capitel, como las de las paredes
+  for (let i = 0; i < 7; i++) {
+    const z = -3.42 + i * PITCH
+    salon.add(relief(0.05, 0.8, 0.16, 0.54, z)) // fuste
+    salon.add(relief(0.06, 0.12, 0.2, 0.2, z)) // basa
+    salon.add(relief(0.06, 0.08, 0.2, 0.9, z)) // capitel
+  }
+
+  // panel enmarcado en cada tramo: marco de listón + tablero realzado en dos
+  // escalones (el perfil clásico de la referencia)
+  for (let i = 0; i < 6; i++) {
+    const z = -2.85 + i * PITCH
+    salon.add(relief(0.03, 0.055, 0.86, 0.8225, z)) // listón superior
+    salon.add(relief(0.03, 0.055, 0.86, 0.2575, z)) // listón inferior
+    salon.add(relief(0.03, 0.51, 0.055, 0.54, z - 0.4025)) // montante
+    salon.add(relief(0.03, 0.51, 0.055, 0.54, z + 0.4025))
+    salon.add(relief(0.035, 0.46, 0.7, 0.54, z)) // primer escalón
+    salon.add(relief(0.05, 0.32, 0.56, 0.54, z)) // tablero central
+  }
+
+  // los extremos del mostrador: zócalo, riel y un panel enmarcado pequeño
+  for (const side of [-1, 1]) {
+    const zFace = side * (barLength / 2)
+    const cap = (proud, width, height, y, x = barX, material = materials.woodTrim) =>
+      box(width, height, proud + 0.01, material, x, y, zFace + side * ((proud - 0.01) / 2))
+
+    salon.add(cap(0.045, 0.67, 0.14, 0.07, barX, materials.woodDark))
+    salon.add(cap(0.035, 0.67, 0.09, 0.985))
+    salon.add(cap(0.03, 0.5, 0.055, 0.8225))
+    salon.add(cap(0.03, 0.5, 0.055, 0.2575))
+    salon.add(cap(0.03, 0.055, 0.51, 0.54, barX - 0.2225))
+    salon.add(cap(0.03, 0.055, 0.51, 0.54, barX + 0.2225))
+    salon.add(cap(0.035, 0.36, 0.46, 0.54))
+    salon.add(cap(0.05, 0.24, 0.32, 0.54))
+  }
 }
 
 function brassRim(radius, y) {
