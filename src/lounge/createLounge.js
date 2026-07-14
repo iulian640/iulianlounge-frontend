@@ -41,8 +41,8 @@ function clampCameraToRoom(camera) {
 }
 
 // onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
-// 0→0.6 descarga de assets (LoadingManager), 0.6→0.7 compilación + reflejos,
-// 0.7→1 la barrida de calentamiento (12 pasos reales de GPU)
+// 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
+// 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
 export async function createLounge(canvas, onProgress = () => {}) {
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#0b1514')
@@ -180,19 +180,22 @@ export async function createLounge(canvas, onProgress = () => {}) {
   ])
 
   // ORDEN DE ARRANQUE (todo detrás del telón de carga, la vista espera esta
-  // promesa): amueblar → primer render (compila los pipelines del pass MRT,
-  // el congelón de ~3s que antes se comía el usuario en pleno tick) →
-  // capturar reflejos → recompilación con envMap (mucho más barata que
-  // compilar de cero CON envMap: medido 0.8s vs 10s) → congelar sombras →
-  // frame de estreno. Nada de renderer.compileAsync(scene, camera): eso
-  // compilaría el render directo a canvas, que nunca se usa.
+  // promesa): amueblar → capturar reflejos → UNA compilación asíncrona de los
+  // pipelines del pass MRT ya con envMap → congelar sombras → barrida →
+  // frame de estreno.
+  //
+  // scenePass.compileAsync(renderer) fija el render target y el MRT del pass
+  // antes de compilar, así las claves de caché coinciden con el render real
+  // (renderer.compileAsync(scene, camera) a pelo compilaba el render directo
+  // a canvas, que nunca se usa — trabajo tirado). Por debajo Dawn usa
+  // createRenderPipelineAsync: compila en su pool de hilos SIN congelar el
+  // hilo principal (el congelón síncrono medía ~23s en headless).
+  //
+  // La captura va PRIMERO: compilar el pass sin envMap y recompilarlo con él
+  // eran dos tandas completas — la primera se invalidaba entera al poner
+  // scene.environment (trabajo tirado, medido ~11s en headless)
   await Promise.all([ready, texturesSettled])
-  // el objetivo se anuncia ANTES del congelón de compilación y se esperan dos
-  // frames para que la transición CSS arranque: la barra planea hacia 0.68 en
-  // el compositor mientras el hilo principal está congelado compilando
-  onProgress(0.68)
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-  postProcessing.render() // el congelón de compilación vive aquí
+  onProgress(0.62)
 
   {
     const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType })
@@ -243,12 +246,40 @@ export async function createLounge(canvas, onProgress = () => {}) {
       scene.remove(cubeCamera)
     }
     console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length)
+    onProgress(0.68)
 
     // la escena es estática: congelar los mapas de sombra tras la carga
     // ahorra su recálculo en cada frame
     renderer.shadowMap.autoUpdate = false
     renderer.shadowMap.needsUpdate = true
   }
+
+  // la ÚNICA compilación del pass MRT, ya con envMap puesto. El frustum
+  // culling fuera mientras compila: si no, solo compila lo que mira la cámara
+  // y cada giro del jugador estrena pipelines nuevos (el atasco reaparecía
+  // repartido por la barrida)
+  const culled = []
+  scene.traverse((o) => {
+    if (o.isMesh && o.frustumCulled) {
+      o.frustumCulled = false
+      culled.push(o)
+    }
+  })
+  // la compilación no da señal de avance, pero el hilo principal queda libre
+  // (Dawn compila en sus hilos): la barra repta hacia el 77% mientras tanto
+  // para que el tramo largo no parezca colgado
+  let reptar = 0.68
+  const goteo = setInterval(() => {
+    reptar = Math.min(reptar + 0.006, 0.77)
+    onProgress(reptar)
+  }, 400)
+  try {
+    await scenePass.compileAsync(renderer)
+  } finally {
+    clearInterval(goteo)
+  }
+  for (const o of culled) o.frustumCulled = true
+  onProgress(0.78)
 
   const stats = new Stats()
   document.body.appendChild(stats.dom)
@@ -299,21 +330,20 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // señal que llega antes de morir la página — soltamos el device ahí también
   window.addEventListener('pagehide', dispose)
 
-  // calentón ANTES de levantar el telón: barrida de 4 orientaciones para que
-  // el primer giro del jugador no encuentre NADA sin preparar (medido: sin
-  // esto, el primer giro pegaba un tirón de ~1.5s aunque la escena entera se
-  // hubiera dibujado una vez — hay trabajo perezoso ligado a la orientación)
-  // cada orientación en su PROPIO frame (rAF entre medias): el trabajo vive
-  // en el proceso GPU de Chrome, y encadenar renders en una sola tarea no le
-  // deja rematar la compilación — repartido en frames reales sí
+  // calentón ANTES de levantar el telón: barrida de orientaciones para que
+  // el primer giro del jugador no encuentre NADA sin preparar. Los pipelines
+  // ya están compilados (compileAsync de arriba), pero queda trabajo perezoso
+  // por objeto que se estrena en el primer draw real de cada orientación
+  // (bind groups, buffers de uniforms). Cada orientación en su PROPIO frame
+  // (rAF entre medias): el trabajo vive en el proceso GPU de Chrome y
+  // encadenar renders en una sola tarea no le deja rematar
   const yawInicial = camera.rotation.y
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
-  onProgress(0.7)
   for (let paso = 0; paso < 12; paso++) {
     camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2
     postProcessing.render()
     await nextFrame()
-    onProgress(0.7 + ((paso + 1) / 12) * 0.3)
+    onProgress(0.78 + ((paso + 1) / 12) * 0.22)
   }
   camera.rotation.y = yawInicial
   postProcessing.render() // frame de estreno con la mirada de entrada
