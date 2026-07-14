@@ -337,13 +337,17 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // (bind groups, buffers de uniforms). Cada orientación en su PROPIO frame
   // (rAF entre medias): el trabajo vive en el proceso GPU de Chrome y
   // encadenar renders en una sola tarea no le deja rematar
+  // 8 orientaciones bastan: la cámara ve ~91° en horizontal (fov 60 a 16:9),
+  // a 45° por paso todo queda visto con solape — eran 12 cuando la barrida
+  // también compilaba pipelines; ya solo estrena bind groups y buffers
   const yawInicial = camera.rotation.y
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
-  for (let paso = 0; paso < 12; paso++) {
-    camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2
+  const PASOS = 8
+  for (let paso = 0; paso < PASOS; paso++) {
+    camera.rotation.y = yawInicial + (paso / PASOS) * Math.PI * 2
     postProcessing.render()
     await nextFrame()
-    onProgress(0.78 + ((paso + 1) / 12) * 0.22)
+    onProgress(0.78 + ((paso + 1) / PASOS) * 0.22)
   }
   camera.rotation.y = yawInicial
   postProcessing.render() // frame de estreno con la mirada de entrada
