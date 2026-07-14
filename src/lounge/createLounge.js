@@ -224,6 +224,15 @@ export async function createLounge(canvas, onProgress = () => {}) {
   await Promise.all([ready, texturesSettled])
   cronometra('assets')
 
+  // higiene de variantes (laboratorio 2026-07-14): un material compartido
+  // por objetos con receiveShadow MEZCLADO se parte en dos programas (con y
+  // sin muestreo de sombra). Unificar el flag colapsó −4 programas sin
+  // estrenar ninguna sombra de contacto visible — es limpieza de censo, no
+  // palanca de tiempo
+  scene.traverse((o) => {
+    if (o.isMesh) o.receiveShadow = true
+  })
+
   // dieta del respaldo WebGL2 (Firefox sin WebGPU, visitas por http de LAN):
   // ahí no hay compilación asíncrona ni va sobrado de GPU. Medido en banco:
   // muestrear las 3 sombras PCF en cada fragmento hundía los FPS (35→60 sin
