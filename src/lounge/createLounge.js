@@ -1,21 +1,21 @@
-import * as THREE from 'three';
-import { pass, mrt, output, emissive } from 'three/tsl';
-import { bloom } from 'three/addons/tsl/display/BloomNode.js';
-import Stats from 'three/addons/libs/stats.module.js';
+import * as THREE from 'three'
+import { pass, mrt, output, emissive } from 'three/tsl'
+import { bloom } from 'three/addons/tsl/display/BloomNode.js'
+import Stats from 'three/addons/libs/stats.module.js'
 
-import { buildSalon, materials, ROOM } from './salon';
-import { addSalonLights } from './lights';
-import { furnishSalon } from './furnish';
-import { addLetrero } from './letrero';
-import { createWalkControls } from './walkControls';
-import { addArchitecture } from './decor/architecture';
-import { addDoor } from './decor/door';
-import { addHatDisplay } from './decor/hatDisplay';
-import { addAshtrays } from './decor/ashtrays';
-import { addFloorLamps } from './decor/floorLamps';
-import { addStageSpots } from './decor/stageSpots';
-import { addCurtains } from './decor/curtains';
-import { addSmoke } from './decor/smoke';
+import { buildSalon, materials, ROOM } from './salon'
+import { addSalonLights } from './lights'
+import { furnishSalon } from './furnish'
+import { addLetrero } from './letrero'
+import { createWalkControls } from './walkControls'
+import { addArchitecture } from './decor/architecture'
+import { addDoor } from './decor/door'
+import { addHatDisplay } from './decor/hatDisplay'
+import { addAshtrays } from './decor/ashtrays'
+import { addFloorLamps } from './decor/floorLamps'
+import { addStageSpots } from './decor/stageSpots'
+import { addCurtains } from './decor/curtains'
+import { addSmoke } from './decor/smoke'
 
 // Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
 // en vite.config.js — con fallback automático a WebGL2 si el navegador no
@@ -30,129 +30,147 @@ const CAMERA_BOUNDS = {
   z: ROOM.depth / 2 - 0.5,
   yMin: 0.4,
   yMax: ROOM.height - 0.4,
-};
+}
 
 function clampCameraToRoom(camera) {
-  const p = camera.position;
-  p.x = THREE.MathUtils.clamp(p.x, -CAMERA_BOUNDS.x, CAMERA_BOUNDS.x);
-  p.z = THREE.MathUtils.clamp(p.z, -CAMERA_BOUNDS.z, CAMERA_BOUNDS.z);
-  p.y = THREE.MathUtils.clamp(p.y, CAMERA_BOUNDS.yMin, CAMERA_BOUNDS.yMax);
+  const p = camera.position
+  p.x = THREE.MathUtils.clamp(p.x, -CAMERA_BOUNDS.x, CAMERA_BOUNDS.x)
+  p.z = THREE.MathUtils.clamp(p.z, -CAMERA_BOUNDS.z, CAMERA_BOUNDS.z)
+  p.y = THREE.MathUtils.clamp(p.y, CAMERA_BOUNDS.yMin, CAMERA_BOUNDS.yMax)
 }
 
 // onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
 // 0→0.6 descarga de assets (LoadingManager), 0.6→0.7 compilación + reflejos,
 // 0.7→1 la barrida de calentamiento (12 pasos reales de GPU)
 export async function createLounge(canvas, onProgress = () => {}) {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#0b1514');
-  scene.fog = new THREE.FogExp2('#0b1514', 0.022); // el humo del club
+  const scene = new THREE.Scene()
+  scene.background = new THREE.Color('#0b1514')
+  scene.fog = new THREE.FogExp2('#0b1514', 0.022) // el humo del club
 
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.layers.enable(1); // el suelo vive en la capa 1 (velas sin reflejo)
-  camera.position.set(0, 1.7, 4.6);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
+  camera.layers.enable(1) // el suelo vive en la capa 1 (velas sin reflejo)
+  camera.position.set(0, 1.7, 4.6)
 
   // antialias del canvas apagado: el render pasa por el pipeline de
   // postproceso (offscreen), el MSAA del canvas solo costaría sin verse
-  const renderer = new THREE.WebGPURenderer({ canvas, antialias: false });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 2.2; // mezcla final de Iulian (2026-07-12)
-  await renderer.init();
+  const renderer = new THREE.WebGPURenderer({ canvas, antialias: false })
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFShadowMap
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 2.2 // mezcla final de Iulian (2026-07-12)
+  await renderer.init()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)
-  const backendName = renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2 (fallback)';
-  console.log('[lounge] motor:', backendName);
-  window.__loungeBackend = backendName;
+  const backendName = renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2 (fallback)'
+  console.log('[lounge] motor:', backendName)
+  window.__loungeBackend = backendName
 
   // bloom selectivo por MRT: la escena escribe color y emissive por separado,
   // el halo se calcula SOLO sobre el emissive — se acabó pelear con umbrales.
   // samples: 1 = sin MSAA en el MRT (carísimo en doble target); el suavizado
   // perceptible lo aporta la resolución de render de 'calidad'
-  const postProcessing = new THREE.RenderPipeline(renderer);
-  const scenePass = pass(scene, camera, { samples: 1 });
-  scenePass.setMRT(mrt({ output, emissive }));
-  const scenePassColor = scenePass.getTextureNode('output');
-  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0); // mezcla Iulian 2026-07-13
-  bloomPass.resolutionScale = 0.5; // el halo no necesita resolución completa
-  postProcessing.outputNode = scenePassColor.add(bloomPass);
+  const postProcessing = new THREE.RenderPipeline(renderer)
+  const scenePass = pass(scene, camera, { samples: 1 })
+  scenePass.setMRT(mrt({ output, emissive }))
+  const scenePassColor = scenePass.getTextureNode('output')
+  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0) // mezcla Iulian 2026-07-13
+  bloomPass.resolutionScale = 0.5 // el halo no necesita resolución completa
+  postProcessing.outputNode = scenePassColor.add(bloomPass)
 
   // presets de calidad = resolución real de render (el mayor coste de todos)
-  const QUALITY = { alta: Math.min(window.devicePixelRatio, 2), media: 1.25, baja: 1 };
+  const QUALITY = { alta: Math.min(window.devicePixelRatio, 2), media: 1.25, baja: 1 }
   const setQuality = (level) => {
-    renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  };
-  setQuality('alta'); // por defecto a tope (decisión de Iulian: 120fps sobrados)
+    renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media)
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }
+  setQuality('alta') // por defecto a tope (decisión de Iulian: 120fps sobrados)
 
-  let panel = null; // instancia lil-gui, para destruirla en dispose()
+  let panel = null // instancia lil-gui, para destruirla en dispose()
   const mountPanel = (smoke) => {
-    if (!import.meta.env.DEV) return;
+    if (!import.meta.env.DEV) return
     // mandos de depuración en consola + panel de afinado del director de arte
-    window.__lounge = { scene, camera, bloom: bloomPass, renderer, materials, setQuality, smoke, stageSpots };
+    window.__lounge = {
+      scene,
+      camera,
+      bloom: bloomPass,
+      renderer,
+      materials,
+      setQuality,
+      smoke,
+      stageSpots,
+    }
     import('./tuningPanel').then(({ createTuningPanel }) => {
-      panel = createTuningPanel({ scene, renderer, bloom: bloomPass, setQuality, smoke, stageSpots });
-    });
-  };
+      panel = createTuningPanel({
+        scene,
+        renderer,
+        bloom: bloomPass,
+        setQuality,
+        smoke,
+        stageSpots,
+      })
+    })
+  }
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
-  const walk = createWalkControls(camera, canvas);
-  camera.position.set(0, 1.7, 4.6);
-  camera.lookAt(-3, 1.5, 0); // al entrar, la mirada cae hacia la barra
+  const walk = createWalkControls(camera, canvas)
+  camera.position.set(0, 1.7, 4.6)
+  camera.lookAt(-3, 1.5, 0) // al entrar, la mirada cae hacia la barra
 
   // el gancho al LoadingManager se instala ANTES de disparar ninguna carga:
   // así onLoad no puede habérsenos escapado y el timeout es solo red de seguridad
   const texturesSettled = new Promise((resolve) => {
-    const manager = THREE.DefaultLoadingManager;
-    const previous = manager.onLoad;
+    const manager = THREE.DefaultLoadingManager
+    const previous = manager.onLoad
     manager.onLoad = () => {
-      if (previous) previous();
-      resolve();
-    };
+      if (previous) previous()
+      resolve()
+    }
     manager.onProgress = (url, loaded, total) => {
-      if (total > 0) onProgress((loaded / total) * 0.6);
-    };
-    setTimeout(resolve, 8000); // red de seguridad si alguna carga se queda colgada
-  });
+      if (total > 0) onProgress((loaded / total) * 0.6)
+    }
+    setTimeout(resolve, 8000) // red de seguridad si alguna carga se queda colgada
+  })
 
   // bisección de arranque: ?sin=cortinas,focos,lamparas,ceniceros,humo
   // apaga piezas de decor para cazar cuellos de botella de carga (DEV)
-  const sin = new Set((new URLSearchParams(window.location.search).get('sin') ?? '').split(','));
+  const sin = new Set((new URLSearchParams(window.location.search).get('sin') ?? '').split(','))
 
-  buildSalon(scene);
-  addSalonLights(scene);
+  buildSalon(scene)
+  addSalonLights(scene)
   // piezas rescatadas del lote (2026-07-13), de una en una con OK de Iulian:
   // arquitectura (cornisa/pilastras/zócalo/arco) y puerta con mirilla —
   // geometría pura, cero luces
-  addArchitecture(scene);
-  addDoor(scene);
+  addArchitecture(scene)
+  addDoor(scene)
   // expositor de fedoras retroiluminado (referencia speakeasyIdeas de Iulian;
   // germen visual de la tienda del club) — luz por tiras emissive + puntuales
   // cortas sin sombra, cero sombras nuevas
-  addHatDisplay(scene);
+  addHatDisplay(scene)
   // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
   // del lado de la barra, y focos de trípode flanqueando el escenario —
   // todo con luces sin sombra (el presupuesto de sombras manda)
-  if (!sin.has('lamparas')) addFloorLamps(scene);
-  const stageSpots = sin.has('focos') ? null : addStageSpots(scene);
+  if (!sin.has('lamparas')) addFloorLamps(scene)
+  const stageSpots = sin.has('focos') ? null : addStageSpots(scene)
   // telón de fondo + patas recogidas + cenefa (sustituyen a la cortina
   // plana que ponía salon.js)
-  if (!sin.has('cortinas')) addCurtains(scene);
+  if (!sin.has('cortinas')) addCurtains(scene)
 
   // animaciones activas (camarero, banda, ventiladores)
-  const updatables = [];
+  const updatables = []
   // ceniceros con puros encendidos (brasas que laten) y sus volutas de humo:
   // las puntas de los puros son los emisores. Antes de la captura de entorno
   // para que el hideFromEnv del humo valga (no se hornea en el suelo)
-  const { tips } = sin.has('ceniceros') ? { tips: [] } : addAshtrays(scene, updatables);
-  const smoke = sin.has('humo') || tips.length === 0 ? null : addSmoke(scene, tips);
-  if (smoke) updatables.push(smoke.update);
-  mountPanel(smoke);
+  const { tips } = sin.has('ceniceros') ? { tips: [] } : addAshtrays(scene, updatables)
+  const smoke = sin.has('humo') || tips.length === 0 ? null : addSmoke(scene, tips)
+  if (smoke) updatables.push(smoke.update)
+  mountPanel(smoke)
   const ready = Promise.all([
-    furnishSalon(scene, updatables).catch((error) => console.error('[lounge] amueblado incompleto:', error)),
+    furnishSalon(scene, updatables).catch((error) =>
+      console.error('[lounge] amueblado incompleto:', error),
+    ),
     addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
-  ]);
+  ])
 
   // ORDEN DE ARRANQUE (todo detrás del telón de carga, la vista espera esta
   // promesa): amueblar → primer render (compila los pipelines del pass MRT,
@@ -161,118 +179,118 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // compilar de cero CON envMap: medido 0.8s vs 10s) → congelar sombras →
   // frame de estreno. Nada de renderer.compileAsync(scene, camera): eso
   // compilaría el render directo a canvas, que nunca se usa.
-  await Promise.all([ready, texturesSettled]);
+  await Promise.all([ready, texturesSettled])
   // el objetivo se anuncia ANTES del congelón de compilación y se esperan dos
   // frames para que la transición CSS arranque: la barra planea hacia 0.68 en
   // el compositor mientras el hilo principal está congelado compilando
-  onProgress(0.68);
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  postProcessing.render(); // el congelón de compilación vive aquí
+  onProgress(0.68)
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  postProcessing.render() // el congelón de compilación vive aquí
 
   {
-    const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType });
-    const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget);
-    cubeCamera.position.set(0, 1.6, 0);
-    for (const face of cubeCamera.children) face.layers.enable(1); // que vea el suelo
-    scene.add(cubeCamera);
+    const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType })
+    const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget)
+    cubeCamera.position.set(0, 1.6, 0)
+    for (const face of cubeCamera.children) face.layers.enable(1) // que vea el suelo
+    scene.add(cubeCamera)
 
     // los emissives (bombillas, letrero, trasbarra) se ocultan SOLO durante
     // la captura: si entran en el cubemap, la laca del suelo los unta como
     // globos gigantes con paralaje falso
-    const hidden = [];
-    const dimmed = [];
+    const hidden = []
+    const dimmed = []
     try {
       // la trasbarra se apaga durante la captura: su pared encendida en el
       // cubemap acaba reflejada en el suelo delante de la barra, donde el
       // mostrador debería taparla (los envMaps no conocen la oclusión)
       scene.traverse((o) => {
         if (o.isLight && o.userData.kind === 'shelf') {
-          dimmed.push([o, o.intensity]);
-          o.intensity = 0;
+          dimmed.push([o, o.intensity])
+          o.intensity = 0
         }
-      });
+      })
       scene.traverse((o) => {
         // solo lo que de verdad brilla: emissive de COLOR no-negro con
         // intensidad real (emissiveIntensity vale 1 por defecto en TODO
         // material aunque el emissive sea negro), más lo marcado hideFromEnv
         // (los faroles: sus pantallas iluminadas de cerca salen como discos)
-        const emissiveColor = o.material?.emissive;
+        const emissiveColor = o.material?.emissive
         const glows =
           o.isMesh &&
           emissiveColor &&
           emissiveColor.r + emissiveColor.g + emissiveColor.b > 0.1 &&
-          o.material.emissiveIntensity > 0.3;
+          o.material.emissiveIntensity > 0.3
         if (o.visible && (glows || o.userData.hideFromEnv)) {
-          o.visible = false;
-          hidden.push(o);
+          o.visible = false
+          hidden.push(o)
         }
-      });
-      cubeCamera.update(renderer, scene);
-      scene.environment = cubeTarget.texture;
-      scene.environmentIntensity = 0.65; // mezcla final de Iulian
+      })
+      cubeCamera.update(renderer, scene)
+      scene.environment = cubeTarget.texture
+      scene.environmentIntensity = 0.65 // mezcla final de Iulian
     } catch (error) {
-      console.error('[lounge] captura de entorno fallida (seguimos sin reflejos):', error);
+      console.error('[lounge] captura de entorno fallida (seguimos sin reflejos):', error)
     } finally {
-      for (const o of hidden) o.visible = true;
-      for (const [light, intensity] of dimmed) light.intensity = intensity;
-      scene.remove(cubeCamera);
+      for (const o of hidden) o.visible = true
+      for (const [light, intensity] of dimmed) light.intensity = intensity
+      scene.remove(cubeCamera)
     }
-    console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length);
+    console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length)
 
     // la escena es estática: congelar los mapas de sombra tras la carga
     // ahorra su recálculo en cada frame
-    renderer.shadowMap.autoUpdate = false;
-    renderer.shadowMap.needsUpdate = true;
+    renderer.shadowMap.autoUpdate = false
+    renderer.shadowMap.needsUpdate = true
   }
 
-  const stats = new Stats();
-  document.body.appendChild(stats.dom);
+  const stats = new Stats()
+  document.body.appendChild(stats.dom)
 
   const onResize = () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  };
-  window.addEventListener('resize', onResize);
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }
+  window.addEventListener('resize', onResize)
 
-  const timer = new THREE.Timer();
+  const timer = new THREE.Timer()
 
   // interruptor de vida: dispose() lo apaga y el bucle muere en el siguiente
   // frame. Sin esto, cada remontaje del componente (HMR de Vite al guardar
   // un fichero) apilaba un lounge entero corriendo invisible — bucle de
   // render, listeners y escena en GPU incluidos.
-  let alive = true;
+  let alive = true
 
   function tick() {
-    if (!alive) return;
-    timer.update();
-    const delta = timer.getDelta();
-    for (const update of updatables) update(delta);
-    walk.update(delta);
-    clampCameraToRoom(camera);
-    postProcessing.render();
-    stats.update();
-    requestAnimationFrame(tick);
+    if (!alive) return
+    timer.update()
+    const delta = timer.getDelta()
+    for (const update of updatables) update(delta)
+    walk.update(delta)
+    clampCameraToRoom(camera)
+    postProcessing.render()
+    stats.update()
+    requestAnimationFrame(tick)
   }
 
   const dispose = () => {
-    if (!alive) return; // idempotente: unmount y pagehide pueden llegar los dos
-    alive = false;
-    window.removeEventListener('resize', onResize);
-    window.removeEventListener('pagehide', dispose);
-    walk.dispose();
-    panel?.destroy();
-    stats.dom.remove();
-    renderer.dispose();
+    if (!alive) return // idempotente: unmount y pagehide pueden llegar los dos
+    alive = false
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('pagehide', dispose)
+    walk.dispose()
+    panel?.destroy()
+    stats.dom.remove()
+    renderer.dispose()
     // renderer.dispose() NO destruye el GPUDevice: sin esto, cada remontaje
     // (HMR) deja un device entero vivo en el proceso GPU del navegador — que
     // es compartido y sobrevive a las recargas — y los arranques se van
     // volviendo cada vez más lentos (síntoma cazado 2026-07-13)
-    renderer.backend?.device?.destroy?.();
-  };
+    renderer.backend?.device?.destroy?.()
+  }
   // la recarga (F5) no pasa por onUnmounted de Vue: pagehide es la única
   // señal que llega antes de morir la página — soltamos el device ahí también
-  window.addEventListener('pagehide', dispose);
+  window.addEventListener('pagehide', dispose)
 
   // calentón ANTES de levantar el telón: barrida de 4 orientaciones para que
   // el primer giro del jugador no encuentre NADA sin preparar (medido: sin
@@ -281,19 +299,19 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // cada orientación en su PROPIO frame (rAF entre medias): el trabajo vive
   // en el proceso GPU de Chrome, y encadenar renders en una sola tarea no le
   // deja rematar la compilación — repartido en frames reales sí
-  const yawInicial = camera.rotation.y;
-  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-  onProgress(0.7);
+  const yawInicial = camera.rotation.y
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
+  onProgress(0.7)
   for (let paso = 0; paso < 12; paso++) {
-    camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2;
-    postProcessing.render();
-    await nextFrame();
-    onProgress(0.7 + ((paso + 1) / 12) * 0.3);
+    camera.rotation.y = yawInicial + (paso / 12) * Math.PI * 2
+    postProcessing.render()
+    await nextFrame()
+    onProgress(0.7 + ((paso + 1) / 12) * 0.3)
   }
-  camera.rotation.y = yawInicial;
-  postProcessing.render(); // frame de estreno con la mirada de entrada
-  onProgress(1);
-  tick();
+  camera.rotation.y = yawInicial
+  postProcessing.render() // frame de estreno con la mirada de entrada
+  onProgress(1)
+  tick()
 
-  return { dispose };
+  return { dispose }
 }

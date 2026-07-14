@@ -1,6 +1,6 @@
-import * as THREE from 'three';
+import * as THREE from 'three'
 
-import { materials } from '../salon';
+import { materials } from '../salon'
 
 // LÁMPARAS DE PIE VICTORIANAS (referencias de Iulian 2026-07-13, en
 // Pictures/speakeasyIdeas): pie de latón torneado, pantalla de cúpula de
@@ -20,42 +20,45 @@ const shadeMaterial = new THREE.MeshStandardMaterial({
   side: THREE.DoubleSide, // el interior de la cúpula se ve desde abajo
   emissive: '#ff6a35',
   emissiveIntensity: 0.32,
-});
+})
 
 const bulbMaterial = new THREE.MeshStandardMaterial({
   color: '#e8cd8f',
   emissive: '#ffb46b',
   emissiveIntensity: 0.9,
-});
+})
 
 // cuentas del fleco: burdeos, latón y oro de la biblia, alternadas
 const beadMaterials = [
   new THREE.MeshStandardMaterial({ color: '#b0524c', roughness: 0.35 }),
   materials.brass,
   new THREE.MeshStandardMaterial({ color: '#e8cd8f', roughness: 0.3 }),
-];
+]
 
 // dónde vive cada lámpara: las dos esquinas del lado de la barra (oeste) —
 // decisión de Iulian 2026-07-13; el escenario lleva focos (decor/stageSpots)
 const SPOTS = [
   [-7.2, -4.7],
   [-7.2, 4.7],
-];
+]
 
-const SHADE_RADIUS = 0.24;
-const SHADE_BOTTOM = 1.34; // altura del borde de la pantalla
+const SHADE_RADIUS = 0.24
+const SHADE_BOTTOM = 1.34 // altura del borde de la pantalla
 
 function lathe(points, material, segments = 24) {
   const mesh = new THREE.Mesh(
-    new THREE.LatheGeometry(points.map(([r, y]) => new THREE.Vector2(r, y)), segments),
+    new THREE.LatheGeometry(
+      points.map(([r, y]) => new THREE.Vector2(r, y)),
+      segments,
+    ),
     material,
-  );
-  mesh.castShadow = true;
-  return mesh;
+  )
+  mesh.castShadow = true
+  return mesh
 }
 
 function buildLamp() {
-  const lamp = new THREE.Group();
+  const lamp = new THREE.Group()
 
   // base acampanada y vástago torneado con nudos, todo latón
   lamp.add(
@@ -70,19 +73,19 @@ function buildLamp() {
       ],
       materials.brass,
     ),
-  );
+  )
 
-  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.013, 1.3, 10), materials.brass);
-  stem.position.y = 0.72;
-  stem.castShadow = true;
-  lamp.add(stem);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.013, 1.3, 10), materials.brass)
+  stem.position.y = 0.72
+  stem.castShadow = true
+  lamp.add(stem)
 
   // los nudos del vástago (el torneado de la referencia)
   for (const y of [0.42, 0.78, 1.14]) {
-    const knop = new THREE.Mesh(new THREE.SphereGeometry(0.024, 10, 8), materials.brass);
-    knop.scale.y = 0.7;
-    knop.position.y = y;
-    lamp.add(knop);
+    const knop = new THREE.Mesh(new THREE.SphereGeometry(0.024, 10, 8), materials.brass)
+    knop.scale.y = 0.7
+    knop.position.y = y
+    lamp.add(knop)
   }
 
   // la cúpula roja: campana por revolución, borde en SHADE_BOTTOM
@@ -96,43 +99,43 @@ function buildLamp() {
     ],
     shadeMaterial,
     32,
-  );
-  shade.position.y = SHADE_BOTTOM;
-  shade.userData.hideFromEnv = true;
-  lamp.add(shade);
+  )
+  shade.position.y = SHADE_BOTTOM
+  shade.userData.hideFromEnv = true
+  lamp.add(shade)
 
   // remate de latón en la coronilla
-  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), materials.brass);
-  finial.position.y = SHADE_BOTTOM + 0.31;
-  lamp.add(finial);
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), materials.brass)
+  finial.position.y = SHADE_BOTTOM + 0.31
+  lamp.add(finial)
 
   // la bombilla, visible solo si te agachas a mirar bajo la pantalla
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), bulbMaterial);
-  bulb.position.y = SHADE_BOTTOM + 0.1;
-  bulb.castShadow = false;
-  bulb.userData.hideFromEnv = true;
-  lamp.add(bulb);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), bulbMaterial)
+  bulb.position.y = SHADE_BOTTOM + 0.1
+  bulb.castShadow = false
+  bulb.userData.hideFromEnv = true
+  lamp.add(bulb)
 
   // el fleco: cuentas colgando del borde, colores alternados y largos
   // variados de forma determinista (nada de Math.random)
-  const beadGeometry = new THREE.CylinderGeometry(0.0035, 0.0045, 1, 6);
-  const BEADS = 36;
+  const beadGeometry = new THREE.CylinderGeometry(0.0035, 0.0045, 1, 6)
+  const BEADS = 36
   for (let i = 0; i < BEADS; i++) {
-    const angle = (i / BEADS) * Math.PI * 2;
-    const length = 0.035 + Math.abs(Math.sin(i * 2.3)) * 0.025;
-    const bead = new THREE.Mesh(beadGeometry, beadMaterials[i % 3]);
-    bead.scale.y = length;
+    const angle = (i / BEADS) * Math.PI * 2
+    const length = 0.035 + Math.abs(Math.sin(i * 2.3)) * 0.025
+    const bead = new THREE.Mesh(beadGeometry, beadMaterials[i % 3])
+    bead.scale.y = length
     bead.position.set(
       Math.cos(angle) * (SHADE_RADIUS - 0.005),
       SHADE_BOTTOM + 0.01 - length / 2,
       Math.sin(angle) * (SHADE_RADIUS - 0.005),
-    );
-    bead.castShadow = false;
-    bead.userData.hideFromEnv = true;
-    lamp.add(bead);
+    )
+    bead.castShadow = false
+    bead.userData.hideFromEnv = true
+    lamp.add(bead)
   }
 
-  return lamp;
+  return lamp
 }
 
 /**
@@ -141,21 +144,21 @@ function buildLamp() {
  */
 export function addFloorLamps(scene) {
   for (const [x, z] of SPOTS) {
-    const lamp = buildLamp();
-    lamp.position.set(x, 0, z);
-    lamp.name = 'lampara-pie';
+    const lamp = buildLamp()
+    lamp.position.set(x, 0, z)
+    lamp.name = 'lampara-pie'
     // la lámpara entera fuera de la captura de entorno (no solo pantalla y
     // fleco): menos variantes de pipeline que compilar en el arranque
-    lamp.userData.hideFromEnv = true;
-    scene.add(lamp);
+    lamp.userData.hideFromEnv = true
+    scene.add(lamp)
 
     // el baño rojizo de la referencia: corto y sin sombra, muere antes de
     // cruzar la sala (misma técnica que las velas). Base 8 = la mezcla de
     // Iulian 2026-07-13 (pidió el mando a 2 sobre la base 4 original)
-    const glow = new THREE.PointLight('#ff8552', 8, 4, 2);
-    glow.position.set(x, SHADE_BOTTOM + 0.08, z);
-    glow.userData.kind = 'pie';
-    glow.userData.baseIntensity = 8;
-    scene.add(glow);
+    const glow = new THREE.PointLight('#ff8552', 8, 4, 2)
+    glow.position.set(x, SHADE_BOTTOM + 0.08, z)
+    glow.userData.kind = 'pie'
+    glow.userData.baseIntensity = 8
+    scene.add(glow)
   }
 }

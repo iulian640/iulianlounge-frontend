@@ -1,11 +1,11 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
-import { createLounge } from '@/lounge/createLounge';
+import { onMounted, onUnmounted, ref } from 'vue'
+import { createLounge } from '@/lounge/createLounge'
 
-const canvas = ref(null);
-const entering = ref(true); // el telón: tapa la compilación de shaders y la carga
-const progress = ref(0); // 0..1, lo reporta createLounge por tramos reales
-let lounge = null; // handle con dispose(), para matar el lounge al desmontar
+const canvas = ref(null)
+const entering = ref(true) // el telón: tapa la compilación de shaders y la carga
+const progress = ref(0) // 0..1, lo reporta createLounge por tramos reales
+let lounge = null // handle con dispose(), para matar el lounge al desmontar
 
 onMounted(async () => {
   try {
@@ -14,25 +14,25 @@ onMounted(async () => {
     // frame ya renderizado — solo entonces se levanta el telón
     lounge = await createLounge(canvas.value, (value) => {
       // nunca retrocede: las cargas sueltas pueden reportar desordenadas
-      progress.value = Math.max(progress.value, value);
-    });
+      progress.value = Math.max(progress.value, value)
+    })
   } catch (error) {
-    console.error('[lounge]', error);
+    console.error('[lounge]', error)
   } finally {
     // un respiro para que la barra termine su deslizamiento hasta el fondo
     // antes de levantar el telón — el remate se ve, no se corta
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    entering.value = false;
+    await new Promise((resolve) => setTimeout(resolve, 700))
+    entering.value = false
   }
-});
+})
 
 // al desmontar (navegar a otra vista, o remontaje por HMR al guardar un
 // fichero) el lounge anterior se apaga de verdad: sin esto se iban apilando
 // lounges invisibles y la pestaña se atascaba más con cada guardado
 onUnmounted(() => {
-  lounge?.dispose();
-  lounge = null;
-});
+  lounge?.dispose()
+  lounge = null
+})
 </script>
 
 <template>
