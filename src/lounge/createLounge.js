@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { pass, mrt, output, emissive } from 'three/tsl'
 import { bloom } from 'three/addons/tsl/display/BloomNode.js'
+import { DynamicLighting } from 'three/addons/lighting/DynamicLighting.js'
 import Stats from 'three/addons/libs/stats.module.js'
 
 import { buildSalon, materials, ROOM } from './salon'
@@ -59,6 +60,12 @@ export async function createLounge(canvas, onProgress = () => {}) {
   renderer.shadowMap.type = THREE.PCFShadowMap
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 2.2 // mezcla final de Iulian (2026-07-12)
+  // luces por lotes (arrays de uniforms + bucle en el shader) en vez de
+  // desenrolladas: con 26 luces, cada una engordaba el shader de TODOS los
+  // materiales (99 programas, ~50KB de WGSL cada uno = el grueso del coste de
+  // compilación del arranque). Las de sombra y la RectArea siguen por la vía
+  // individual — la imagen no cambia, solo el tamaño del código
+  renderer.lighting = new DynamicLighting({ maxPointLights: 24 })
   await renderer.init()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)
