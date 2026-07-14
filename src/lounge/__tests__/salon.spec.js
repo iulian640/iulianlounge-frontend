@@ -191,13 +191,13 @@ describe('buildSalon', () => {
     expect(suelo.layers.isEnabled(0)).toBe(false)
   })
 
-  it('coloca doce botellas en la repisa baja de la trasbarra', () => {
+  it('deja la repisa baja libre: las botellas de marca las pone decor/botellas', () => {
     // Arrange
     const scene = new THREE.Scene()
 
-    // Act
+    // Act: el salón ya no fabrica botellas genéricas (cilindros de 0.05×0.3)
     const salon = buildSalon(scene)
-    const botellas = collectMeshes(salon).filter(
+    const genericas = collectMeshes(salon).filter(
       (mesh) =>
         mesh.geometry.type === 'CylinderGeometry' &&
         mesh.geometry.parameters.radiusTop === 0.05 &&
@@ -205,7 +205,7 @@ describe('buildSalon', () => {
     )
 
     // Assert
-    expect(botellas).toHaveLength(12)
+    expect(genericas).toHaveLength(0)
   })
 
   it('levanta siete pilastras en el frente de la barra, cada una con basa y capitel', () => {

@@ -11,6 +11,7 @@ import { addLetrero } from './letrero'
 import { createWalkControls } from './walkControls'
 import { addArchitecture } from './decor/architecture'
 import { addDoor } from './decor/door'
+import { addBotellas } from './decor/botellas'
 import { addHatDisplay } from './decor/hatDisplay'
 import { addAshtrays } from './decor/ashtrays'
 import { addFloorLamps } from './decor/floorLamps'
@@ -177,6 +178,9 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // germen visual de la tienda del club) — luz por tiras emissive + puntuales
   // cortas sin sombra, cero sombras nuevas
   addHatDisplay(scene)
+  // botellas de marca reales en la trasbarra, a contraluz del panel —
+  // geometría pura con materiales compartidos, cero luces
+  addBotellas(scene)
   // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
   // del lado de la barra, y focos de trípode flanqueando el escenario —
   // todo con luces sin sombra (el presupuesto de sombras manda)

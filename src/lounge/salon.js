@@ -157,8 +157,6 @@ materials.tiraBarra = new THREE.MeshStandardMaterial({
   emissiveIntensity: 1.2,
 })
 
-const bottleColors = ['#5a6b3a', '#7a4a24', '#3d5a52', '#8a6a33', '#4a3040']
-
 function box(width, height, depth, material, x, y, z) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material)
   mesh.position.set(x, y, z)
@@ -278,16 +276,8 @@ function buildBar(salon) {
   backglow.position.set(-ROOM.width / 2 + 0.12, 1.85, -0.35)
   salon.add(backglow)
 
-  // botellas en la repisa baja — variantes de color, cero assets
+  // la repisa baja la puebla decor/botellas.js con botellas de marca reales
   // (la repisa alta la ocupa el champán que coloca furnish.js)
-  for (let i = 0; i < 12; i++) {
-    const z = -2.8 + i * (4.9 / 11)
-    const bottle = new THREE.MeshStandardMaterial({
-      color: bottleColors[i % bottleColors.length],
-      roughness: 0.15,
-    })
-    salon.add(cylinder(0.05, 0.3, bottle, backX, 1.55 + 0.175, z, 10))
-  }
   // el letrero "IULIAN'S" con letras 3D lo monta letrero.js
 
   buildBarPaneling(salon, barX, barLength)

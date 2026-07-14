@@ -297,3 +297,63 @@ describe('decor/floorLamps — lámparas de pie victorianas', () => {
     }
   })
 })
+
+describe('las botellas de marca de la trasbarra (decor/botellas)', () => {
+  it('puebla la repisa con las diez marcas reales, con repetidas como en una barra de verdad', async () => {
+    // Arrange
+    const { addBotellas } = await import('../decor/botellas')
+    const scene = new THREE.Scene()
+
+    // Act
+    const grupo = addBotellas(scene)
+
+    // Assert: el grupo entra en escena con 12 botellas y 10 marcas distintas
+    expect(scene.getObjectByName('botellas-reales')).toBe(grupo)
+    expect(grupo.children).toHaveLength(12)
+    const marcas = new Set(grupo.children.map((botella) => botella.name))
+    expect(marcas.size).toBe(10)
+    for (const esperada of ['jack-daniels', 'campari', 'chartreuse', 'hennessy']) {
+      expect(marcas.has(esperada)).toBe(true)
+    }
+  })
+
+  it('todas apoyan en la repisa baja y caben bajo la repisa alta', async () => {
+    // Arrange
+    const { addBotellas } = await import('../decor/botellas')
+    const scene = new THREE.Scene()
+
+    // Act
+    const grupo = addBotellas(scene)
+
+    // Assert: bases en la tapa de la repisa (1.575) y ninguna alcanza la
+    // repisa alta (2.025); todo el lote dentro del tramo libre en z
+    for (const botella of grupo.children) {
+      expect(botella.position.y).toBe(1.575)
+      const alto = new THREE.Box3().setFromObject(botella)
+      expect(alto.max.y).toBeLessThan(2.025)
+      expect(botella.position.z).toBeGreaterThan(-3.1)
+      expect(botella.position.z).toBeLessThan(2.4)
+    }
+  })
+
+  it('cumple la ley de materiales: MeshStandard sin mapas en todas las piezas', async () => {
+    // Arrange
+    const { addBotellas } = await import('../decor/botellas')
+    const scene = new THREE.Scene()
+
+    // Act
+    const grupo = addBotellas(scene)
+    const materiales = new Set()
+    grupo.traverse((o) => {
+      if (o.isMesh) materiales.add(o.material)
+    })
+
+    // Assert: pocos materiales compartidos entre muchas botellas, ninguno
+    // Physical ni con texturas — cero programas de shader nuevos
+    expect(materiales.size).toBeLessThan(20)
+    for (const material of materiales) {
+      expect(material.type).toBe('MeshStandardMaterial')
+      expect(material.map).toBeNull()
+    }
+  })
+})
