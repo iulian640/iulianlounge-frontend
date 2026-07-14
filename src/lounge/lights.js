@@ -15,12 +15,14 @@ const GOLD = '#e8cd8f'
 
 // las luces se etiquetan por capa (userData.kind) para el panel de afinado;
 // todas alcanzan el suelo (capa 1) SALVO velas (no deben reflejarse en la
-// laca) y trasbarra (el mostrador la bloquea en la realidad, pero sus
-// puntuales no proyectan sombra — se lo prohibimos por capa)
+// laca), trasbarra (el mostrador la bloquea en la realidad, pero sus
+// puntuales no proyectan sombra — se lo prohibimos por capa) y la tira de
+// la barra (dirección de arte: la luz cae por los paneles, nada de charcos
+// en el parquet)
 function tag(light, kind) {
   light.userData.kind = kind
   light.userData.baseIntensity = light.intensity
-  if (kind !== 'candle' && kind !== 'shelf') light.layers.enable(1)
+  if (kind !== 'candle' && kind !== 'shelf' && kind !== 'tira') light.layers.enable(1)
   return light
 }
 
@@ -66,6 +68,19 @@ export function addSalonLights(scene) {
     const glow = tag(new THREE.PointLight(WARM, 1.35, 2.6, 2), 'shelf') // mezcla 2026-07-13 (0.4)
     glow.position.set(-ROOM.width / 2 + 0.32, 1.62, z)
     scene.add(glow)
+  }
+
+  // 3 — la tira de luz de la barra (la cinta emissive tras su faldón la
+  // pone salon.js): estas puntuales bañan los paneles DESDE ARRIBA y la luz
+  // muere cayendo — dirección de arte: refleja de la barra hacia abajo, el
+  // suelo ni se entera (kind 'tira' queda fuera de la capa 1). TRECE a paso
+  // corto (0.5m) y algo separadas del panel: los focos individuales se
+  // funden en una banda uniforme; batcheadas, el número casi no cuesta
+  // alcance/altura/separación = mezcla de Iulian 2026-07-14 (panel 'Tira barra')
+  for (let z = -3; z <= 3.01; z += 0.5) {
+    const wash = tag(new THREE.PointLight('#ff9d5c', 0.34, 1.8, 2), 'tira')
+    wash.position.set(-ROOM.width / 2 + 2.14, 0.82, z)
+    scene.add(wash)
   }
 
   // 3 — una lucecita por vela de mesa: más naranja y más débil que las

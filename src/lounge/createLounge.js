@@ -77,7 +77,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // materiales (99 programas, ~50KB de WGSL cada uno = el grueso del coste de
   // compilación del arranque). Solo las 3 de sombra siguen por la vía
   // individual — la imagen no cambia, solo el tamaño del código
-  renderer.lighting = new DynamicLighting({ maxPointLights: 24 })
+  renderer.lighting = new DynamicLighting({ maxPointLights: 40 }) // 35 en escena (ley 5)
   await renderer.init()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)

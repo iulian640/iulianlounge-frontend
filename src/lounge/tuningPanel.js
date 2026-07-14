@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import GUI from 'three/addons/libs/lil-gui.module.min.js'
 
-import { materials } from './salon'
+import { materials, ROOM } from './salon'
 
 // Panel de afinado de luz (solo DEV): el director de arte ajusta en SU
 // pantalla y vuelca los valores por consola para dejarlos fijos en código.
@@ -24,6 +24,12 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality, smoke, s
     lamparas: 1,
     lamparasPie: 1,
     trasbarra: 1,
+    tiraBarra: 1,
+    // geometría de la tira (defaults = los valores horneados en lights.js,
+    // mezcla de Iulian 2026-07-14)
+    tiraAlcance: 1.8,
+    tiraAltura: 0.82,
+    tiraSeparacion: 2.14,
     velas: 1,
     letrero: 1,
     escenario: 1,
@@ -79,6 +85,37 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality, smoke, s
     const backglow = scene.getObjectByName('backglow')
     if (backglow) backglow.material.emissiveIntensity = 0.18 * v // base = mezcla 2026-07-13 (trasbarra 0.4)
   })
+  gui
+    .add(params, 'tiraBarra', 0, 2, 0.05)
+    .name('tira barra')
+    .onChange((v) => {
+      // las puntuales del lavado y la cinta emissive, a la una
+      applyMultiplier('tira')(v)
+      materials.tiraBarra.emissiveIntensity = 1.2 * v
+    })
+
+  // geometría de la tira en vivo: cuánto se ESTIRA la luz por los paneles
+  // (alcance), desde qué altura cae y a qué distancia del panel flotan las
+  // puntuales (más separación = lavado más ancho y difuso)
+  const tiraFolder = gui.addFolder('Tira barra')
+  tiraFolder
+    .add(params, 'tiraAlcance', 0.4, 3, 0.05)
+    .name('alcance (estirar)')
+    .onChange((v) => {
+      for (const luz of lightsByKind('tira')) luz.distance = v
+    })
+  tiraFolder
+    .add(params, 'tiraAltura', 0.1, 1.04, 0.01)
+    .name('altura')
+    .onChange((v) => {
+      for (const luz of lightsByKind('tira')) luz.position.y = v
+    })
+  tiraFolder
+    .add(params, 'tiraSeparacion', 1.7, 2.6, 0.01)
+    .name('separación')
+    .onChange((v) => {
+      for (const luz of lightsByKind('tira')) luz.position.x = -ROOM.width / 2 + v
+    })
   gui.add(params, 'letrero', 0, 2, 0.05).onChange((v) => {
     // las letras y su baño de luz sobre la pared, a la vez
     applyMultiplier('letrero')(v)

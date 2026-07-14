@@ -146,6 +146,17 @@ export const materials = {
 materials.woodPanel = materials.woodTrim.clone()
 materials.woodPanel.color.set('#63432f')
 
+// la tira de luz del pie de la barra: cinta emissive escondida tras el
+// faldón — desde el salón solo se ve la línea de luz que escapa. El charco
+// del parquet lo ponen sus puntuales (lights.js, kind 'tira'); el mando
+// 'tira barra' del panel regula ambas a la vez. Sin mapas: comparte programa
+// con bulb/marquee (ley 6)
+materials.tiraBarra = new THREE.MeshStandardMaterial({
+  color: '#1a0f08',
+  emissive: '#ff9d5c',
+  emissiveIntensity: 1.2,
+})
+
 const bottleColors = ['#5a6b3a', '#7a4a24', '#3d5a52', '#8a6a33', '#4a3040']
 
 function box(width, height, depth, material, x, y, z) {
@@ -303,6 +314,19 @@ function buildBarPaneling(salon, barX, barLength) {
 
   // el paso que comparten pilastras y paneles
   const PITCH = 1.14
+
+  // tira de luz BAJO EL VUELO DE LA TAPA (dirección de arte de Iulian,
+  // 2026-07-14: la luz nace en la barra y cae por los paneles — el suelo ni
+  // se entera, sus puntuales van excluidas de la capa 1 en lights.js). La
+  // cinta emissive va retranqueada sobre el riel y un FALDÓN colgado del
+  // vuelo la tapa por delante: la fuente no se ve directamente desde
+  // ninguna altura de ojo razonable, solo escapa la luz por la ranura
+  const cinta = box(0.02, 0.018, barLength, materials.tiraBarra, FRONT + 0.02, 1.039, 0)
+  cinta.castShadow = false
+  salon.add(cinta)
+  const faldon = box(0.015, 0.048, barLength + 0.02, materials.woodDark, FRONT + 0.0425, 1.026, 0)
+  faldon.castShadow = false // solo esconde la cinta: sin sombras duras extra
+  salon.add(faldon)
 
   // siete pilastras con basa y capitel, como las de las paredes
   for (let i = 0; i < 7; i++) {
