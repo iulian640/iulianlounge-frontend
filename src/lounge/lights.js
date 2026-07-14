@@ -1,12 +1,6 @@
 import * as THREE from 'three'
-import { RectAreaLightTexturesLib } from 'three/addons/lights/RectAreaLightTexturesLib.js'
 
 import { LAMPS, ROOM, SCONCES, TABLE_SPOTS } from './salon'
-
-// texturas LTC de la RectAreaLight para el motor WebGPU
-if (THREE.RectAreaLightNode?.setLTC) {
-  THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init())
-}
 
 // Iluminación en capas (referencias de Pictures/speakeasyIdeas + práctica
 // three.js): la penumbra rica no es menos luz, es más FUENTES y más rebote,
@@ -21,8 +15,8 @@ const GOLD = '#e8cd8f'
 
 // las luces se etiquetan por capa (userData.kind) para el panel de afinado;
 // todas alcanzan el suelo (capa 1) SALVO velas (no deben reflejarse en la
-// laca) y trasbarra (el mostrador la bloquea en la realidad, pero RectArea
-// no proyecta sombras — se lo prohibimos por capa)
+// laca) y trasbarra (el mostrador la bloquea en la realidad, pero sus
+// puntuales no proyectan sombra — se lo prohibimos por capa)
 function tag(light, kind) {
   light.userData.kind = kind
   light.userData.baseIntensity = light.intensity
@@ -58,21 +52,21 @@ export function addSalonLights(scene) {
     }
   }
 
-  // 3 — la trasbarra retroiluminada: tres puntuales CON SOMBRA pegadas al
-  // panel (la RectAreaLight se descartó: no puede proyectar sombras y su luz
-  // atravesaba el mostrador pintando una banda en el suelo — cazado por
-  // Iulian y confirmado por bisección apagando luces una a una)
-  // híbrido: RectArea INCLINADA HACIA ARRIBA (baño suave y continuo en
-  // botellas y pared; mirando al techo casi nada de su energía cae al suelo
-  // — no puede proyectar sombras, así que se la orienta para no necesitarlas)
-  // + dos puntuales con sombra a media potencia para el bajo de las repisas.
-  // OJO presupuesto de texturas WebGL (16 por shader): el suelo usa 7 mapas,
-  // la RectArea añade 2 (tablas LTC) y cada luz con sombra 1 más — con la
-  // rect solo caben 6 sombras en total en la escena
-  const shelfPanel = tag(new THREE.RectAreaLight(WARM, 1.4, 5.4, 0.9), 'shelf') // mezcla 2026-07-13 (0.4)
-  shelfPanel.position.set(-ROOM.width / 2 + 0.22, 1.5, -0.35)
-  shelfPanel.lookAt(-ROOM.width / 2 + 1.4, 3.4, -0.35)
-  scene.add(shelfPanel)
+  // 3 — la trasbarra retroiluminada: FILA de puntuales cortas pegadas al
+  // panel en vez de la RectAreaLight de antes. La RectArea era la única luz
+  // de área de la escena y su código LTC (tablas + mates gordas) iba
+  // desenrollado en TODOS los programas de shader — un mordisco fijo a los
+  // ~14s de compilación del primer arranque, y 2 texturas menos del
+  // presupuesto WebGL (16 por shader). Las puntuales van batcheadas por
+  // DynamicLighting (coste cero en el código) y siguen sin tocar el suelo:
+  // la etiqueta 'shelf' las deja fuera de la capa 1 (el mostrador las
+  // bloquearía en la realidad, y las puntuales tampoco proyectan sombra)
+  const SHELF_GLOWS = [-2.15, -0.35, 1.45] // reparto del panel de 5.4m
+  for (const z of SHELF_GLOWS) {
+    const glow = tag(new THREE.PointLight(WARM, 1.35, 2.6, 2), 'shelf') // mezcla 2026-07-13 (0.4)
+    glow.position.set(-ROOM.width / 2 + 0.32, 1.62, z)
+    scene.add(glow)
+  }
 
   // 3 — una lucecita por vela de mesa: más naranja y más débil que las
   // lámparas. LECCIÓN v2: su sombra era un cubo de 6 mapas carísimo cuyo

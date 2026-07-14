@@ -75,7 +75,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // luces por lotes (arrays de uniforms + bucle en el shader) en vez de
   // desenrolladas: con 26 luces, cada una engordaba el shader de TODOS los
   // materiales (99 programas, ~50KB de WGSL cada uno = el grueso del coste de
-  // compilación del arranque). Las de sombra y la RectArea siguen por la vía
+  // compilación del arranque). Solo las 3 de sombra siguen por la vía
   // individual — la imagen no cambia, solo el tamaño del código
   renderer.lighting = new DynamicLighting({ maxPointLights: 24 })
   await renderer.init()
