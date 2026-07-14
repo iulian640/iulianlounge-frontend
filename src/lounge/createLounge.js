@@ -81,7 +81,8 @@ export async function createLounge(canvas, onProgress = () => {}) {
   await renderer.init()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)
-  const backendName = renderer.backend?.isWebGPUBackend ? 'WebGPU' : 'WebGL2 (fallback)'
+  const isWebGPU = renderer.backend?.isWebGPUBackend === true
+  const backendName = isWebGPU ? 'WebGPU' : 'WebGL2 (fallback)'
   console.log('[lounge] motor:', backendName)
   window.__loungeBackend = backendName
 
@@ -97,13 +98,23 @@ export async function createLounge(canvas, onProgress = () => {}) {
   bloomPass.resolutionScale = 0.5 // el halo no necesita resolución completa
   postProcessing.outputNode = scenePassColor.add(bloomPass)
 
-  // presets de calidad = resolución real de render (el mayor coste de todos)
-  const QUALITY = { alta: Math.min(window.devicePixelRatio, 2), media: 1.25, baja: 1 }
+  // presets de calidad = resolución real de render (el mayor coste de todos).
+  // En el respaldo WebGL2 hasta el tope de 'alta' baja a 1.5: a DPR 2 real el
+  // fallback se hundía a 16fps (medido) — que el selector no ofrezca trampas
+  const QUALITY = {
+    alta: Math.min(window.devicePixelRatio, isWebGPU ? 2 : 1.5),
+    media: 1.25,
+    baja: 1,
+  }
   const setQuality = (level) => {
     renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media)
     renderer.setSize(window.innerWidth, window.innerHeight)
   }
-  setQuality('alta') // por defecto a tope (decisión de Iulian: 120fps sobrados)
+  // por defecto según el motor REAL: con WebGPU a tope (decisión de Iulian:
+  // 120fps sobrados); en el respaldo WebGL2 (Firefox sin WebGPU, visitas por
+  // http de LAN — contexto no seguro) la resolución ×2 hundía los FPS →
+  // resolución nativa. El selector del panel sigue mandando
+  setQuality(isWebGPU ? 'alta' : 'baja')
 
   let panel = null // instancia lil-gui, para destruirla en dispose()
   const mountPanel = (smoke) => {
@@ -208,6 +219,20 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // scene.environment (trabajo tirado, medido ~11s en headless)
   await Promise.all([ready, texturesSettled])
   cronometra('assets')
+
+  // dieta del respaldo WebGL2 (Firefox sin WebGPU, visitas por http de LAN):
+  // ahí no hay compilación asíncrona ni va sobrado de GPU. Medido en banco:
+  // muestrear las 3 sombras PCF en cada fragmento hundía los FPS (35→60 sin
+  // ellas) y los conos de niebla castigan por overdraw (-35% de carga sin
+  // ellos). Se aplica ANTES de compilar para que los programas ya nazcan
+  // sin el código de sombras. La vía WebGPU no se toca
+  if (!isWebGPU) {
+    renderer.shadowMap.enabled = false
+    scene.traverse((o) => {
+      if (o.isLight) o.castShadow = false
+      if (o.userData.haz) o.visible = false
+    })
+  }
   onProgress(0.62)
 
   {

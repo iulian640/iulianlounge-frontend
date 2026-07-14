@@ -148,6 +148,10 @@ export function addStageSpots(scene) {
     const beam = new THREE.Mesh(beamGeometry, beamMaterial)
     beam.renderOrder = 9 // translúcido: después de lo opaco, antes del humo
     beam.userData.hideFromEnv = true
+    // etiqueta para la vía de respaldo WebGL2: estos conos translúcidos a
+    // pantalla completa castigan por overdraw (medido: -35% de carga y +fps
+    // al quitarlos) y allí se apagan
+    beam.userData.haz = true
     fixture.add(beam)
     beams.push(beam)
 

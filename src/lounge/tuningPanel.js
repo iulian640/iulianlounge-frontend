@@ -16,7 +16,8 @@ export function createTuningPanel({ scene, renderer, bloom, setQuality, smoke, s
   }
 
   const params = {
-    calidad: 'alta',
+    // refleja el valor por defecto real (WebGPU → alta, respaldo WebGL2 → baja)
+    calidad: renderer.backend?.isWebGPUBackend ? 'alta' : 'baja',
     exposicion: renderer.toneMappingExposure,
     bloomFuerza: bloom.strength.value,
     relleno: 1,
