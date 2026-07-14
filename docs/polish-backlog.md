@@ -1,49 +1,51 @@
 # Backlog de pulido del lounge — "que parezca Iulian's"
 
-> Estado a 2026-07-12. El blockout (IUL-27) pedía escala y atmósfera
-> aproximadas; esto es la lista de lo que separa el estado actual de un
-> speakeasy creíble. Priorizada por impacto visual / esfuerzo.
+> Estado a 2026-07-14 (tras la saga de rendimiento y la sesión de vestir la
+> barra). Toda pieza nueva cumple docs/leyes-de-rendimiento.md.
 
-## P1 — máximo impacto
+## Hecho (referencia rápida)
 
-- [x] **Bloom** (letrero, velas, apliques con halo) — hecho 2026-07-12
-- [x] **Suelo con tablones** — hecho 2026-07-12: parquet de espiga Poly Haven
-      con clearcoat (barniz regulable desde el panel).
-- [ ] **Arquitectura de la caja**: cornisa perimetral, pilastras entre los
-      cuadros, arco/moldura en la puerta de entrada. La caja desnuda parece
-      local de ensayo.
-- [ ] **Puerta de entrada de verdad** (con mirilla — el santo y seña se pide
-      por ahí).
+- Bloom selectivo, parquet con laca, arquitectura (cornisa/pilastras/zócalo),
+  puerta con ventanilla, letrero Limelight con marquesina, humo de puros,
+  ceniceros, lámparas de pie, varal de focos, cortinas de teatro, expositor
+  de fedoras, frente de barra panelado con latón y tira de luz oculta,
+  botellas de marca reales en la trasbarra (mejorables), tests 97% y carga
+  57s→~11s en frío / ~5s repetida.
 
-## P2 — identidad
+## Pendiente — por impacto
 
-- [ ] **Letrero con Limelight**: convertir la fuente a typeface.json
-      (facetype.js) y sustituir la helvetiker; añadir bombillas alrededor
-      del marco como en el mockup de Figma.
-- [ ] **Espejo tras la barra** (clásico de bar: duplica luz y profundidad —
-      en Three.js, `Reflector` con opacidad baja).
-- [ ] **Cuadros con contenido**: retratos/carteles art déco en los marcos
-      (texturas generadas, estilo de la biblia).
-- [ ] **Humo**: planos con textura de humo animada o partículas suaves bajo
-      las lámparas. El aire del club se tiene que ver.
-- [ ] **El jazz**: pista CC0 (freepd.com u otra), `THREE.PositionalAudio`
-      saliendo del gramófono + crédito.
-
-## P3 — vida
-
-- [ ] **Parroquianos**: 2-3 NPCs sentados (clip Sit_Chair de Quaternius) en
-      mesas y barra.
-- [ ] **Banda completa**: trompeta y batería de jazz (candidatos ya cazados:
-      Trumpet de jeremy, Drumkit de J-Toastie — ver informe del workflow).
-- [ ] **Vestir NPCs**: Ultimate Modular Men/Women Packs de Quaternius
-      (chaleco, sombrero, barman con pajarita) — requiere exportar a glTF.
+- [ ] **Músicos de espaldas al público**: girarlos (rotationY en furnish).
+      Barato y muy visible bajo los focos del varal.
+- [ ] **El jazz**: el gramófono sigue mudo. Pista CC0 decente (la del
+      workflow quedó vetada: sonaba fatal) + `THREE.PositionalAudio` desde
+      el gramófono + crédito en CREDITS.md.
+- [ ] **Parroquianos sentados**: 2-3 NPCs en mesas. OJO veto vivo: los
+      Quaternius "no pegan nada" — o pose sentada discreta o el proyecto
+      grande de personajes propios.
 - [ ] **Blackjack vestido**: cartas y fichas sobre el fieltro (Poker Chips
-      de Jarlan Perez, cazado en el workflow).
-- [ ] **Detalles de época**: reloj de pared (Clock de jeremy), teléfono de
-      candelabro, cenicero.
+      de Jarlan Perez, en el stash). Conecta con el juego del Sprint 3.
+- [ ] **Fotos de época enmarcadas**: los cuadros procedurales fueron
+      VETADOS; alternativa fotos sepia (texturas reales, material
+      compartido = un solo programa).
+- [ ] **Detalles menores**: reloj de pared (asset en stash), teléfono de
+      candelabro (sin asset CC0 — procedural).
+- [ ] **Gato saxofonista** (IUL-53, recortable): low-poly propio en el
+      escenario.
 
-## Recortado / descartado
+## Deudas de afinado
 
-- Sofá y rincón doméstico (vetado 2026-07-12: "salón de casa").
-- Plantas de interior (vetadas 2026-07-12).
+- [ ] **Pasada de brillos** (2026-07-14): tras el override de la captura de
+      entorno "algunas cosas se ven muy brillantes" (Iulian). Sospecha:
+      cubemap plano refleja más parejo en latón/laca — probar mando
+      'reflejos' ~0.5 y matizar el color del override.
+- [ ] **Trasbarra mejorable** (2026-07-14, veredicto de Iulian sobre las
+      botellas: "medio bien"): siluetas más fieles, mejor reparto, quizá
+      vidrio con más presencia.
+
+## Recortado / vetado (no reabrir sin Iulian)
+
+- Espejo tras la barra (vetado 2026-07-13, sigue en el stash).
+- Cuadros procedurales (vetados 2026-07-13, en el stash).
+- Sofá y rincón doméstico, plantas de interior (2026-07-12).
 - Neón atómico: jamás — marquesina cálida (CONCEPT.md).
+- RectAreaLight y sombras nuevas: ver docs/leyes-de-rendimiento.md.
