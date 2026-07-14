@@ -44,6 +44,18 @@ function clampCameraToRoom(camera) {
 // 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
 // 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
 export async function createLounge(canvas, onProgress = () => {}) {
+  // cronómetro de tramos del arranque: se imprime al final y queda en
+  // window.__loungeTiming — sirve para comparar la máquina real con el
+  // banco headless sin depender de capturas ni de DevTools
+  const t0 = performance.now()
+  const tiempos = {}
+  let tAnterior = t0
+  const cronometra = (tramo) => {
+    const ahora = performance.now()
+    tiempos[tramo] = Math.round(ahora - tAnterior)
+    tAnterior = ahora
+  }
+
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#0b1514')
   scene.fog = new THREE.FogExp2('#0b1514', 0.022) // el humo del club
@@ -195,6 +207,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // eran dos tandas completas — la primera se invalidaba entera al poner
   // scene.environment (trabajo tirado, medido ~11s en headless)
   await Promise.all([ready, texturesSettled])
+  cronometra('assets')
   onProgress(0.62)
 
   {
@@ -246,6 +259,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
       scene.remove(cubeCamera)
     }
     console.log('[lounge] entorno capturado, emissives ocultados:', hidden.length)
+    cronometra('reflejos')
     onProgress(0.68)
 
     // la escena es estática: congelar los mapas de sombra tras la carga
@@ -279,6 +293,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
     clearInterval(goteo)
   }
   for (const o of culled) o.frustumCulled = true
+  cronometra('compilacion')
   onProgress(0.78)
 
   const stats = new Stats()
@@ -351,6 +366,10 @@ export async function createLounge(canvas, onProgress = () => {}) {
   }
   camera.rotation.y = yawInicial
   postProcessing.render() // frame de estreno con la mirada de entrada
+  cronometra('barrida')
+  tiempos.total = Math.round(performance.now() - t0)
+  console.log('[lounge] arranque (ms):', JSON.stringify(tiempos))
+  window.__loungeTiming = tiempos
   onProgress(1)
   tick()
 
