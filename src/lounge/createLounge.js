@@ -3,7 +3,6 @@ import { pass, mrt, output, emissive } from 'three/tsl'
 import { bloom } from 'three/addons/tsl/display/BloomNode.js'
 import { fsr1 } from 'three/addons/tsl/display/FSR1Node.js'
 import { DynamicLighting } from 'three/addons/lighting/DynamicLighting.js'
-import { ClusteredLighting } from 'three/addons/lighting/ClusteredLighting.js'
 import Stats from 'three/addons/libs/stats.module.js'
 
 import { buildSalon, materials, ROOM } from './salon'
@@ -88,22 +87,12 @@ export async function createLounge(canvas, onProgress = () => {}) {
   renderer.shadowMap.type = THREE.PCFShadowMap
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 2.2 // mezcla final de Iulian (2026-07-12)
-  // luces por lotes en vez de desenrolladas: con 26 luces, cada una engordaba
-  // el shader de TODOS los materiales (99 programas, ~50KB de WGSL cada uno =
-  // el grueso del coste de compilación del arranque). Solo las 3 de sombra
-  // siguen por la vía individual — la imagen no cambia, solo cómo se agrupan
-  // el resto. En WebGPU, ClusteredLighting (tiles + z-slices) frente a
-  // DynamicLighting (array de uniforms) midió +78% de FPS en régimen estable
-  // a 35 luces (31.8→56.7fps) a cambio de ~7 programas y ~3s más de
-  // compilación en el arranque — se paga una vez, se cobra cada frame. En el
-  // respaldo WebGL2 NO compensa: el arranque en frío se casi triplica (2.9x)
-  // ahí, así que el fallback conserva DynamicLighting. La decisión se toma
-  // ANTES de renderer.init() (renderer.backend aún no existe a esta altura),
-  // por eso se usa navigator.gpu como proxy del backend real
-  const hasWebGPU = typeof navigator !== 'undefined' && !!navigator.gpu
-  renderer.lighting = hasWebGPU
-    ? new ClusteredLighting()
-    : new DynamicLighting({ maxPointLights: 40 }) // 35 en escena (ley 5)
+  // luces por lotes (arrays de uniforms + bucle en el shader) en vez de
+  // desenrolladas: con 26 luces, cada una engordaba el shader de TODOS los
+  // materiales (99 programas, ~50KB de WGSL cada uno = el grueso del coste de
+  // compilación del arranque). Solo las 3 de sombra siguen por la vía
+  // individual — la imagen no cambia, solo el tamaño del código
+  renderer.lighting = new DynamicLighting({ maxPointLights: 40 }) // 35 en escena (ley 5)
   await renderer.init()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)
