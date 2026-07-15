@@ -26,6 +26,7 @@ const mocks = vi.hoisted(() => ({
   deviceDestroy: vi.fn(),
   pipelineRender: vi.fn(),
   panelDestroy: vi.fn(),
+  fsr1: vi.fn(() => ({ add: vi.fn(() => ({})) })),
 }))
 
 // --- three: mock PARCIAL. Todo lo JS puro (Scene, luces, cámara, materiales,
@@ -92,6 +93,12 @@ vi.mock('three/tsl', () => ({
 
 vi.mock('three/addons/tsl/display/BloomNode.js', () => ({
   bloom: vi.fn(() => ({ resolutionScale: 0 })),
+}))
+
+// el nodo FSR de 'baja' es perezoso: solo se construye si alguien pisa esa
+// calidad de verdad — el mock cuenta cuántas veces se construye
+vi.mock('three/addons/tsl/display/FSR1Node.js', () => ({
+  fsr1: mocks.fsr1,
 }))
 
 vi.mock('three/addons/lighting/DynamicLighting.js', () => ({
@@ -204,7 +211,8 @@ async function runLounge({ webgpu = true } = {}) {
   mocks.isWebGPU = webgpu
   const canvas = document.createElement('canvas')
   const onProgress = vi.fn()
-  const pending = createLounge(canvas, onProgress)
+  const onQualityBusy = vi.fn()
+  const pending = createLounge(canvas, onProgress, onQualityBusy)
 
   // dejar que createLounge arranque el renderer, monte la escena e instale el
   // gancho del LoadingManager, y quede esperando a que asienten las texturas
@@ -220,7 +228,7 @@ async function runLounge({ webgpu = true } = {}) {
 
   const api = await pending
   disposers.push(api.dispose)
-  return { api, onProgress }
+  return { api, onProgress, onQualityBusy }
 }
 
 describe('createLounge', () => {
@@ -375,5 +383,75 @@ describe('createLounge', () => {
     expect(addCurtains).not.toHaveBeenCalled()
     expect(addAshtrays).not.toHaveBeenCalled()
     expect(addSmoke).not.toHaveBeenCalled()
+  })
+
+  // --- el visillo del cambio de calidad: cuando el cambio estrena o retira
+  // el grafo FSR de 'baja', el primer render del grafo nuevo compila su
+  // pipeline en síncrono y congela el hilo (ley 17); createLounge avisa por
+  // onQualityBusy para que la vista lo tape con animación de compositor
+
+  it('cambiar entre alta y media no baja el visillo: es solo un resize, sin grafo nuevo', async () => {
+    // Arrange
+    const { onQualityBusy } = await runLounge({ webgpu: true })
+
+    // Act
+    await window.__lounge.setQuality('media')
+
+    // Assert
+    expect(onQualityBusy).not.toHaveBeenCalled()
+    expect(mocks.setPixelRatio).toHaveBeenLastCalledWith(1.25)
+  })
+
+  it('repetir la calidad que ya está puesta no hace nada (ni visillo ni resize)', async () => {
+    // Arrange: WebGPU arranca en 'alta'
+    const { onQualityBusy } = await runLounge({ webgpu: true })
+    const resizesPrevios = mocks.setPixelRatio.mock.calls.length
+
+    // Act
+    await window.__lounge.setQuality('alta')
+
+    // Assert
+    expect(onQualityBusy).not.toHaveBeenCalled()
+    expect(mocks.setPixelRatio.mock.calls.length).toBe(resizesPrevios)
+  })
+
+  it('pisar baja en WebGPU baja el visillo, estrena el grafo FSR y lo vuelve a subir', async () => {
+    // Arrange
+    const { onQualityBusy } = await runLounge({ webgpu: true })
+
+    // Act
+    await window.__lounge.setQuality('baja')
+
+    // Assert: primero avisa de que empieza (true), al terminar lo retira (false)
+    expect(onQualityBusy.mock.calls.map(([busy]) => busy)).toEqual([true, false])
+    expect(mocks.fsr1).toHaveBeenCalledTimes(1)
+  })
+
+  it('volver de baja a alta pasa otra vez por el visillo pero reutiliza el nodo FSR', async () => {
+    // Arrange
+    const { onQualityBusy } = await runLounge({ webgpu: true })
+    await window.__lounge.setQuality('baja')
+    onQualityBusy.mockClear()
+
+    // Act
+    await window.__lounge.setQuality('alta')
+
+    // Assert: retirar el grafo FSR también recompila el quad (visillo), pero
+    // el nodo FSR construido queda guardado para la próxima vez
+    expect(onQualityBusy.mock.calls.map(([busy]) => busy)).toEqual([true, false])
+    expect(mocks.fsr1).toHaveBeenCalledTimes(1)
+  })
+
+  it('en el respaldo WebGL2 el cambio de calidad nunca baja el visillo (no hay grafo FSR)', async () => {
+    // Arrange: WebGL2 arranca en 'baja' (la dieta del fallback)
+    const { onQualityBusy } = await runLounge({ webgpu: false })
+
+    // Act
+    await window.__lounge.setQuality('alta')
+    await window.__lounge.setQuality('baja')
+
+    // Assert
+    expect(onQualityBusy).not.toHaveBeenCalled()
+    expect(mocks.fsr1).not.toHaveBeenCalled()
   })
 })

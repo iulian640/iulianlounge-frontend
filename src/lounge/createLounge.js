@@ -47,7 +47,7 @@ function clampCameraToRoom(camera) {
 // onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
 // 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
 // 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
-export async function createLounge(canvas, onProgress = () => {}) {
+export async function createLounge(canvas, onProgress = () => {}, onQualityBusy = () => {}) {
   // cronómetro de tramos del arranque: se imprime al final y queda en
   // window.__loungeTiming — sirve para comparar la máquina real con el
   // banco headless sin depender de capturas ni de DevTools
@@ -133,7 +133,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
     media: 1.25,
     baja: 1,
   }
-  const setQuality = (level) => {
+  const applyQuality = (level) => {
     renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media)
     renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -153,6 +153,49 @@ export async function createLounge(canvas, onProgress = () => {}) {
     // _quadMesh.material.fragmentNode y marca needsUpdate en el material —
     // sin esto el quad seguiría pintando con el grafo anterior
     postProcessing.needsUpdate = true
+    calidadActual = level
+  }
+  let calidadActual = null
+
+  // esperar un frame REAL: el trabajo del visillo (pintarlo, componerlo) y el
+  // congelón de compilación viven en frames distintos — igual que la barrida
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
+
+  // cambio de calidad con visillo: cuando el cambio estrena o retira el grafo
+  // FSR de 'baja', el primer render del grafo nuevo compila su pipeline EN
+  // SÍNCRONO y congela el hilo un ratín (ley 17). El visillo (lo pinta
+  // LoungeView vía onQualityBusy) tapa ese congelón con animación de
+  // compositor, que sigue viva aunque el hilo esté parado. alta <-> media no
+  // cambia de grafo (solo redimensiona render targets): sin visillo.
+  // Los cambios van en cola: dos clics rápidos se aplican en orden, cada uno
+  // decide con la calidad que de verdad quedó puesta
+  let colaCalidad = Promise.resolve()
+  const cambiaCalidad = async (level) => {
+    if (level === calidadActual) return
+    const cambiaGrafo = isWebGPU && (level === 'baja') !== (calidadActual === 'baja')
+    if (!cambiaGrafo) {
+      applyQuality(level)
+      return
+    }
+    onQualityBusy(true)
+    try {
+      // dos frames: en el primero Vue pinta el visillo, en el segundo el
+      // compositor lo sube a pantalla — solo entonces puede llegar el congelón
+      await nextFrame()
+      await nextFrame()
+      if (!alive) return
+      applyQuality(level)
+      // el congelón llega con el primer render() del grafo nuevo (el bucle
+      // sigue corriendo); cuando estos dos frames han pasado, ya quedó atrás
+      await nextFrame()
+      await nextFrame()
+    } finally {
+      onQualityBusy(false)
+    }
+  }
+  const setQuality = (level) => {
+    colaCalidad = colaCalidad.then(() => cambiaCalidad(level))
+    return colaCalidad
   }
   // por defecto según el motor REAL: con WebGPU a tope (decisión de Iulian:
   // 120fps sobrados); en el respaldo WebGL2 (Firefox sin WebGPU, visitas por
@@ -468,7 +511,6 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // parada) así que el coste añadido es un segundo paso ligero de bind
   // groups/uniforms, no un segundo barrido de compilación
   const yawInicial = camera.rotation.y
-  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
   const PASOS = 8
   const TOTAL_PASOS = PASOS * 2
   let pasoGlobal = 0

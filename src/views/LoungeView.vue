@@ -5,6 +5,9 @@ import { createLounge } from '@/lounge/createLounge'
 const canvas = ref(null)
 const entering = ref(true) // el telón: tapa la compilación de shaders y la carga
 const progress = ref(0) // 0..1, lo reporta createLounge por tramos reales
+// el visillo: medio telón que tapa el congelón al cambiar la calidad de
+// gráficos (compilación síncrona del grafo nuevo) — lo manda createLounge
+const ajustando = ref(false)
 let lounge = null // handle con dispose(), para matar el lounge al desmontar
 
 onMounted(async () => {
@@ -12,10 +15,16 @@ onMounted(async () => {
     // async: el renderer WebGPU se inicializa de forma asíncrona; la promesa
     // resuelve con la sala amueblada, los pipelines compilados y un primer
     // frame ya renderizado — solo entonces se levanta el telón
-    lounge = await createLounge(canvas.value, (value) => {
-      // nunca retrocede: las cargas sueltas pueden reportar desordenadas
-      progress.value = Math.max(progress.value, value)
-    })
+    lounge = await createLounge(
+      canvas.value,
+      (value) => {
+        // nunca retrocede: las cargas sueltas pueden reportar desordenadas
+        progress.value = Math.max(progress.value, value)
+      },
+      (busy) => {
+        ajustando.value = busy
+      },
+    )
   } catch (error) {
     console.error('[lounge]', error)
   } finally {
@@ -44,6 +53,12 @@ onUnmounted(() => {
       <div class="progreso" role="progressbar" :aria-valuenow="Math.round(progress * 100)">
         <div class="progreso-lleno" :style="{ transform: `scaleX(${progress})` }"></div>
       </div>
+    </div>
+  </Transition>
+  <Transition name="visillo">
+    <div v-if="ajustando" class="visillo" aria-live="polite">
+      <p class="letrero">IULIAN'S</p>
+      <p class="aviso">La casa ajusta las luces.</p>
     </div>
   </Transition>
 </template>
@@ -146,6 +161,34 @@ canvas {
 }
 
 .telon-leave-to {
+  opacity: 0;
+}
+
+/* el visillo: como el telón pero sin barra y sin llegar al negro total — la
+   sala queda detrás, en penumbra. Solo opacity: la transición y el parpadeo
+   del letrero corren en el compositor y siguen vivos durante el congelón de
+   compilación que precisamente vienen a tapar */
+.visillo {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  background: rgba(11, 21, 20, 0.94);
+}
+
+/* entrada rápida (el congelón viene enseguida), salida con calma de club */
+.visillo-enter-active {
+  transition: opacity 0.15s ease-out;
+}
+
+.visillo-leave-active {
+  transition: opacity 0.6s ease;
+}
+
+.visillo-enter-from,
+.visillo-leave-to {
   opacity: 0;
 }
 </style>
