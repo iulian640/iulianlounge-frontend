@@ -11,24 +11,14 @@ import * as THREE from 'three'
 // único programa de shader para todas), cero luces nuevas.
 
 // vidrios y bandas compartidos: pocas instancias, muchas botellas.
-// EL VIDRIO ES DE VERDAD (2026-07-15, laboratorio ?lab=bottles&exp=glass):
-// la transmisión real (MeshPhysicalMaterial transmission=1) se midió
-// prohibitiva SOLO si se forkeaba un material por botella — compartiendo un
-// único material por color de vidrio (como aquí, como siempre) el coste
-// medido a 90 botellas es de solo +2 programas de shader sobre la línea
-// base, justificando el salto respecto a la opaca de 2026-07-14. El
-// contraluz de la trasbarra ahora atraviesa el vidrio en vez de solo
-// iluminarlo desde dentro. Se conserva el emissive tenue de antes encima de
-// la transmisión (no lo sustituye): el mando 'trasbarra' del panel sigue
-// escalando el brillo del líquido (setBrilloBotellas).
+// EL LÍQUIDO SE ENCIENDE (2026-07-14): opacas leían como cerámica pintada,
+// no como alcohol. La transmisión real es prohibitiva a ~90 botellas; el
+// truco barato que vende el contraluz de la trasbarra es un emissive tenue
+// del color del propio licor (el bloom selectivo por MRT le añade su halo
+// suave) + brillo especular afilado. El mando 'trasbarra' del panel escala
+// este brillo junto con las luces del panel (setBrilloBotellas).
 const vidrio = (color, brillo = 0.15, roughness = 0.08) => {
-  const mat = new THREE.MeshPhysicalMaterial({
-    color,
-    roughness,
-    transmission: 1,
-    ior: 1.5,
-    thickness: 0.04,
-  })
+  const mat = new THREE.MeshStandardMaterial({ color, roughness })
   mat.emissive.set(color)
   mat.emissiveIntensity = brillo
   mat.userData.brilloBase = brillo
