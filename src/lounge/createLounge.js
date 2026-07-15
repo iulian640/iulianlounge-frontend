@@ -71,15 +71,15 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // antialias del canvas apagado: el render pasa por el pipeline de
   // postproceso (offscreen), el MSAA del canvas solo costaría sin verse
   const renderer = new THREE.WebGPURenderer({ canvas, antialias: false })
-  // sonda de coste GPU real (laboratorio 2026-07-14, dominio renderer/R4):
-  // trackTimestamp cuesta cero de forma observable y resuelve ~28.7ms de
-  // frame GPU real en este salón. Se muta renderer.backend.trackTimestamp
-  // (NO renderer.trackTimestamp, que no existe como propiedad real — vive
-  // solo en la instancia del backend, WebGPURenderer ya lo construye de
-  // forma síncrona en su propio constructor) ANTES de renderer.init(), que
-  // es quien gatea la feature contra hasFeature('timestamp-query'). Solo en
-  // DEV, igual que window.__lounge: en producción no se toca nada
-  if (import.meta.env.DEV) {
+  // sonda de coste GPU real: se muta renderer.backend.trackTimestamp (NO
+  // renderer.trackTimestamp, que no existe — vive en la instancia del
+  // backend) ANTES de renderer.init(), que gatea la feature contra
+  // hasFeature('timestamp-query'). Solo bajo demanda (?gpums=1): a clocks
+  // interactivos las escrituras de timestamp por pass cuestan ~10fps reales
+  // (medido en pantalla 2026-07-15); el "coste cero" del laboratorio era un
+  // artefacto del régimen infra-clockeado del headless (ley 18)
+  const quiereGpuMs = new URLSearchParams(window.location.search).has('gpums')
+  if (import.meta.env.DEV && quiereGpuMs) {
     renderer.backend.trackTimestamp = true
   }
   renderer.setSize(window.innerWidth, window.innerHeight)
