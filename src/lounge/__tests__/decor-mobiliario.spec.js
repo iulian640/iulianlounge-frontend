@@ -299,21 +299,42 @@ describe('decor/floorLamps — lámparas de pie victorianas', () => {
 })
 
 describe('las botellas de marca de la trasbarra (decor/botellas)', () => {
-  it('puebla la repisa con las diez marcas reales, con repetidas como en una barra de verdad', async () => {
-    // Arrange
+  it('puebla la repisa con las quince marcas de la carta ampliada, agotándolas todas', async () => {
+    // Arrange: la carta es la fuente de verdad — si crece, este test crece con ella
+    const { addBotellas, CARTA } = await import('../decor/botellas')
+    const scene = new THREE.Scene()
+
+    // Act
+    const grupo = addBotellas(scene)
+
+    // Assert: el grupo entra en escena y el lineal agota las 15 marcas de CARTA
+    expect(scene.getObjectByName('botellas-reales')).toBe(grupo)
+    // 42 botellas: lo que cabe en el largo real de la repisa una vez
+    // recortadas las 3 puntas de cada extremo (ver addBotellas). No se
+    // deriva de CARTA.length porque depende del ancho acumulado de cada
+    // silueta, no del número de marcas — si este número cambia, es que
+    // cambió el patrón del lineal y toca revisarlo en pantalla antes de
+    // tocar la aserción.
+    expect(grupo.children).toHaveLength(42)
+    const marcas = new Set(grupo.children.map((botella) => botella.name))
+    expect(marcas.size).toBe(CARTA.length)
+    for (const receta of CARTA) {
+      expect(marcas.has(receta.nombre)).toBe(true)
+    }
+  })
+
+  it('el lineal nunca repite marca en dos botellas vecinas, como pidió Iulian de una barra real', async () => {
+    // Arrange: el orden de inserción en el grupo sigue el recorrido de la
+    // repisa de norte a sur, así que comparar vecinos consecutivos basta
     const { addBotellas } = await import('../decor/botellas')
     const scene = new THREE.Scene()
 
     // Act
     const grupo = addBotellas(scene)
 
-    // Assert: el grupo entra en escena con 12 botellas y 10 marcas distintas
-    expect(scene.getObjectByName('botellas-reales')).toBe(grupo)
-    expect(grupo.children).toHaveLength(12)
-    const marcas = new Set(grupo.children.map((botella) => botella.name))
-    expect(marcas.size).toBe(10)
-    for (const esperada of ['jack-daniels', 'campari', 'chartreuse', 'hennessy']) {
-      expect(marcas.has(esperada)).toBe(true)
+    // Assert
+    for (let i = 1; i < grupo.children.length; i++) {
+      expect(grupo.children[i].name).not.toBe(grupo.children[i - 1].name)
     }
   })
 
