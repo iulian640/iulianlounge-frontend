@@ -268,7 +268,12 @@ export async function createLounge(canvas, onProgress = () => {}) {
   onProgress(0.62)
 
   {
-    const cubeTarget = new THREE.CubeRenderTarget(256, { type: THREE.HalfFloatType })
+    // resolución 128 (laboratorio 2026-07-14, dominio renderer/R1 envres): el
+    // coste de captura sale plano frente a 256 (~435ms en banco, cualquiera
+    // de las dos) y en este suelo es visualmente nulo — la laca lo difumina
+    // (woodFloor.clearcoatRoughness 0.33, salon.js) hasta que las capturas
+    // rasantes son indistinguibles, verificado por hash sobre renders reales
+    const cubeTarget = new THREE.CubeRenderTarget(128, { type: THREE.HalfFloatType })
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget)
     cubeCamera.position.set(0, 1.6, 0)
     for (const face of cubeCamera.children) face.layers.enable(1) // que vea el suelo
