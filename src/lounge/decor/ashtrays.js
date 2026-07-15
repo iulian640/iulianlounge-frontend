@@ -23,7 +23,6 @@ const pewter = new THREE.MeshStandardMaterial({
   color: '#8f9296',
   metalness: 1,
   roughness: 0.45,
-  envMapIntensity: 0.45,
 })
 
 // cristal tallado: transparente de verdad, el brillo lo ponen la laca y los
@@ -37,7 +36,6 @@ const crystal = new THREE.MeshPhysicalMaterial({
   depthWrite: false, // vidrio: que no tape lo que hay detrás en el z-buffer
   clearcoat: 1,
   clearcoatRoughness: 0.06,
-  envMapIntensity: 1.4,
 })
 
 const cigarWrap = new THREE.MeshStandardMaterial({ color: '#3f2a1a', roughness: 0.85 })

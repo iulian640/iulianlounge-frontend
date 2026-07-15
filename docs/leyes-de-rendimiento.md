@@ -97,7 +97,7 @@ número en el código (ley 5, 6, 9, 12).
     `[lounge] arranque (ms)` con los tramos (assets/reflejos/compilacion/
     barrida) y queda en `window.__loungeTiming`. Si `compilacion` crece al
     añadir una pieza, esa pieza está creando programas — volver a la ley 6.
-    Bisección rápida: `?sin=cortinas,focos,lamparas,ceniceros,humo`.
+    Bisección rápida: `?sin=cortinas,focos,lamparas,ceniceros,humo,cocteleria,repisa`.
 13. La primera visita paga la compilación entera; las siguientes van con la
     caché de disco de Dawn (~5s, verificado −91%). Incógnito y datos borrados
     pagan completo: el objetivo sigue siendo bajar el coste en frío.

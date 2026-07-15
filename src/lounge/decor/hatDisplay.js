@@ -129,7 +129,6 @@ function makeDecanter() {
     metalness: 0,
     clearcoat: 1,
     clearcoatRoughness: 0.1,
-    envMapIntensity: 1.2,
   })
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.058, 0.16, 10), glass)
   body.position.y = 0.08
@@ -246,7 +245,6 @@ export function addHatDisplay(scene) {
       opacity: 0.09,
       roughness: 0.16,
       metalness: 0,
-      envMapIntensity: 1.3,
       depthWrite: false,
     }),
   )

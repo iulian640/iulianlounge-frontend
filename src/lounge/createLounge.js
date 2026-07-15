@@ -206,7 +206,7 @@ export async function createLounge(canvas, onProgress = () => {}) {
     setTimeout(resolve, 8000) // red de seguridad si alguna carga se queda colgada
   })
 
-  // bisección de arranque: ?sin=cortinas,focos,lamparas,ceniceros,humo
+  // bisección de arranque: ?sin=cortinas,focos,lamparas,ceniceros,humo,cocteleria,repisa
   // apaga piezas de decor para cazar cuellos de botella de carga (DEV)
   const sin = new Set((new URLSearchParams(window.location.search).get('sin') ?? '').split(','))
 
