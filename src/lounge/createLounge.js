@@ -411,14 +411,34 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // 8 orientaciones bastan: la cámara ve ~91° en horizontal (fov 60 a 16:9),
   // a 45° por paso todo queda visto con solape — eran 12 cuando la barrida
   // también compilaba pipelines; ya solo estrena bind groups y buffers
+  //
+  // laboratorio 2026-07-14: un barrido en un SOLO sentido (yaw creciente,
+  // antihorario) deja sin calentar el primer giro horario del jugador —
+  // ~410ms de hitch de compilación de pipeline en ese primer frame CW. El
+  // sentido del giro, no solo la orientación final, dispara variantes de
+  // pipeline/bind-group que un barrido unidireccional nunca estrena.
+  // Arreglo: ida antihoraria + vuelta horaria por las MISMAS 8 orientaciones
+  // — se reutiliza el trabajo (mismos objetos, mismo AABB visible en cada
+  // parada) así que el coste añadido es un segundo paso ligero de bind
+  // groups/uniforms, no un segundo barrido de compilación
   const yawInicial = camera.rotation.y
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
   const PASOS = 8
+  const TOTAL_PASOS = PASOS * 2
+  let pasoGlobal = 0
   for (let paso = 0; paso < PASOS; paso++) {
     camera.rotation.y = yawInicial + (paso / PASOS) * Math.PI * 2
     postProcessing.render()
     await nextFrame()
-    onProgress(0.78 + ((paso + 1) / PASOS) * 0.22)
+    pasoGlobal++
+    onProgress(0.78 + (pasoGlobal / TOTAL_PASOS) * 0.22)
+  }
+  for (let paso = PASOS - 1; paso >= 0; paso--) {
+    camera.rotation.y = yawInicial + (paso / PASOS) * Math.PI * 2
+    postProcessing.render()
+    await nextFrame()
+    pasoGlobal++
+    onProgress(0.78 + (pasoGlobal / TOTAL_PASOS) * 0.22)
   }
   camera.rotation.y = yawInicial
   postProcessing.render() // frame de estreno con la mirada de entrada
