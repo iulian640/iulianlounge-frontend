@@ -357,7 +357,7 @@ describe('las botellas de marca de la trasbarra (decor/botellas)', () => {
     }
   })
 
-  it('cumple la ley de materiales: MeshStandard sin mapas en todas las piezas', async () => {
+  it('cumple la ley de materiales: vidrio con transmisión compartida, resto MeshStandard, ninguno con mapas', async () => {
     // Arrange
     const { addBotellas } = await import('../decor/botellas')
     const scene = new THREE.Scene()
@@ -369,12 +369,19 @@ describe('las botellas de marca de la trasbarra (decor/botellas)', () => {
       if (o.isMesh) materiales.add(o.material)
     })
 
-    // Assert: pocos materiales compartidos entre muchas botellas, ninguno
-    // Physical ni con texturas — cero programas de shader nuevos
+    // Assert: pocos materiales compartidos entre muchas botellas (nunca uno
+    // por instancia, que es lo que dispararía programas de shader). El
+    // vidrio (2026-07-15) es MeshPhysicalMaterial con transmisión real —
+    // compartido por color, igual que antes — el resto (etiquetas, tapones)
+    // sigue en MeshStandard. Ninguno lleva mapas.
     expect(materiales.size).toBeLessThan(20)
     for (const material of materiales) {
-      expect(material.type).toBe('MeshStandardMaterial')
       expect(material.map).toBeNull()
+      if (material.type === 'MeshPhysicalMaterial') {
+        expect(material.transmission).toBe(1)
+      } else {
+        expect(material.type).toBe('MeshStandardMaterial')
+      }
     }
   })
 })
