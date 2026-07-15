@@ -280,11 +280,17 @@ function buildBar(salon) {
   salon.add(box(0.03, 0.03, barLength + 0.1, materials.brass, barX + 0.37, 1.075, 0))
 
   const backX = -ROOM.width / 2 + 0.35
-  salon.add(box(0.35, 1.0, barLength, materials.woodDark, backX, 0.5, 0))
+  // el mueble de la trasbarra: la misma familia lacada del mostrador (en
+  // woodDark plano parecía un bloque sin hacer) — armazón satinado oscuro,
+  // encimera de trabajo con la caoba de la tapa y su vivo de latón. La
+  // estación de coctelería vive encima (decor/cocktailStation.js)
+  salon.add(box(0.35, 1.0, barLength, materials.barCabinet, backX, 0.5, 0))
+  salon.add(box(0.42, 0.03, barLength, materials.barWood, backX, 1.015, 0))
+  salon.add(box(0.02, 0.02, barLength, materials.brass, backX + 0.2, 1.02, 0))
   // repisas acortadas y desplazadas: el extremo sur de la trasbarra queda
-  // libre en altura para el gramófono
-  salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 1.55, -0.35))
-  salon.add(box(0.28, 0.05, 5.5, materials.woodDark, backX, 2.05, -0.35))
+  // libre en altura para el gramófono; en el tono del frente del mostrador
+  salon.add(box(0.28, 0.05, 5.5, materials.barFront, backX, 1.55, -0.35))
+  salon.add(box(0.28, 0.05, 5.5, materials.barFront, backX, 2.05, -0.35))
 
   // panel retroiluminado tras las repisas (las botellas brillan desde detrás)
   const backglow = new THREE.Mesh(
@@ -300,7 +306,7 @@ function buildBar(salon) {
   salon.add(backglow)
 
   // la repisa baja la puebla decor/botellas.js con botellas de marca reales
-  // (la repisa alta la ocupa el champán que coloca furnish.js)
+  // (la repisa alta es cristalería sin alcohol: decor/repisaAlta.js)
   // el letrero "IULIAN'S" con letras 3D lo monta letrero.js
 
   buildBarPaneling(salon, barX, barLength)

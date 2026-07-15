@@ -10,7 +10,6 @@ import { ROOM, TABLE_SPOTS } from './salon'
 const KENNEY = '/models/kenney/'
 const HUNT = '/models/hunt/'
 const BAR_X = -ROOM.width / 2 + 1.45
-const BACKBAR_X = -ROOM.width / 2 + 0.35
 const STAGE_Y = 0.4
 
 const CLUB = {
@@ -92,29 +91,17 @@ function manifest() {
     },
   )
 
-  // champán en la repisa alta de la trasbarra
-  for (const z of [-2.0, -0.6, 0.9, 2.2]) {
-    props.push({
-      url: HUNT + 'champagne.glb',
-      opts: {
-        height: 0.32,
-        rotationY: (z * 7) % Math.PI,
-        recolor: {
-          '4CAF50': '#265c33',
-          DD9944: { color: '#c9a45c', metalness: 1, roughness: 0.4 },
-          F44336: '#7a3a40',
-        },
-      },
-      at: [BACKBAR_X, 2.075, z],
-    })
-  }
+  // (el champán de la repisa alta se retiró 2026-07-14: esa balda pasó a
+  // cajas de puros y cristalería — decor/repisaAlta.js; el alcohol vive
+  // todo en la repisa baja)
 
-  // gramófono de trompa en el extremo sur de la trasbarra, ya sin repisa
-  // encima (el moodboard en un solo objeto)
+  // gramófono de trompa en la TAPA de la barra, extremo sur, haciendo
+  // esquina con la caja de puros abierta (z=2.35, cocktailStation) —
+  // movido de la encimera de la trasbarra a petición de Iulian
   props.push({
     url: HUNT + 'gramophone.glb',
     opts: { height: 0.55, rotationY: Math.PI / 2 },
-    at: [BACKBAR_X, 1.0, 3.0],
+    at: [BAR_X, 1.1, 2.95],
   })
 
   // guardarropa junto a la entrada

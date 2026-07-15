@@ -12,6 +12,8 @@ import { createWalkControls } from './walkControls'
 import { addArchitecture } from './decor/architecture'
 import { addDoor } from './decor/door'
 import { addBotellas } from './decor/botellas'
+import { addCocktailStation } from './decor/cocktailStation'
+import { addRepisaAlta } from './decor/repisaAlta'
 import { addHatDisplay } from './decor/hatDisplay'
 import { addAshtrays } from './decor/ashtrays'
 import { addFloorLamps } from './decor/floorLamps'
@@ -181,6 +183,12 @@ export async function createLounge(canvas, onProgress = () => {}) {
   // botellas de marca reales en la trasbarra, a contraluz del panel —
   // geometría pura con materiales compartidos, cero luces
   addBotellas(scene)
+  // estación de coctelería sobre la encimera de la trasbarra (coctelera,
+  // sifón, cubitera, tabla de limones...) — geometría pura, cero luces
+  if (!sin.has('cocteleria')) addCocktailStation(scene)
+  // repisa alta sin alcohol: cristalería de punta a punta (decisión de
+  // Iulian 2026-07-14) — geometría pura, cero luces
+  if (!sin.has('repisa')) addRepisaAlta(scene)
   // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
   // del lado de la barra, y focos de trípode flanqueando el escenario —
   // todo con luces sin sombra (el presupuesto de sombras manda)

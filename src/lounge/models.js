@@ -9,12 +9,15 @@ const loader = new GLTFLoader()
 // - footprint: diámetro objetivo en planta (piezas planas: alfombras)
 // - recolor: viste el asset con la paleta del club, por nombre de material
 //   ({ wood: '#3a2417', metal: { color: '#c9a45c', metalness: 1 } })
+// - hide: nombres de material cuyas mallas se DESCARTAN (partes del GLB que
+//   no queremos: los vinilos del gramófono) — se quitan antes de medir para
+//   que no cuenten en la normalización de escala
 // - rotationX: corrige modelos tumbados en otro eje (se aplica ANTES de medir)
 // - animate: regex del clip a reproducir ('Idle', 'Working'); deja la función
 //   de avance en prop.userData.update(dt)
 export function loadProp(
   url,
-  { height, footprint, rotationY = 0, rotationX = 0, recolor = {}, animate } = {},
+  { height, footprint, rotationY = 0, rotationX = 0, recolor = {}, hide = [], animate } = {},
 ) {
   return new Promise((resolve, reject) => {
     loader.load(
@@ -22,6 +25,7 @@ export function loadProp(
       (gltf) => {
         const model = gltf.scene
         const corrupt = []
+        const hidden = []
         model.traverse((child) => {
           if (child.isMesh) {
             // desinfectante: una malla con NaN envenena el pase de bloom
@@ -29,6 +33,10 @@ export function loadProp(
             const positions = child.geometry?.attributes?.position?.array
             if (positions && !positions.every(Number.isFinite)) {
               corrupt.push(child)
+              return
+            }
+            if (hide.includes(child.material?.name)) {
+              hidden.push(child)
               return
             }
             child.castShadow = true
@@ -45,6 +53,7 @@ export function loadProp(
           console.warn('[models] malla con geometría corrupta descartada en', url)
           mesh.removeFromParent()
         }
+        for (const mesh of hidden) mesh.removeFromParent()
 
         // OJO GLTF: los nodos pueden traer matriz cocinada (matrixAutoUpdate
         // false) e ignorar rotation directa — se rota siempre vía un pivote nuestro
