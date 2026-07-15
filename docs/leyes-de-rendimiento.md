@@ -21,8 +21,11 @@ Si una pieza necesita saltarse una ley, se mide antes y se decide con datos.
 4. **RectAreaLight prohibida.** Es la única luz no batcheable: su evaluación
    LTC (2 tablas de textura + mates gordas) se desenrolla en cada fragment
    shader de cada programa. La trasbarra ya pasó por esto: fila de puntuales.
-5. Si sube el número de PointLight por encima de 24, subir `maxPointLights`
-   de DynamicLighting en `createLounge.js` (si no, las extra van desenrolladas).
+5. Si sube el número de PointLight por encima del tope, subir
+   `maxPointLights` de DynamicLighting en `createLounge.js` — OJO
+   (corregido 2026-07-14 contra el código): las luces que pasan del tope
+   se DESCARTAN con un warning en consola, dejan de iluminar; no van
+   desenrolladas como creíamos.
 
 ## Materiales (lo que de verdad crea programas de shader)
 
