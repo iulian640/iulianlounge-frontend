@@ -60,9 +60,9 @@ export function addSalonLights(scene) {
   // desenrollado en TODOS los programas de shader — un mordisco fijo a los
   // ~14s de compilación del primer arranque, y 2 texturas menos del
   // presupuesto WebGL (16 por shader). Las puntuales van batcheadas
-  // (ClusteredLighting en WebGPU, DynamicLighting en el fallback — ley 3 en
-  // docs/leyes-de-rendimiento.md; coste cero en el código de los shaders en
-  // ambos casos) y siguen sin tocar el suelo:
+  // (DynamicLighting, tanto en WebGPU como en el fallback — ley 3 en
+  // docs/leyes-de-rendimiento.md; coste cero en el código de los shaders) y
+  // siguen sin tocar el suelo:
   // la etiqueta 'shelf' las deja fuera de la capa 1 (el mostrador las
   // bloquearía en la realidad, y las puntuales tampoco proyectan sombra)
   const SHELF_GLOWS = [-2.15, -0.35, 1.45] // reparto del panel de 5.4m

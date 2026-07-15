@@ -1,13 +1,19 @@
 # Leyes de rendimiento del lounge
 
 Reglas permanentes del proyecto (decisión de Iulian, última revisión
-2026-07-15), destiladas de tres sagas medidas: la de las sombras (2026-07-13,
-240→75fps), la de la carga (2026-07-14, 57s→16s) y el laboratorio de
-clustered lighting + barrida bidireccional + vidrio de botellas (2026-07-15).
-Toda pieza nueva —decor, luces, materiales— las cumple. Si una pieza necesita
-saltarse una ley, se mide antes y se decide con datos. Las leyes 15-17 son
-las más recientes; están al final para no correr la numeración de las que ya
-se citan por número en el código (ley 5, 6, 9, 12).
+2026-07-15 noche), destiladas de cuatro sagas medidas: la de las sombras
+(2026-07-13, 240→75fps), la de la carga (2026-07-14, 57s→16s), el
+laboratorio de clustered lighting + barrida bidireccional + vidrio de
+botellas (2026-07-15 tarde, banco headless) y su corrección en pantalla a
+clocks interactivos esa misma noche (240Hz, misma máquina — ver ley 18: el
+banco headless corría con el iGPU sin boost de clocks, ~3.5x más lento que
+la lectura interactiva, y la dirección de dos A/B se invirtió: clustered
+lighting y la transmisión de las botellas volvieron a su estado anterior,
+leyes 3 y 8). Toda pieza nueva —decor, luces, materiales— las cumple. Si
+una pieza necesita saltarse una ley, se mide antes (en pantalla, a clocks
+interactivos) y se decide con datos. Las leyes 15-19 son las más recientes;
+están al final para no correr la numeración de las que ya se citan por
+número en el código (ley 5, 6, 9, 12).
 
 ## Luces
 
@@ -20,18 +26,22 @@ se citan por número en el código (ley 5, 6, 9, 12).
    Ampliarlo es decisión de dirección, no de pieza.
 3. **Luz nueva = PointLight o SpotLight SIN sombra, alcance corto, decay 2.**
    Van batcheadas: coste CERO en el código de los shaders, sea cual sea el
-   motor de agrupación. **Desde 2026-07-15, `ClusteredLighting` (tiles +
-   z-slices) es la opción por defecto en WebGPU**, asignada a
-   `renderer.lighting` ANTES de `renderer.init()` en `createLounge.js`
-   (usando `navigator.gpu` como proxy porque el backend real todavía no
-   existe a esa altura) — medido +78% de FPS en régimen estable con las 35
-   luces de la escena (31.8→56.7fps, umbral de beneficio de laboratorio
-   ~20 luces en adelante), a cambio de ~7 programas y ~3s más de
-   compilación en frío (se paga una vez en el arranque, se cobra cada
-   frame). El fallback WebGL2 se queda en `DynamicLighting` (arrays de
-   uniforms): ahí el salto no compensa, el arranque en frío casi se
-   triplica. El efecto "la mesa bloquea la luz" se sigue consiguiendo
-   gratis acortando el alcance (la luz muere antes de llegar al suelo).
+   motor de agrupación. **`DynamicLighting` (arrays de uniforms) es el motor
+   por defecto**, asignado a `renderer.lighting` en `createLounge.js`, tanto
+   en WebGPU como en el fallback WebGL2. `ClusteredLighting` (tiles +
+   z-slices) quedó revertida el 2026-07-15 (commit `ddfe598`) tras medir EN
+   PANTALLA a clocks interactivos: 110-120fps (clustered) vs 115-124fps
+   (dynamic) — neutro a ligeramente peor, a
+   cambio de ~7 programas y +3.5s de compilación en frío que se paga SIEMPRE
+   en el arranque. El 2.11x que dio el banco headless
+   solo existe en el régimen saturado por el iGPU sin boost de clocks (ver
+   ley 18) — sigue siendo un proxy válido para hardware genuinamente débil,
+   no para la máquina de referencia. Queda documentada como opción
+   re-evaluable, SOLO si llegan quejas reales de FPS de visitantes con
+   hardware bajo; si se retoma, medir de nuevo en pantalla antes de
+   asignarla por defecto. El efecto "la mesa bloquea la luz" se sigue
+   consiguiendo gratis acortando el alcance (la luz muere antes de llegar
+   al suelo).
 4. **RectAreaLight prohibida.** Es la única luz no batcheable: su evaluación
    LTC (2 tablas de textura + mates gordas) se desenrolla en cada fragment
    shader de cada programa. La trasbarra ya pasó por esto: fila de puntuales.
@@ -40,9 +50,9 @@ se citan por número en el código (ley 5, 6, 9, 12).
    (corregido 2026-07-14 contra el código): las luces que pasan del tope
    se DESCARTAN con un warning en consola, dejan de iluminar; no van
    desenrolladas como creíamos. Esta ley es del motor `DynamicLighting`
-   (fallback WebGL2 desde 2026-07-15, ver ley 3); `ClusteredLighting` no
-   tiene este tope de uniforms — su límite es otro (tiles/z-slices), sin
-   medir todavía.
+   (por defecto en toda la escena desde el revert del 2026-07-15, ver ley
+   3); si algún día vuelve `ClusteredLighting`, esta ley no aplica — su
+   límite es otro (tiles/z-slices), sin medir todavía.
 
 ## Materiales (lo que de verdad crea programas de shader)
 
@@ -56,14 +66,19 @@ se citan por número en el código (ley 5, 6, 9, 12).
    (woodDark, woodTrim, woodPanel, brass, velvet, leather...).
 8. **MeshPhysicalMaterial solo donde se paga**: la laca de barra/suelo y el
    cristal. Todo lo mate es MeshStandardMaterial (la aniso 0.3 del escenario
-   era invisible y costaba un programa entero de los gordos). La
-   transmisión real (`transmission: 1`) NO es prohibitiva de por sí: medida
-   en las 90 botellas de la trasbarra (2026-07-15) cuesta +2 programas y el
-   FPS queda dentro del ruido de la máquina — la prohibición general que
-   pesaba sobre la transmisión queda levantada, SIEMPRE que el material se
-   comparta por rol/color y nunca se instancie uno por botella (ver ley 6 y
-   ley 16). Sigue siendo obligatorio medir caso por caso antes de
-   generalizar a otra pieza.
+   era invisible y costaba un programa entero de los gordos). **La
+   transmisión real (`transmission: 1`) vuelve a estar prohibida por
+   defecto**, con matiz: el banco headless la dio "dentro del ruido" a
+   ~32fps, pero medida EN
+   PANTALLA a clocks interactivos (2026-07-15 noche) cuesta ~2ms/frame fijos
+   — invisibles en un frame de 30ms, pero ~20-25% de un frame de 9ms a
+   110-120fps (80-105fps con botellas vs 110-120 sin ellas). Revertido
+   (commit `249639c`). Solo es adoptable si una medición EN PANTALLA a
+   clocks interactivos (no el banco headless) absuelve la pieza concreta —
+   régimen saturado no vale como excusa aquí porque el coste es
+   proporcional al framerate, no al régimen (ver ley 18). Si se mide
+   limpio en pantalla, sigue aplicando compartir material por rol/color y
+   nunca instanciar uno por botella (ver ley 6 y ley 16).
 9. **`userData.hideFromEnv = true`** en emissives cercanos, pantallas de
    lámpara y piezas menudas: cada material visible en la captura de entorno
    compila una segunda variante de pipeline y los brillos salen como manchas
@@ -116,3 +131,34 @@ se citan por número en el código (ley 5, 6, 9, 12).
     el frame ~0.7s en frío mientras compila la variante nueva sobre la
     marcha. Las variantes que haga falta usar en producción se precompilan
     durante la barrida (ley 11/12/15), nunca se generan bajo demanda.
+18. **Las decisiones de adopción se confirman EN PANTALLA, a clocks
+    interactivos — nunca solo con el banco headless.** Descubierto
+    2026-07-15 noche: la misma escena, el mismo iGPU, midió ~33fps en el
+    banco headless a calidad 'alta' donde la lectura interactiva en
+    pantalla daba 115-124fps — sin ventana visible el driver no sube el
+    reloj del iGPU (DVFS de fondo), así que el banco entero corre en un
+    régimen ~3.5x más lento. Dentro de ESE régimen el banco sigue siendo
+    válido para comparar A/B (leyes 3 y 16 se apoyan en él sin problema),
+    pero un coste fijo por frame pesa proporciones muy distintas según el
+    framerate real (2ms son 6% de un frame de 30ms e invisibles en el
+    ruido, y ~20-25% de un frame de 9ms a 110fps) — la DIRECCIÓN de un A/B
+    puede invertirse entre regímenes, como pasó con la transmisión (ley 8)
+    y con `ClusteredLighting` (ley 3). Regla: el banco decide DENTRO de su
+    régimen (bueno para detectar programas nuevos, hipos de compilación,
+    censos); la ADOPCIÓN de una pieza en producción se confirma con una
+    lectura en pantalla a clocks interactivos antes de fijarla por
+    defecto. El régimen saturado del banco sigue siendo un proxy legítimo
+    para hardware genuinamente débil (visitantes con iGPU real de gama
+    baja) — la lección es de alcance, no está muerta.
+
+## Calidad / upscaling
+
+19. **El tier `baja` (FSR) se queda, con el alcance recortado a lo que
+    realmente compra**: en la máquina de referencia (sin saturar) solo
+    suma ~10fps y el suavizado se nota a ojo en un panel 240Hz — el +74%
+    que dio el laboratorio pertenece al régimen saturado, que es
+    justamente el proxy de las máquinas débiles que elegirían 'baja'. Se
+    mantiene como tier opcional porque no cuesta nada si no se activa (la
+    ruta 'alta' queda intacta, FSR se construye perezosamente solo al
+    seleccionar 'baja' desde el panel de afinado) — no se hace default, ni
+    se toca el camino 'alta'.
