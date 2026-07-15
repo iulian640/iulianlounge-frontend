@@ -83,6 +83,7 @@ vi.mock('three/tsl', () => ({
     setMRT: vi.fn(),
     getTextureNode: vi.fn(() => ({ add: vi.fn(() => ({})) })),
     compileAsync: vi.fn(async () => {}),
+    setResolutionScale: vi.fn(),
   })),
   mrt: vi.fn(() => ({})),
   output: {},

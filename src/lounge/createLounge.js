@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { pass, mrt, output, emissive } from 'three/tsl'
 import { bloom } from 'three/addons/tsl/display/BloomNode.js'
+import { fsr1 } from 'three/addons/tsl/display/FSR1Node.js'
 import { DynamicLighting } from 'three/addons/lighting/DynamicLighting.js'
 import { ClusteredLighting } from 'three/addons/lighting/ClusteredLighting.js'
 import Stats from 'three/addons/libs/stats.module.js'
@@ -121,7 +122,19 @@ export async function createLounge(canvas, onProgress = () => {}) {
   const scenePassColor = scenePass.getTextureNode('output')
   const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0) // mezcla Iulian 2026-07-13
   bloomPass.resolutionScale = 0.5 // el halo no necesita resolución completa
-  postProcessing.outputNode = scenePassColor.add(bloomPass)
+  const nativeOutputNode = scenePassColor.add(bloomPass)
+  postProcessing.outputNode = nativeOutputNode
+
+  // FSR1 en 'baja' (laboratorio 2026-07-14, dominio postpro/P1): render
+  // interno al 66% + upscale FSR1 (EASU+RCAS) al tamaño nativo midió +74% de
+  // FPS con suavidad apenas perceptible — la letra del letrero se lee igual.
+  // Solo WebGPU: el laboratorio no probó FSR en el respaldo WebGL2, así que
+  // 'baja' ahí sigue siendo la dieta de DPR de siempre (rama de abajo).
+  // El nodo se construye perezoso (solo si 'baja' se llega a pisar de
+  // verdad) para no compilar un programa que casi nadie va a usar — por
+  // defecto WebGPU arranca en 'alta' (línea de abajo)
+  const FSR_SCALE = 0.66
+  let fsrOutputNode = null
 
   // presets de calidad = resolución real de render (el mayor coste de todos).
   // En el respaldo WebGL2 hasta el tope de 'alta' baja a 1.5: a DPR 2 real el
@@ -134,6 +147,23 @@ export async function createLounge(canvas, onProgress = () => {}) {
   const setQuality = (level) => {
     renderer.setPixelRatio(QUALITY[level] ?? QUALITY.media)
     renderer.setSize(window.innerWidth, window.innerHeight)
+
+    if (isWebGPU && level === 'baja') {
+      scenePass.setResolutionScale(FSR_SCALE)
+      fsrOutputNode ??= fsr1(scenePassColor, 0.2).add(bloomPass)
+      postProcessing.outputNode = fsrOutputNode
+    } else {
+      scenePass.setResolutionScale(1)
+      postProcessing.outputNode = nativeOutputNode
+    }
+    // el pass en sí (scenePass) no necesita recompilarse por cambiar su
+    // resolutionScale — solo redimensiona render targets. Lo que SÍ exige
+    // reconstrucción es el fragmentNode del quad de postproceso cuando el
+    // outputNode cambia de grafo (nativo <-> FSR): needsUpdate se lo dice al
+    // RenderPipeline (RenderPipeline.js _update()), que reasigna
+    // _quadMesh.material.fragmentNode y marca needsUpdate en el material —
+    // sin esto el quad seguiría pintando con el grafo anterior
+    postProcessing.needsUpdate = true
   }
   // por defecto según el motor REAL: con WebGPU a tope (decisión de Iulian:
   // 120fps sobrados); en el respaldo WebGL2 (Firefox sin WebGPU, visitas por
