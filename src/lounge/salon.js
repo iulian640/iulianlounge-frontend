@@ -46,57 +46,71 @@ function woodTexture(url, repeatX, repeatY, isColor = true) {
   return texture
 }
 
+// OJO envMapIntensity: en el renderer WebGPU solo se aplica si el material
+// lleva .envMap PROPIO; con scene.environment (nuestro caso) manda
+// scene.environmentIntensity — el mando 'reflejos' del panel — para TODOS
+// los materiales (verificado en three 0.185, MaterialProperties.js:21-24).
+// Los envMapIntensity que había repartidos por aquí eran inertes: fuera.
 export const materials = {
   // parquet de espiga con laca (clearcoat): la madera sola apenas refleja
   // de frente por física; la capa de barniz sí, y es regulable. El relieve
-  // (normalMap TAMBIÉN en la laca) y el desgaste (clearcoatRoughnessMap)
-  // rompen el reflejo por la veta — sin ellos parece agua, no suelo
-  // misma receta EXACTA que la barra (petición de Iulian: que el suelo se
-  // configure igual que su combinación favorita, barniz 0 + veta 1): base
-  // fija 0.6 SIN mapa de rugosidad — el mapa fotográfico le cambiaba la
-  // respuesta a los mandos y nunca se comportaba como la barra
+  // (normalMap TAMBIÉN en la laca, con los dos relieves altos) rompe el
+  // reflejo por la veta — sin él parece agua, no suelo. Mezcla de Iulian de
+  // la pasada de brillos (2026-07-14, panel 'Suelo'): barniz a tope con
+  // difuminado medio (0.33) — reflejos presentes pero no espejo — sobre
+  // base semi-mate (0.67) con media veta
   woodFloor: new THREE.MeshPhysicalMaterial({
-    color: '#8a7160',
+    color: '#837063',
     map: woodTexture('/textures/floor-parquet-diff.jpg', 8, 5.5),
-    roughness: 0.61, // = sueloDifuminado 0.4 en el panel (mezcla Iulian 2026-07-12)
+    roughness: 0.67,
     normalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
-    normalScale: new THREE.Vector2(0.8, 0.8),
-    clearcoat: 0.4, // = sueloBarniz 0.4 en el panel
-    clearcoatRoughness: 0.32, // = sueloDifuminado 0.4 × 0.8
-    clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
-    clearcoatNormalScale: new THREE.Vector2(1.3, 1.3),
-    anisotropy: 0.9,
-    anisotropyRotation: Math.PI / 4,
-    envMapIntensity: 0.25,
-  }),
-  // la tapa de la barra: madera noble lacada — clearcoat = el barniz,
-  // clearcoatRoughness = el difuminado del reflejo; la veta rompe la laca
-  barWood: new THREE.MeshPhysicalMaterial({
-    color: '#a08874',
-    map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
-    roughness: 1, // = barraDifuminado 1 en el panel
-    normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
-    normalScale: new THREE.Vector2(0.5, 0.5),
-    // defecto = la mezcla de Iulian: barniz 1, difuminado 1, veta 1
+    normalScale: new THREE.Vector2(2, 2),
     clearcoat: 1,
-    clearcoatRoughness: 0.8,
+    clearcoatRoughness: 0.33,
+    clearcoatNormalMap: woodTexture('/textures/floor-parquet-normal.jpg', 8, 5.5, false),
+    clearcoatNormalScale: new THREE.Vector2(1.6, 1.6),
+    anisotropy: 0.5,
+    anisotropyRotation: Math.PI / 4,
+  }),
+  // la tapa y la carpintería del mostrador: madera clara lacada — mezcla
+  // FINAL de Iulian (pasada de brillos 2026-07-14): base mate (roughness 1,
+  // el carácter no lo pone la madera) y todo el reflejo en la laca casi
+  // espejo (clearcoatRoughness 0.03) rota por el relieve de la propia laca
+  // a tope (clearcoatNormalScale 2) — brillos definidos que ondulan con la
+  // veta, sin el velo lechoso del clearcoat rugoso de antes. El clearcoat
+  // es acromático en three (F0 fijo 0.04, no se tinta): su rugosidad era el
+  // mando anti-plástico. Sin anisotropía (los reflejos estirados a lo largo
+  // del mostrador no gustaron — y de paso el shader se ahorra el lóbulo
+  // aniso) y sin mapa de rugosidad (con la base mate no aporta)
+  barWood: new THREE.MeshPhysicalMaterial({
+    color: '#c2b4ad',
+    map: woodTexture('/textures/bar-wood-diff.jpg', 1, 3.5),
+    roughness: 1,
+    normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
+    normalScale: new THREE.Vector2(1, 1),
+    clearcoat: 1,
+    clearcoatRoughness: 0.03,
     clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1, 3.5, false),
-    clearcoatNormalScale: new THREE.Vector2(0.6, 0.6),
-    // el brillo corre a lo largo del mostrador, como la veta
-    anisotropy: 1,
-    anisotropyRotation: Math.PI / 2,
-    envMapIntensity: 0.8,
+    clearcoatNormalScale: new THREE.Vector2(2, 2),
   }),
   woodDark: new THREE.MeshStandardMaterial({ color: '#241811', roughness: 0.8 }),
   // madera noble CON VETA para la carpintería que se mira de cerca (puerta,
   // cornisa, pilastras, zócalo): la misma textura de la barra teñida oscura
-  // — el color multiplica al mapa, por eso es más claro que woodDark
-  woodTrim: new THREE.MeshStandardMaterial({
-    color: '#8a6448',
+  // — el color multiplica al mapa, por eso es más claro que woodDark.
+  // Physical desde la pasada de brillos 2026-07-14 con la mezcla de Iulian
+  // (panel 'Paredes (madera)'): base mate con laca satinada (0.55/0.8) y
+  // relieves a tope. Sigue siendo UN programa, pero de los gordos: si la
+  // compilación del arranque crece, este es el primer sospechoso (ley 12)
+  woodTrim: new THREE.MeshPhysicalMaterial({
+    color: '#47392e',
     map: woodTexture('/textures/bar-wood-diff.jpg', 1.2, 1.2),
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 1.2, 1.2, false),
-    normalScale: new THREE.Vector2(0.6, 0.6),
-    roughness: 0.75,
+    normalScale: new THREE.Vector2(2, 2),
+    roughness: 1,
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.8,
+    clearcoatNormalMap: woodTexture('/textures/bar-wood-normal.jpg', 1.2, 1.2, false),
+    clearcoatNormalScale: new THREE.Vector2(2, 2),
   }),
   wall: new THREE.MeshStandardMaterial({ color: '#10201d', roughness: 0.95 }),
   ceiling: new THREE.MeshStandardMaterial({ color: '#0a1311', roughness: 1 }),
@@ -105,22 +119,20 @@ export const materials = {
     color: '#c9a45c',
     metalness: 1,
     roughness: 0.5,
-    envMapIntensity: 0.55,
   }),
   velvet: new THREE.MeshStandardMaterial({ color: '#3d1b20', roughness: 1 }),
   leather: new THREE.MeshStandardMaterial({ color: '#4a2c1e', roughness: 0.7 }),
   // tablas de madera del escenario — MATE como el suelo: sin reflejos
   // definidos, la luz se esparce en charco suave. Standard, no Physical: la
-  // anisotropía 0.3 era imperceptible en madera mate (envMapIntensity 0.15)
-  // y el Physical+aniso formaba él solo un programa de shader de los gordos
-  // (coste fijo en la compilación del arranque)
+  // anisotropía 0.3 era imperceptible en madera mate y el Physical+aniso
+  // formaba él solo un programa de shader de los gordos (coste fijo en la
+  // compilación del arranque)
   stageWood: new THREE.MeshStandardMaterial({
     color: '#96826c',
     map: woodTexture('/textures/bar-wood-diff.jpg', 2.2, 1.5),
     normalMap: woodTexture('/textures/bar-wood-normal.jpg', 2.2, 1.5, false),
     normalScale: new THREE.Vector2(0.7, 0.7),
     roughness: 1,
-    envMapIntensity: 0.15,
   }),
   shade: new THREE.MeshStandardMaterial({
     color: '#1c2a26',
@@ -140,11 +152,22 @@ export const materials = {
   }),
 }
 
-// el cuerpo del mostrador: la misma madera con veta de la carpintería, un
-// punto más oscura para que pilastras y marcos destaquen encima (clone =
-// comparte texturas y programa de shader con woodTrim, solo cambia el tinte)
-materials.woodPanel = materials.woodTrim.clone()
-materials.woodPanel.color.set('#63432f')
+// la carpintería del frente del mostrador: clon de la caoba de la tapa
+// (mismo programa de shader, cero nuevos) con su propia mezcla — mezcla de
+// Iulian 2026-07-14: laca satinada (barniz 0.3, difuminado 0.8) para que la
+// tira de luz se funda en un lavado suave por los paneles en vez de clavar
+// puntos calientes como en la laca espejo de la tapa, y relieve a tope
+materials.barFront = materials.barWood.clone()
+materials.barFront.color.set('#655c58')
+materials.barFront.clearcoat = 0.3
+materials.barFront.clearcoatRoughness = 0.8
+materials.barFront.clearcoatNormalScale.setScalar(2)
+materials.barFront.normalScale.setScalar(2)
+
+// el armazón del mostrador tras la carpintería: la misma mezcla satinada
+// del frente, mucho más oscura para que paneles y pilastras destaquen
+materials.barCabinet = materials.barFront.clone()
+materials.barCabinet.color.set('#322c29')
 
 // la tira de luz del pie de la barra: cinta emissive escondida tras el
 // faldón — desde el salón solo se ve la línea de luz que escapa. El charco
@@ -252,7 +275,7 @@ function buildBar(salon) {
   const barX = -ROOM.width / 2 + 1.45
 
   // mostrador con tapa de madera noble y vivo de latón en el canto
-  salon.add(box(0.65, 1.05, barLength, materials.woodPanel, barX, 0.525, 0))
+  salon.add(box(0.65, 1.05, barLength, materials.barCabinet, barX, 0.525, 0))
   salon.add(box(0.75, 0.05, barLength + 0.1, materials.barWood, barX, 1.075, 0))
   salon.add(box(0.03, 0.03, barLength + 0.1, materials.brass, barX + 0.37, 1.075, 0))
 
@@ -287,15 +310,16 @@ function buildBar(salon) {
 // paneles enmarcados): zócalo oscuro, siete pilastras con basa y capitel
 // partiendo el frente en seis tramos, cada tramo con su panel realzado en
 // dos escalones, y un riel corrido bajo el vuelo de la tapa. Los extremos
-// llevan su propio panel. Todo carpintería woodTrim (la madera con veta que
-// se mira de cerca) sobre el armazón oscuro — materiales ya existentes,
-// cero programas de shader nuevos.
+// llevan su propio panel. Toda la carpintería en barWood (la caoba lacada
+// de la tapa, extendida al frente en la pasada de brillos 2026-07-14)
+// sobre el armazón oscuro — materiales ya existentes, cero programas de
+// shader nuevos.
 function buildBarPaneling(salon, barX, barLength) {
   const FRONT = barX + 0.325 // el plano de la cara que mira al salón
 
   // caja en relieve sobre el frente: nace 1 cm dentro del armazón para que
   // ninguna cara quede coplanar (z-fighting)
-  const relief = (proud, height, length, y, z, material = materials.woodTrim) =>
+  const relief = (proud, height, length, y, z, material = materials.barFront) =>
     box(proud + 0.01, height, length, material, FRONT + (proud - 0.01) / 2, y, z)
 
   // zócalo oscuro a ras de suelo y riel alto bajo el vuelo de la tapa
@@ -364,7 +388,7 @@ function buildBarPaneling(salon, barX, barLength) {
   // los extremos del mostrador: zócalo, riel y un panel enmarcado pequeño
   for (const side of [-1, 1]) {
     const zFace = side * (barLength / 2)
-    const cap = (proud, width, height, y, x = barX, material = materials.woodTrim) =>
+    const cap = (proud, width, height, y, x = barX, material = materials.barFront) =>
       box(width, height, proud + 0.01, material, x, y, zFace + side * ((proud - 0.01) / 2))
 
     salon.add(cap(0.045, 0.67, 0.14, 0.07, barX, materials.woodDark))

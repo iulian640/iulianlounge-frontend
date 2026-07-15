@@ -140,16 +140,41 @@ describe('materials', () => {
     expect(materials.barWood.clearcoat).toBeGreaterThan(0)
   })
 
-  it('woodPanel es un clon de woodTrim: comparte texturas pero no el color', () => {
+  it('barFront es un clon satinado de barWood: comparte texturas pero cambia la laca y el color', () => {
     // Arrange & Act
-    // (woodPanel se clona de woodTrim al cargar el módulo)
+    // (barFront se clona de barWood al cargar el módulo: mismo programa de
+    // shader —cero compilaciones nuevas—, pero con su propia mezcla de
+    // Iulian 2026-07-14: laca satinada (barniz 0.3, difuminado 0.8) en vez
+    // del espejo casi perfecto de la tapa, para que la tira de luz se funda
+    // en un lavado suave por los paneles en vez de clavar puntos calientes)
 
     // Assert
-    expect(materials.woodPanel).not.toBe(materials.woodTrim)
-    expect(materials.woodPanel.map).toBe(materials.woodTrim.map)
-    expect(materials.woodPanel.normalMap).toBe(materials.woodTrim.normalMap)
-    expect(materials.woodPanel.color.getHexString()).not.toBe(
-      materials.woodTrim.color.getHexString(),
+    expect(materials.barFront).not.toBe(materials.barWood)
+    expect(materials.barFront.map).toBe(materials.barWood.map)
+    expect(materials.barFront.normalMap).toBe(materials.barWood.normalMap)
+    expect(materials.barFront.clearcoat).toBe(0.3)
+    expect(materials.barFront.clearcoatRoughness).toBe(0.8)
+    expect(materials.barFront.clearcoat).not.toBe(materials.barWood.clearcoat)
+    expect(materials.barFront.color.getHexString()).not.toBe(materials.barWood.color.getHexString())
+  })
+
+  it('barCabinet es un clon de barFront: comparte texturas y la laca satinada, pero no el color', () => {
+    // Arrange & Act
+    // (barCabinet se clona de barFront, no de barWood: hereda la misma laca
+    // satinada del frente del mostrador. Comparte texturas con barWood por
+    // la cadena de clones, pero YA NO comparte su laca espejo — el armazón
+    // va satinado igual que el frente, solo que mucho más oscuro para que
+    // paneles y pilastras destaquen sobre él)
+
+    // Assert
+    expect(materials.barCabinet).not.toBe(materials.barFront)
+    expect(materials.barCabinet.map).toBe(materials.barWood.map)
+    expect(materials.barCabinet.normalMap).toBe(materials.barWood.normalMap)
+    expect(materials.barCabinet.clearcoat).toBe(materials.barFront.clearcoat)
+    expect(materials.barCabinet.clearcoatRoughness).toBe(materials.barFront.clearcoatRoughness)
+    expect(materials.barCabinet.clearcoat).not.toBe(materials.barWood.clearcoat)
+    expect(materials.barCabinet.color.getHexString()).not.toBe(
+      materials.barFront.color.getHexString(),
     )
   })
 
@@ -215,16 +240,18 @@ describe('buildSalon', () => {
     // Act
     const salon = buildSalon(scene)
     const meshes = collectMeshes(salon)
-    // fuste, basa y capitel son cajas de woodTrim con una altura propia y
-    // exclusiva dentro del fichero (0.8, 0.12 y 0.08 respectivamente)
+    // fuste, basa y capitel son cajas de barWood (la caoba lacada de la
+    // tapa, extendida a toda la carpintería del frente en la pasada de
+    // brillos 2026-07-14) con una altura propia y exclusiva dentro del
+    // fichero (0.8, 0.12 y 0.08 respectivamente)
     const fustes = meshes.filter(
-      (m) => m.material === materials.woodTrim && m.geometry.parameters.height === 0.8,
+      (m) => m.material === materials.barFront && m.geometry.parameters.height === 0.8,
     )
     const basas = meshes.filter(
-      (m) => m.material === materials.woodTrim && m.geometry.parameters.height === 0.12,
+      (m) => m.material === materials.barFront && m.geometry.parameters.height === 0.12,
     )
     const capiteles = meshes.filter(
-      (m) => m.material === materials.woodTrim && m.geometry.parameters.height === 0.08,
+      (m) => m.material === materials.barFront && m.geometry.parameters.height === 0.08,
     )
 
     // Assert

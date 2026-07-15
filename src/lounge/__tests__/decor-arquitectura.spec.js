@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three'
 
-import { ROOM } from '../salon'
+import { ROOM, materials } from '../salon'
 import { addArchitecture } from '../decor/architecture'
 import { addDoor, DOOR_DIMENSIONS } from '../decor/door'
 import { addCurtains } from '../decor/curtains'
@@ -26,6 +26,17 @@ function usaMaterialPhysical(objeto3d) {
     if (hijo.isMesh && hijo.material?.isMeshPhysicalMaterial) encontrado = true
   })
   return encontrado
+}
+
+// distintas INSTANCIAS de MeshPhysicalMaterial presentes en el objeto (por
+// identidad, no por valor): sirve para comprobar que un decorado no crea su
+// propio material Physical, sino que reutiliza el compartido de salon.js
+function materialesPhysicalDistintos(objeto3d) {
+  const materiales = new Set()
+  objeto3d.traverse((hijo) => {
+    if (hijo.isMesh && hijo.material?.isMeshPhysicalMaterial) materiales.add(hijo.material)
+  })
+  return materiales
 }
 
 function todasLasMallas(objeto3d) {
@@ -131,15 +142,24 @@ describe('decor/architecture — addArchitecture', () => {
     }
   })
 
-  it('no usa MeshPhysicalMaterial (esa familia queda reservada a laca y cristal del salón)', () => {
+  it('la carpintería Physical reutiliza la instancia compartida woodTrim del salón, sin crear programas nuevos', () => {
     // Arrange
     const scene = new THREE.Scene()
 
-    // Act
+    // Act: cornisa, pilastras, zócalo y moldura de la puerta pintan en
+    // woodTrim, que ascendió a MeshPhysicalMaterial con laca en la pasada de
+    // brillos (2026-07-14) — la ley que YA NO aplica es "Physical reservado a
+    // laca y cristal"; la que sigue viva es de rendimiento (ver
+    // docs/leyes-de-rendimiento.md): cero programas Physical nuevos
     const architecture = addArchitecture(scene)
+    const materialesPhysical = materialesPhysicalDistintos(architecture)
 
-    // Assert
-    expect(usaMaterialPhysical(architecture)).toBe(false)
+    // Assert: una única instancia Physical en toda la arquitectura, y es
+    // justo la misma referencia que exporta salon.js — si architecture.js
+    // instanciara su propio Physical (aunque fuera con los mismos números),
+    // el arranque compilaría un programa de shader extra
+    expect(materialesPhysical.size).toBe(1)
+    expect([...materialesPhysical][0]).toBe(materials.woodTrim)
   })
 })
 
@@ -246,15 +266,22 @@ describe('decor/door — addDoor', () => {
     }
   })
 
-  it('no usa MeshPhysicalMaterial (esa familia queda reservada a laca y cristal del salón)', () => {
+  it('la carpintería Physical (hoja y trampilla de la mirilla) reutiliza la instancia compartida woodTrim, sin crear programas nuevos', () => {
     // Arrange
     const scene = new THREE.Scene()
 
-    // Act
+    // Act: la hoja y la trampilla de la mirilla pintan en woodTrim (Physical
+    // desde la pasada de brillos 2026-07-14); marco, remaches y herrajes
+    // siguen en brass (Standard) — door.js no instancia su propio Physical,
+    // importa `materials` de salon.js y pinta con esa misma referencia
     const door = addDoor(scene)
+    const materialesPhysical = materialesPhysicalDistintos(door)
 
-    // Assert
-    expect(usaMaterialPhysical(door)).toBe(false)
+    // Assert: una única instancia Physical, y es la misma que woodTrim en
+    // salon.js — identidad, no solo mismos valores, para pillar el día que
+    // alguien clone el material en vez de reutilizarlo
+    expect(materialesPhysical.size).toBe(1)
+    expect([...materialesPhysical][0]).toBe(materials.woodTrim)
   })
 })
 
@@ -381,7 +408,7 @@ describe('decor/curtains — addCurtains', () => {
     }
   })
 
-  it('no usa MeshPhysicalMaterial (esa familia queda reservada a laca y cristal del salón)', () => {
+  it('no usa MeshPhysicalMaterial (el terciopelo es mate: Physical solo donde hay laca o cristal que lo pague)', () => {
     // Arrange
     const scene = new THREE.Scene()
 
