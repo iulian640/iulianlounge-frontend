@@ -286,7 +286,7 @@ describe('createLounge', () => {
     })
     expect(lucesConSombra).toBeGreaterThan(0)
     expect(hacesVisibles).toBeGreaterThan(0)
-    expect(mocks.setPixelRatio).toHaveBeenLastCalledWith(2) // min(devicePixelRatio 2, 2)
+    expect(mocks.setPixelRatio).toHaveBeenLastCalledWith(1.4) // min(devicePixelRatio 2, tope 1.4)
     expect(window.__lounge.renderer.shadowMap.enabled).toBe(true)
     expect(window.__loungeBackend).toBe('WebGPU')
     // la captura de reflejos deja el envMap puesto con su intensidad de mezcla

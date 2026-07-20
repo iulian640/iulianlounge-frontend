@@ -127,9 +127,14 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
 
   // presets de calidad = resolución real de render (el mayor coste de todos).
   // En el respaldo WebGL2 hasta el tope de 'alta' baja a 1.5: a DPR 2 real el
-  // fallback se hundía a 16fps (medido) — que el selector no ofrezca trampas
+  // fallback se hundía a 16fps (medido) — que el selector no ofrezca trampas.
+  // El tope WebGPU es 1.4: en escritorios con escala alta (Hyprland 1.6 →
+  // DPR 1.6) el nativo hundía 'alta' a 37fps en la iGPU; a 1.4 se recupera
+  // ~+30% de fps perdiendo un 12% de resolución lineal (curva medida
+  // 2026-07-20: 1.6→37 / 1.25→54 / 1.0+FSR→109). Con DPR 1 (Windows a
+  // escala 100%) el cap no actúa
   const QUALITY = {
-    alta: Math.min(window.devicePixelRatio, isWebGPU ? 2 : 1.5),
+    alta: Math.min(window.devicePixelRatio, isWebGPU ? 1.4 : 1.5),
     media: 1.25,
     baja: 1,
   }
