@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import { LAMPS, ROOM, SCONCES, TABLE_SPOTS } from './salon'
+import { LAMPS, ROOM, SCONCES, TABLE_SPOTS, WALL_WASHES } from './salon'
 
 // Iluminación en capas (referencias de Pictures/speakeasyIdeas + práctica
 // three.js): la penumbra rica no es menos luz, es más FUENTES y más rebote,
@@ -101,6 +101,14 @@ export function addSalonLights(scene) {
     const glow = tag(new THREE.PointLight(WARM, 3, 3.5, 2), 'accent')
     glow.position.set(x + Math.sin(rotY) * 0.3, 2.4, z + Math.cos(rotY) * 0.3)
     scene.add(glow)
+  }
+
+  // 1b — baño de pared en el lado este: sin práctico cerca, esa pared se quedaba en negro plano. Tenue,
+  // alto y corto (muere antes del suelo), sin sombra y batcheado (ley 3): relleno de perímetro, no charco
+  for (const { x, y, z } of WALL_WASHES) {
+    const wash = tag(new THREE.PointLight(WARM, 1.2, 2.6, 2), 'pared')
+    wash.position.set(x, y, z)
+    scene.add(wash)
   }
 
   // 3 — baño de candilejas sobre la cortina (rebalanceado a la mezcla de

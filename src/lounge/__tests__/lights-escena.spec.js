@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import * as THREE from 'three'
 
 import { addSalonLights } from '../lights'
-import { LAMPS, ROOM, SCONCES, TABLE_SPOTS } from '../salon'
+import { LAMPS, ROOM, SCONCES, TABLE_SPOTS, WALL_WASHES } from '../salon'
 
 // capa del suelo (ver lights.js: tag() la habilita en toda luz salvo
 // las etiquetadas 'candle' y 'shelf')
@@ -53,6 +53,7 @@ describe('addSalonLights', () => {
         'accent',
         'escenario',
         'letrero',
+        'pared',
       ]
 
       // Act
@@ -83,6 +84,7 @@ describe('addSalonLights', () => {
       expect(porKind(luces, 'accent')).toHaveLength(SCONCES.length)
       expect(porKind(luces, 'escenario')).toHaveLength(2)
       expect(porKind(luces, 'letrero')).toHaveLength(1)
+      expect(porKind(luces, 'pared')).toHaveLength(WALL_WASHES.length)
     })
 
     it('suma el total de luces de cada tipo three.js en la escena', () => {
@@ -93,6 +95,7 @@ describe('addSalonLights', () => {
         13 + // tira de la barra (bajo el vuelo de la tapa)
         TABLE_SPOTS.length + // velas de mesa
         SCONCES.length + // apliques de pared
+        WALL_WASHES.length + // baños de pared del lado este
         1 + // candilejas del escenario
         1 // letrero
       const focosEsperados = LAMPS.filter((lampara) => lampara.shadow).length + 1 // lámparas con sombra + foco de escenario
