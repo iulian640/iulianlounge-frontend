@@ -8,5 +8,49 @@
   "ui": {
     "loading": "Encendiendo el letrero…",
     "language": "Idioma"
+  },
+  "auth": {
+    "subtitle": "Club privado.",
+    "tabs": {
+      "login": "Entrar",
+      "register": "Hacerse socio"
+    },
+    "fields": {
+      "username": "Nombre",
+      "email": "Email",
+      "password": "Contraseña"
+    },
+    "submit": {
+      "login": "Entrar",
+      "register": "Hacerme socio",
+      "working": "Llamando a la puerta…"
+    }
+  },
+  "errors": {
+    "generic": "Algo ha fallado. Inténtalo otra vez.",
+    "auth": {
+      "invalid_credentials": "Ese nombre y esa contraseña no abren esta puerta.",
+      "required": "Primero hay que entrar.",
+      "invalid_token": "La sesión ha caducado. Vuelve a entrar."
+    },
+    "user": {
+      "username_taken": "Ese nombre ya lo lleva otro socio.",
+      "email_taken": "Ese email ya está en el libro de socios.",
+      "already_exists": "Ese nombre o ese email ya están cogidos."
+    },
+    "validation": {
+      "failed": "Revisa los campos marcados.",
+      "not_blank": "Falta este dato.",
+      "size": "No cumple la longitud.",
+      "pattern": "Solo letras, números y _ . -",
+      "email": "Eso no parece un email.",
+      "max_utf8_bytes": "Demasiado larga (las tildes y los emojis cuentan doble)."
+    },
+    "request": {
+      "rejected": "La petición no ha llegado bien. Inténtalo otra vez."
+    },
+    "internal": {
+      "error": "Algo se ha roto en la trastienda. Inténtalo en un rato."
+    }
   }
 }
