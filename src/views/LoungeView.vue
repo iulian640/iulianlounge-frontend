@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createLounge } from '@/lounge/createLounge'
+import HudLounge from '@/components/hud/HudLounge.vue'
 
 const canvas = ref(null)
 const entering = ref(true) // el telón: tapa la compilación de shaders y la carga
@@ -46,6 +47,8 @@ onUnmounted(() => {
 
 <template>
   <canvas ref="canvas"></canvas>
+  <!-- El HUD aparece cuando se levanta el telón, no antes -->
+  <HudLounge v-if="!entering" />
   <Transition name="telon">
     <div v-if="entering" class="telon" aria-live="polite">
       <p class="letrero">IULIAN'S</p>

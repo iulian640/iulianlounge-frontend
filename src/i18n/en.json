@@ -52,5 +52,18 @@
     "internal": {
       "error": "Something broke in the back room. Try again in a while."
     }
+  },
+  "hud": {
+    "balance": "Balance: {amount} Shrutebucks",
+    "logout": "Sign out"
+  },
+  "wallet": {
+    "title": "Ledger",
+    "close": "Close",
+    "empty": "No movements yet.",
+    "balanceAfter": "Balance: {amount}",
+    "types": {
+      "WELCOME_BONUS": "Welcome chips"
+    }
   }
 }

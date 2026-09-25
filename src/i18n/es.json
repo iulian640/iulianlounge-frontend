@@ -52,5 +52,18 @@
     "internal": {
       "error": "Algo se ha roto en la trastienda. Inténtalo en un rato."
     }
+  },
+  "hud": {
+    "balance": "Saldo: {amount} chikilicuatres",
+    "logout": "Salir"
+  },
+  "wallet": {
+    "title": "Libro de cuentas",
+    "close": "Cerrar",
+    "empty": "Aún no hay movimientos.",
+    "balanceAfter": "Saldo: {amount}",
+    "types": {
+      "WELCOME_BONUS": "Fichas de bienvenida"
+    }
   }
 }
