@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import { LOST_ROUTE } from './safeNext'
 import { useAuthStore } from '@/stores/auth'
 import LoungeView from '../views/LoungeView.vue'
 
@@ -16,6 +17,8 @@ export const routes = [
     // Carga diferida: quien ya tiene sesión no descarga la pantalla de acceso
     component: () => import('../views/AccessView.vue'),
   },
+  // Cualquier otra ruta: al inicio (y de ahí a la puerta si no hay sesión), nunca una pantalla en blanco
+  { path: '/:pathMatch(.*)*', name: LOST_ROUTE, redirect: '/' },
 ]
 
 // El lounge solo tras login. Al recargar la página la memoria se vacía, así que antes de mandar a nadie

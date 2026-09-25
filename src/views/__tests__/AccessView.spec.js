@@ -8,7 +8,8 @@ import { useAuthStore } from '@/stores/auth'
 
 const replace = vi.fn()
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ replace }),
+  // resolve: lo usa safeNext para comprobar que la ruta de vuelta existe
+  useRouter: () => ({ replace, resolve: () => ({ matched: [{ name: 'loungeview' }] }) }),
   useRoute: () => ({ query: { next: '/' } }),
 }))
 
@@ -71,7 +72,7 @@ describe('AccessView', () => {
       errors: { email: 'validation.email' },
     })
 
-    await wrapper.findAll('[role="tab"]')[1].trigger('click')
+    await wrapper.findAll('.pestanas button')[1].trigger('click')
     await wrapper.find('input[name="username"]').setValue('dwight')
     await wrapper.find('input[name="email"]').setValue('no-es-un-email')
     await wrapper.find('input[name="password"]').setValue('12345678')
@@ -85,6 +86,36 @@ describe('AccessView', () => {
       locale: 'en',
     })
     expect(wrapper.find('input[name="email"]').attributes('aria-invalid')).toBe('true')
-    expect(wrapper.text()).toContain("That doesn't look like an email.")
+    // El error va enlazado al campo: el lector de pantalla lo lee al llegar al input
+    expect(wrapper.find('input[name="email"]').attributes('aria-describedby')).toBe('error-email')
+    expect(wrapper.find('#error-email').text()).toBe("That doesn't look like an email.")
+  })
+
+  it('alta buena y login fallido: pasa a Entrar con el nombre puesto, no a repetir el alta', async () => {
+    const { wrapper, auth } = montar()
+    auth.register.mockRejectedValueOnce({ status: 500, code: 'internal.error', errors: {}, registered: true })
+
+    await wrapper.findAll('.pestanas button')[1].trigger('click')
+    await wrapper.find('input[name="username"]').setValue('dwight')
+    await wrapper.find('input[name="email"]').setValue('d@lounge.com')
+    await wrapper.find('input[name="password"]').setValue('12345678')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.find('input[name="email"]').exists()).toBe(false)
+    expect(wrapper.find('input[name="username"]').element.value).toBe('dwight')
+    expect(wrapper.find('input[name="password"]').element.value).toBe('')
+    expect(wrapper.find('[role="alert"]').text()).toBe('Ya eres socio. Entra con tu nombre y contraseña.')
+  })
+
+  it('cambiar de modo borra los errores anteriores', async () => {
+    const { wrapper, auth } = montar()
+    auth.login.mockRejectedValueOnce({ status: 401, code: 'auth.invalid_credentials', errors: {} })
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    await wrapper.findAll('.pestanas button')[1].trigger('click')
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
   })
 })

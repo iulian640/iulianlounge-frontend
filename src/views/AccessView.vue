@@ -1,8 +1,9 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import { safeNext } from '@/router/safeNext'
 import { useAuthStore } from '@/stores/auth'
 
 // La puerta del club: entrar o hacerse socio. Los errores llegan como claves del backend (ADR-06)
@@ -17,6 +18,7 @@ const form = reactive({ username: '', email: '', password: '' })
 const fieldErrors = ref({}) // { campo: clave }
 const formError = ref(null) // clave del error general
 const working = ref(false)
+const formElement = useTemplateRef('formElement')
 
 const isRegister = computed(() => mode.value === 'register')
 
@@ -30,6 +32,11 @@ function message(code) {
   return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
+// Enlaza el input con su mensaje de error para el lector de pantalla (solo si hay error)
+function describedBy(field) {
+  return fieldErrors.value[field] ? `error-${field}` : undefined
+}
+
 async function submit() {
   working.value = true
   fieldErrors.value = {}
@@ -40,12 +47,21 @@ async function submit() {
     } else {
       await auth.login(form.username, form.password)
     }
-    // Vuelve a donde quería ir antes de que le pararan en la puerta (solo rutas internas)
-    const next = typeof route.query.next === 'string' && route.query.next.startsWith('/') ? route.query.next : '/'
-    await router.replace(next)
+    // Vuelve a donde quería ir antes de que le pararan en la puerta (solo rutas propias que existan)
+    await router.replace(safeNext(route.query.next, router))
   } catch (error) {
-    fieldErrors.value = error?.errors ?? {}
-    formError.value = error?.code ?? 'generic'
+    if (error?.registered) {
+      // El alta fue bien y lo que falló fue entrar: a "Entrar" con el nombre puesto, no a repetir el alta
+      mode.value = 'login'
+      form.password = ''
+      formError.value = 'auth.registered_sign_in'
+    } else {
+      fieldErrors.value = error?.errors ?? {}
+      formError.value = error?.code ?? 'generic'
+    }
+    // El foco va al primer campo que falla; si no hay ninguno, el aviso general ya se anuncia (role=alert)
+    await nextTick()
+    formElement.value?.querySelector('[aria-invalid="true"]')?.focus()
   } finally {
     working.value = false
   }
@@ -58,11 +74,11 @@ async function submit() {
       <h1 id="titulo-club" class="letrero">{{ t('club.name') }}</h1>
       <p class="subtitulo">{{ t('auth.subtitle') }}</p>
 
-      <div class="pestanas" role="tablist">
+      <!-- Dos botones que conmutan el formulario (aria-pressed): más simple y honesto que un tablist a medias -->
+      <div class="pestanas" role="group" :aria-label="t('auth.modes')">
         <button
           type="button"
-          role="tab"
-          :aria-selected="!isRegister"
+          :aria-pressed="!isRegister"
           :class="{ activa: !isRegister }"
           @click="switchMode('login')"
         >
@@ -70,8 +86,7 @@ async function submit() {
         </button>
         <button
           type="button"
-          role="tab"
-          :aria-selected="isRegister"
+          :aria-pressed="isRegister"
           :class="{ activa: isRegister }"
           @click="switchMode('register')"
         >
@@ -79,44 +94,54 @@ async function submit() {
         </button>
       </div>
 
-      <form novalidate @submit.prevent="submit">
-        <label class="campo">
-          <span>{{ t('auth.fields.username') }}</span>
+      <form ref="formElement" novalidate @submit.prevent="submit">
+        <div class="campo">
+          <label for="acceso-username">{{ t('auth.fields.username') }}</label>
           <input
+            id="acceso-username"
             v-model.trim="form.username"
             name="username"
             autocomplete="username"
             required
             :aria-invalid="Boolean(fieldErrors.username)"
+            :aria-describedby="describedBy('username')"
           />
-          <small v-if="fieldErrors.username" class="error">{{ message(fieldErrors.username) }}</small>
-        </label>
+          <small v-if="fieldErrors.username" id="error-username" class="error">
+            {{ message(fieldErrors.username) }}
+          </small>
+        </div>
 
-        <label v-if="isRegister" class="campo">
-          <span>{{ t('auth.fields.email') }}</span>
+        <div v-if="isRegister" class="campo">
+          <label for="acceso-email">{{ t('auth.fields.email') }}</label>
           <input
+            id="acceso-email"
             v-model.trim="form.email"
             name="email"
             type="email"
             autocomplete="email"
             required
             :aria-invalid="Boolean(fieldErrors.email)"
+            :aria-describedby="describedBy('email')"
           />
-          <small v-if="fieldErrors.email" class="error">{{ message(fieldErrors.email) }}</small>
-        </label>
+          <small v-if="fieldErrors.email" id="error-email" class="error">{{ message(fieldErrors.email) }}</small>
+        </div>
 
-        <label class="campo">
-          <span>{{ t('auth.fields.password') }}</span>
+        <div class="campo">
+          <label for="acceso-password">{{ t('auth.fields.password') }}</label>
           <input
+            id="acceso-password"
             v-model="form.password"
             name="password"
             type="password"
             :autocomplete="isRegister ? 'new-password' : 'current-password'"
             required
             :aria-invalid="Boolean(fieldErrors.password)"
+            :aria-describedby="describedBy('password')"
           />
-          <small v-if="fieldErrors.password" class="error">{{ message(fieldErrors.password) }}</small>
-        </label>
+          <small v-if="fieldErrors.password" id="error-password" class="error">
+            {{ message(fieldErrors.password) }}
+          </small>
+        </div>
 
         <p v-if="formError" class="error-general" role="alert">{{ message(formError) }}</p>
 
@@ -208,7 +233,7 @@ async function submit() {
   margin-bottom: 18px;
 }
 
-.campo span {
+.campo label {
   display: block;
   margin-bottom: 6px;
   font-size: 0.78rem;
