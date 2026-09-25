@@ -65,5 +65,14 @@
     "types": {
       "WELCOME_BONUS": "Welcome chips"
     }
+  },
+  "salon": {
+    "name": "The Parlor",
+    "soon": "Soon",
+    "corners": {
+      "barra": "The bar",
+      "cartas": "The card table",
+      "escenario": "The stage"
+    }
   }
 }

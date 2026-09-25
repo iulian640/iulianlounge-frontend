@@ -65,5 +65,14 @@
     "types": {
       "WELCOME_BONUS": "Fichas de bienvenida"
     }
+  },
+  "salon": {
+    "name": "El Salón",
+    "soon": "Pronto",
+    "corners": {
+      "barra": "La barra",
+      "cartas": "La mesa de cartas",
+      "escenario": "El escenario"
+    }
   }
 }
