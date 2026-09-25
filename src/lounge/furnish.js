@@ -36,7 +36,9 @@ function chesterfieldsAround(x, z) {
     const angle = (i / 3) * Math.PI * 2 + 0.5
     const chairX = x + Math.cos(angle) * 0.95
     const chairZ = z + Math.sin(angle) * 0.95
-    const rotationY = Math.atan2(x - chairX, z - chairZ) // mirando a la mesa
+    // Mirando a la mesa. El frente de chesterfield.glb es su +X (medido en el GLB: el respaldo
+    // está en -X). Girar θ en Y lleva +X a (cos θ, -sin θ), así que θ = atan2(-dz, dx)
+    const rotationY = Math.atan2(-(z - chairZ), x - chairX)
     pieces.push({
       url: HUNT + 'chesterfield.glb',
       opts: { height: 1.0, rotationY, recolor: { F44336: { color: '#5a2830', roughness: 0.7 } } },
@@ -66,7 +68,11 @@ function manifest() {
     const z = -7 / 2 + 0.9 + i * ((7 - 1.8) / 4)
     props.push({
       url: HUNT + 'barstool.glb',
-      opts: { height: 0.78, recolor: { _crayfishdiffuse: '#3a2417' } },
+      // Mirando a la barra (hacia -X): el frente de barstool.glb es su -Z (medido en el GLB),
+      // y π/2 lo lleva a -X. Sin giro miraban a lo largo de la barra
+      // 1.15 m con respaldo: el asiento cae al 0.67 de la altura del modelo (medido), o sea a ~0.77 m,
+      // la altura de un taburete para una barra de 1.09 m. Con 0.78 quedaba a 0.52, altura de silla
+      opts: { height: 1.15, rotationY: Math.PI / 2, recolor: { _crayfishdiffuse: '#3a2417' } },
       at: [BAR_X + 0.85, 0, z],
     })
   }
