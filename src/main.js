@@ -13,11 +13,15 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
+import { installSessionExpiry } from './session'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 app.use(i18n)
+// Sesión perdida a mitad (el refresh ya no vale) → a la puerta
+installSessionExpiry(router, pinia)
 
 app.mount('#app')

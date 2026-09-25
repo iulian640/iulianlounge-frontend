@@ -234,7 +234,7 @@ describe('decor/hatDisplay — expositor de sombreros en el nicho', () => {
 })
 
 describe('decor/floorLamps — lámparas de pie victorianas', () => {
-  it('coloca 2 lámparas con su luz kind "pie", de alcance corto y sin sombra', () => {
+  it('coloca 4 lámparas (una por esquina) con su luz kind "pie", de alcance corto y sin sombra', () => {
     // Arrange
     const scene = new THREE.Scene()
 
@@ -243,7 +243,7 @@ describe('decor/floorLamps — lámparas de pie victorianas', () => {
 
     // Assert
     const glows = collect(scene, (child) => child instanceof THREE.PointLight)
-    expect(glows).toHaveLength(2)
+    expect(glows).toHaveLength(4)
     for (const glow of glows) {
       expect(glow.userData.kind).toBe('pie')
       expect(glow.userData.baseIntensity).toBe(8)
@@ -261,7 +261,7 @@ describe('decor/floorLamps — lámparas de pie victorianas', () => {
 
     // Assert
     const lamps = scene.children.filter((child) => child.name === 'lampara-pie')
-    expect(lamps).toHaveLength(2)
+    expect(lamps).toHaveLength(4)
     for (const lamp of lamps) expect(lamp.userData.hideFromEnv).toBe(true)
   })
 
@@ -272,9 +272,9 @@ describe('decor/floorLamps — lámparas de pie victorianas', () => {
     // Act
     addFloorLamps(scene)
 
-    // Assert: pantalla + bombilla por cada una de las 2 lámparas
+    // Assert: pantalla + bombilla por cada una de las 4 lámparas
     const emissiveParts = collect(scene, isEmissive)
-    expect(emissiveParts).toHaveLength(4)
+    expect(emissiveParts).toHaveLength(8)
     for (const part of emissiveParts) expect(part.userData.hideFromEnv).toBe(true)
   })
 

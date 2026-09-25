@@ -8,5 +8,84 @@
   "ui": {
     "loading": "Warming up the marquee…",
     "language": "Language"
+  },
+  "auth": {
+    "subtitle": "Private club.",
+    "tabs": {
+      "login": "Sign in",
+      "register": "Become a member"
+    },
+    "fields": {
+      "username": "Name",
+      "email": "Email",
+      "password": "Password"
+    },
+    "submit": {
+      "login": "Sign in",
+      "register": "Make me a member",
+      "working": "Knocking on the door…"
+    },
+    "modes": "Sign in or become a member"
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "auth": {
+      "invalid_credentials": "That name and password don't open this door.",
+      "required": "You need to sign in first.",
+      "invalid_token": "Your session expired. Sign in again.",
+      "registered_sign_in": "You're a member now. Sign in with your name and password."
+    },
+    "user": {
+      "username_taken": "Another member already goes by that name.",
+      "email_taken": "That email is already in the members' book.",
+      "already_exists": "That name or email is already taken."
+    },
+    "validation": {
+      "failed": "Check the highlighted fields.",
+      "not_blank": "This one's missing.",
+      "size": "Wrong length.",
+      "pattern": "Letters, numbers and _ . - only.",
+      "email": "That doesn't look like an email.",
+      "max_utf8_bytes": "Too long (accents and emoji count double).",
+      "invalid": "That value isn't valid."
+    },
+    "request": {
+      "rejected": "The request didn't get through. Try again."
+    },
+    "internal": {
+      "error": "Something broke in the back room. Try again in a while."
+    },
+    "data": {
+      "conflict": "That clashes with what's already on the books. Try again."
+    },
+    "wallet": {
+      "not_found": "We can't find your wallet. Let the house know.",
+      "insufficient_funds": "That costs more Shrutebucks than you're carrying.",
+      "conflict": "Your wallet was busy. Try again.",
+      "idempotency_mismatch": "That operation already went through with different details."
+    }
+  },
+  "hud": {
+    "balance": "Balance: {amount} @:currency.name",
+    "logout": "Sign out"
+  },
+  "wallet": {
+    "title": "Ledger",
+    "close": "Close",
+    "empty": "No movements yet.",
+    "balanceAfter": "Balance: {amount}",
+    "types": {
+      "WELCOME_BONUS": "Welcome chips",
+      "unknown": "Movement"
+    }
+  },
+  "salon": {
+    "name": "The Parlor",
+    "soon": "Soon",
+    "corners": {
+      "barra": "The bar",
+      "cartas": "The card table",
+      "escenario": "The stage"
+    }
   }
 }

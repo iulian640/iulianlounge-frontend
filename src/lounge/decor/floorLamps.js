@@ -35,11 +35,14 @@ const beadMaterials = [
   new THREE.MeshStandardMaterial({ color: '#e8cd8f', roughness: 0.3 }),
 ]
 
-// dónde vive cada lámpara: las dos esquinas del lado de la barra (oeste) —
-// decisión de Iulian 2026-07-13; el escenario lleva focos (decor/stageSpots)
+// dónde vive cada lámpara: una en cada esquina. Las dos del lado de la barra (oeste) son la decisión de
+// Iulian 2026-07-13; las dos del este (2026-09-25) anclan las esquinas que se quedaban en negro plano
+// (la del noreste queda a la derecha del escenario, que ocupa x 1.4-5.0)
 const SPOTS = [
   [-7.2, -4.7],
   [-7.2, 4.7],
+  [7.2, -4.7],
+  [7.2, 4.7],
 ]
 
 const SHADE_RADIUS = 0.24

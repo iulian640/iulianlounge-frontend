@@ -314,6 +314,45 @@ describe('furnishSalon', () => {
     }
   })
 
+  it('cada butaca mira a su mesa (el frente de chesterfield.glb es su +X, medido en el GLB)', async () => {
+    // Arrange
+    const scene = new THREE.Scene()
+
+    // Act
+    await furnishSalon(scene, [])
+
+    // Assert: el +X del modelo, girado rotation.y, apunta al centro de la mesa más cercana
+    const chesterfields = scene.children.filter((prop) => prop.name === 'chesterfield')
+    for (const chair of chesterfields) {
+      const [tableX, tableZ] = TABLE_SPOTS.reduce((best, spot) =>
+        Math.hypot(chair.position.x - spot[0], chair.position.z - spot[1]) <
+        Math.hypot(chair.position.x - best[0], chair.position.z - best[1])
+          ? spot
+          : best,
+      )
+      const toTable = new THREE.Vector2(tableX - chair.position.x, tableZ - chair.position.z).normalize()
+      const front = new THREE.Vector2(Math.cos(chair.rotation.y), -Math.sin(chair.rotation.y))
+      expect(front.dot(toTable)).toBeCloseTo(1, 3)
+    }
+  })
+
+  it('los taburetes miran a la barra, con el respaldo hacia la sala', async () => {
+    // Arrange
+    const scene = new THREE.Scene()
+
+    // Act
+    await furnishSalon(scene, [])
+
+    // Assert: el frente de barstool.glb es su -Z (medido: el respaldo está en +Z). Girado rotation.y,
+    // tiene que apuntar a la barra, que está hacia -X (pared oeste)
+    const stools = scene.children.filter((prop) => prop.name === 'barstool')
+    expect(stools.length).toBeGreaterThan(0)
+    for (const stool of stools) {
+      const front = new THREE.Vector2(-Math.sin(stool.rotation.y), -Math.cos(stool.rotation.y))
+      expect(front.dot(new THREE.Vector2(-1, 0))).toBeCloseTo(1, 3)
+    }
+  })
+
   it('sitúa el guardarropa junto a la entrada, en la posición fija del manifest', async () => {
     // Arrange
     const scene = new THREE.Scene()
@@ -361,10 +400,10 @@ describe('furnishSalon', () => {
     }
   })
 
-  it('registra la animación de músicos y camarero (userData.update) como actualizable', async () => {
-    // Arrange: solo el músico/camarero devuelve un clip 'Idle' de verdad
+  it('registra la animación del camarero (userData.update) como actualizable', async () => {
+    // Arrange: solo el camarero devuelve un clip 'Idle' de verdad (la banda se retiró el 25-sep)
     gltfLoadMock.mockImplementation((url, onLoad) => {
-      const animado = /musician\.glb|barman\.glb/.test(url)
+      const animado = /barman\.glb/.test(url)
       const animations = animado ? [new THREE.AnimationClip('Idle', 1, [])] : []
       onLoad({ scene: makeGltfScene(), animations })
     })
@@ -374,8 +413,8 @@ describe('furnishSalon', () => {
     // Act
     await furnishSalon(scene, updatables)
 
-    // Assert: 2 músicos + 1 camarero + 2 ventiladores = 5 funciones actualizables
-    expect(updatables).toHaveLength(5)
+    // Assert: 1 camarero + 2 ventiladores = 3 funciones actualizables
+    expect(updatables).toHaveLength(3)
     for (const update of updatables) {
       expect(() => update(0.016)).not.toThrow()
     }

@@ -1,9 +1,15 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createLounge } from '@/lounge/createLounge'
+import HudLounge from '@/components/hud/HudLounge.vue'
+import { prefersFlatLounge } from '@/lounge/deviceMode'
+import SalonMovil from './SalonMovil.vue'
+
+// Móvil o pantalla estrecha: El Salón en 2D, sin canvas ni WebGPU (IUL-58). Se decide una vez, al montar
+const flat = prefersFlatLounge()
 
 const canvas = ref(null)
-const entering = ref(true) // el telón: tapa la compilación de shaders y la carga
+const entering = ref(!flat) // el telón: tapa la compilación de shaders y la carga (en 2D no hay nada que tapar)
 const progress = ref(0) // 0..1, lo reporta createLounge por tramos reales
 // el visillo: medio telón que tapa el congelón al cambiar la calidad de
 // gráficos (compilación síncrona del grafo nuevo) — lo manda createLounge
@@ -11,6 +17,7 @@ const ajustando = ref(false)
 let lounge = null // handle con dispose(), para matar el lounge al desmontar
 
 onMounted(async () => {
+  if (flat) return
   try {
     // async: el renderer WebGPU se inicializa de forma asíncrona; la promesa
     // resuelve con la sala amueblada, los pipelines compilados y un primer
@@ -45,7 +52,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvas"></canvas>
+  <SalonMovil v-if="flat" />
+  <canvas v-else ref="canvas"></canvas>
+  <!-- El HUD aparece cuando se levanta el telón, no antes. El mismo en 3D y en 2D -->
+  <HudLounge v-if="!entering" />
   <Transition name="telon">
     <div v-if="entering" class="telon" aria-live="polite">
       <p class="letrero">IULIAN'S</p>

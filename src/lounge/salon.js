@@ -20,6 +20,13 @@ export const SCONCES = [
   { x: 1.5, z: 5.38, rotY: Math.PI },
 ]
 
+// baños de pared: luz tenue arriba de la pared este, entre cada aplique y su esquina. Que el perímetro
+// no sea negro plano sin comerse el contraste de las mesas (la consume lights.js, kind 'pared')
+export const WALL_WASHES = [
+  { x: 7.6, y: 2.95, z: -3.05 },
+  { x: 7.6, y: 2.95, z: 3.05 },
+]
+
 // posiciones de las lámparas — las consume también lights.js
 // (intensidades = mezcla final de Iulian: lámparas al 25%, la luz la ponen
 // la trasbarra, el letrero y las velas)
