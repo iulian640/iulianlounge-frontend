@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { api, ApiError, hasAccessToken, refreshAccessToken, setAccessToken } from '../http'
+import {
+  api,
+  ApiError,
+  endSession,
+  hasAccessToken,
+  onSessionExpired,
+  refreshAccessToken,
+  setAccessToken,
+} from '../http'
 
 function jsonResponse(status, body) {
   return { status, ok: status >= 200 && status < 300, json: () => Promise.resolve(body) }
@@ -78,6 +86,54 @@ describe('api', () => {
     fetchMock.mockResolvedValueOnce({ status: 502, ok: false, json: () => Promise.reject(new Error('html')) })
 
     await expect(api('/wallet')).rejects.toMatchObject({ status: 502, code: 'request.rejected' })
+  })
+
+  it('si el refresh falla, avisa de que la sesión se ha perdido', async () => {
+    const expired = vi.fn()
+    onSessionExpired(expired)
+    setAccessToken('caducado')
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(401, { code: 'auth.required' }))
+      .mockResolvedValueOnce(jsonResponse(401, { code: 'auth.invalid_token' }))
+
+    await expect(api('/wallet')).rejects.toBeInstanceOf(ApiError)
+    expect(expired).toHaveBeenCalledTimes(1)
+    onSessionExpired(null)
+  })
+
+  it('un refresh que termina después del logout no resucita la sesión', async () => {
+    let answer
+    fetchMock.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)))
+
+    const refreshing = refreshAccessToken()
+    endSession()
+    answer(jsonResponse(200, { accessToken: 'access-tardio' }))
+
+    await expect(refreshing).resolves.toBe(false)
+    expect(hasAccessToken()).toBe(false)
+  })
+
+  it('si otra petición ya renovó el token, reintenta sin otro refresh', async () => {
+    setAccessToken('viejo')
+    fetchMock.mockImplementationOnce(async () => {
+      setAccessToken('nuevo') // otra petición terminó su refresh mientras esta volaba
+      return jsonResponse(401, { code: 'auth.required' })
+    })
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { balance: 100 }))
+
+    await expect(api('/wallet')).resolves.toEqual({ balance: 100 })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe('Bearer nuevo')
+  })
+
+  it('una petición sin cuerpo no manda body ni Content-Type', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, {}))
+
+    await api('/wallet')
+
+    const options = fetchMock.mock.calls[0][1]
+    expect('body' in options).toBe(false)
+    expect(options.headers['Content-Type']).toBeUndefined()
   })
 
   it('varios refresh a la vez comparten una sola petición', async () => {
