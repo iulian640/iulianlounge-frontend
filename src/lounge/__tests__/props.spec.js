@@ -361,10 +361,10 @@ describe('furnishSalon', () => {
     }
   })
 
-  it('registra la animación de músicos y camarero (userData.update) como actualizable', async () => {
-    // Arrange: solo el músico/camarero devuelve un clip 'Idle' de verdad
+  it('registra la animación del camarero (userData.update) como actualizable', async () => {
+    // Arrange: solo el camarero devuelve un clip 'Idle' de verdad (la banda se retiró el 25-sep)
     gltfLoadMock.mockImplementation((url, onLoad) => {
-      const animado = /musician\.glb|barman\.glb/.test(url)
+      const animado = /barman\.glb/.test(url)
       const animations = animado ? [new THREE.AnimationClip('Idle', 1, [])] : []
       onLoad({ scene: makeGltfScene(), animations })
     })
@@ -374,8 +374,8 @@ describe('furnishSalon', () => {
     // Act
     await furnishSalon(scene, updatables)
 
-    // Assert: 2 músicos + 1 camarero + 2 ventiladores = 5 funciones actualizables
-    expect(updatables).toHaveLength(5)
+    // Assert: 1 camarero + 2 ventiladores = 3 funciones actualizables
+    expect(updatables).toHaveLength(3)
     for (const update of updatables) {
       expect(() => update(0.016)).not.toThrow()
     }

@@ -166,25 +166,8 @@ function manifest() {
     },
   )
 
-  // la banda (Quaternius, en idle hasta que haya animaciones de tocar)
-  const musicianRecolor = {
-    Shirt: '#d9cfc0', // camisa marfil
-    UnderShirt: '#5a2830', // chaleco burdeos
-    Pants: '#1c1c22',
-    Detail: '#8a6a33',
-  }
-  props.push(
-    {
-      url: HUNT + 'musician.glb',
-      opts: { height: 1.72, rotationY: Math.PI + 0.4, animate: 'Idle', recolor: musicianRecolor },
-      at: [2.55, STAGE_Y, -3.55],
-    },
-    {
-      url: HUNT + 'musician.glb',
-      opts: { height: 1.72, rotationY: Math.PI - 0.5, animate: 'Idle', recolor: musicianRecolor },
-      at: [4.35, STAGE_Y, -3.85],
-    },
-  )
+  // (la banda de musician.glb se retiró 2026-09-25: en idle, sin tocar, restaba más que sumaba;
+  // el escenario se queda con los instrumentos esperando a sus músicos)
 
   // el camarero, en su pasillo detrás de la barra (Idle: el clip Working de
   // Quaternius es de picar piedra agachado, nada que ver con secar vasos)
