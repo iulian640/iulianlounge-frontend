@@ -52,10 +52,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <SalonMovil v-if="flat" />
+  <!-- En 2D el HUD va dentro del salón, en el flujo; en 3D flota sobre el canvas -->
+  <SalonMovil v-if="flat">
+    <template #hud><HudLounge inline /></template>
+  </SalonMovil>
   <canvas v-else ref="canvas"></canvas>
-  <!-- El HUD aparece cuando se levanta el telón, no antes. El mismo en 3D y en 2D -->
-  <HudLounge v-if="!entering" />
+  <!-- El HUD del 3D aparece cuando se levanta el telón, no antes -->
+  <HudLounge v-if="!flat && !entering" />
   <Transition name="telon">
     <div v-if="entering" class="telon" aria-live="polite">
       <p class="letrero">IULIAN'S</p>

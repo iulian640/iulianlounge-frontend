@@ -11,6 +11,8 @@ const RINCONES = ['barra', 'cartas', 'escenario']
 
 <template>
   <main class="salon">
+    <!-- El HUD va aquí, en el flujo: ocupe una fila o dos, el letrero siempre queda debajo -->
+    <slot name="hud" />
     <p class="letrero" aria-hidden="true">IULIAN'S</p>
     <h1 class="sala">{{ t('salon.name') }}</h1>
 
@@ -43,8 +45,7 @@ const RINCONES = ['barra', 'cartas', 'escenario']
   height: 100dvh;
   overflow-y: auto;
   box-sizing: border-box;
-  /* Hueco arriba para el HUD, que va fijo en la esquina */
-  padding: 76px 16px 32px;
+  padding: 16px 16px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,7 +55,8 @@ const RINCONES = ['barra', 'cartas', 'escenario']
 }
 
 .letrero {
-  margin: 0;
+  /* Aire entre el HUD (arriba, en el flujo) y el letrero */
+  margin: 22px 0 0;
   font-family: var(--f-letrero);
   font-size: 2.4rem;
   color: var(--oro);

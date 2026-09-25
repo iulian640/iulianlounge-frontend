@@ -9,6 +9,12 @@ import { useAuthStore } from '@/stores/auth'
 import { useWalletStore } from '@/stores/wallet'
 
 // El HUD sobre el lounge. No sabe nada del 3D: el mismo HUD sirve al salón móvil 2D (IUL-58)
+defineProps({
+  // En el salón móvil va dentro de la página, no flotando: en pantallas estrechas ocupa dos filas
+  // y, fijo en la esquina, se montaba encima del letrero
+  inline: { type: Boolean, default: false },
+})
+
 const auth = useAuthStore()
 const wallet = useWalletStore()
 const router = useRouter()
@@ -53,7 +59,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="hud">
+  <div class="hud" :class="{ inline }">
     <div class="barra">
       <FichaSaldo ref="chip" :balance="wallet.balance" :expanded="bookOpen" @open="toggleBook" />
       <NombreSocio :username="auth.user?.username" @logout="logout" />
@@ -85,6 +91,12 @@ async function logout() {
 
 .hud > * {
   pointer-events: auto;
+}
+
+/* Dentro del flujo de la página (salón móvil): empuja el contenido en vez de taparlo */
+.hud.inline {
+  position: static;
+  width: 100%;
 }
 
 .barra {
