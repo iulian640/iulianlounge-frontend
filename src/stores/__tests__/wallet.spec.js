@@ -37,6 +37,16 @@ describe('useWalletStore', () => {
     expect(wallet.transactions).toEqual([bonus])
   })
 
+  it('si la carga falla, guarda el code del error en vez de fingir que no hay nada', async () => {
+    api.mockRejectedValueOnce({ code: 'wallet.not_found' })
+    const wallet = useWalletStore()
+
+    await wallet.loadTransactions()
+
+    expect(wallet.error).toBe('wallet.not_found')
+    expect(wallet.transactions).toEqual([])
+  })
+
   it('$reset olvida el saldo al salir', async () => {
     api.mockResolvedValueOnce({ balance: 100 })
     const wallet = useWalletStore()

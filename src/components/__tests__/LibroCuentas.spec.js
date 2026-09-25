@@ -33,10 +33,37 @@ describe('LibroCuentas', () => {
     wrapper.unmount()
   })
 
-  it('un tipo sin traducción enseña la clave en vez de romper', () => {
+  it('un tipo sin traducción enseña un texto genérico, nunca la clave cruda del servidor', () => {
     const wrapper = montar([GASTO])
 
-    expect(wrapper.find('.tipo').text()).toBe('DESCONOCIDO')
+    expect(wrapper.find('.tipo').text()).toBe('Movimiento')
+    wrapper.unmount()
+  })
+
+  it('si la carga falló, lo dice en vez de fingir que no hay movimientos', () => {
+    const wrapper = mount(LibroCuentas, {
+      props: { transactions: [], error: 'internal.error' },
+      global: { plugins: [i18n] },
+    })
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.find('.vacio').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('el saldo lleva separador de miles y un importe 0 no sale en burdeos', () => {
+    const wrapper = montar([{ ...BONUS, amount: 0, balanceAfter: 12500 }])
+
+    expect(wrapper.find('.importe').text()).toBe('0')
+    expect(wrapper.find('.importe').classes()).not.toContain('sale')
+    expect(wrapper.find('.saldo').text()).toBe('Saldo: 12.500')
+    wrapper.unmount()
+  })
+
+  it('al abrirse, el foco entra en el panel', () => {
+    const wrapper = montar([BONUS])
+
+    expect(document.activeElement).toBe(wrapper.find('h2').element)
     wrapper.unmount()
   })
 

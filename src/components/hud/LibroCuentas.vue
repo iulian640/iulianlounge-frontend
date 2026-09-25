@@ -1,45 +1,72 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // El libro de cuentas: los últimos movimientos de fichas. Entradas en oro, salidas en burdeos
 // (tokens.css: ganar = oro, perder = burdeos). El tipo llega como clave y se traduce (ADR-06)
 defineProps({
   transactions: { type: Array, required: true },
+  error: { type: String, default: null }, // clave del fallo al cargar: no es lo mismo que "no hay nada"
 })
 const emit = defineEmits(['close'])
 
 const { t, te, locale } = useI18n()
+const title = useTemplateRef('title')
 
 function typeLabel(type) {
-  return te(`wallet.types.${type}`) ? t(`wallet.types.${type}`) : type
+  // Un tipo nuevo del backend sin traducir aún: texto genérico, nunca la clave cruda del servidor
+  return te(`wallet.types.${type}`) ? t(`wallet.types.${type}`) : t('wallet.types.unknown')
+}
+
+function number(amount) {
+  return new Intl.NumberFormat(locale.value).format(amount)
 }
 
 function signed(amount) {
-  const number = new Intl.NumberFormat(locale.value).format(Math.abs(amount))
-  return amount > 0 ? `+${number}` : `−${number}`
+  if (amount > 0) return `+${number(amount)}`
+  if (amount < 0) return `−${number(-amount)}`
+  return number(0)
+}
+
+function tone(amount) {
+  if (amount > 0) return 'entra'
+  if (amount < 0) return 'sale'
+  return ''
 }
 
 function when(isoDate) {
-  return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(isoDate))
+  const date = new Date(isoDate)
+  // Una fecha rota no tumba el panel entero
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+
+function message(code) {
+  return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
 function onKey(event) {
   if (event.key === 'Escape') emit('close')
 }
 
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  // El foco entra en el panel al abrirlo: el lector de pantalla anuncia dónde está
+  title.value?.focus()
+})
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <aside class="libro" :aria-label="t('wallet.title')">
+  <aside id="libro-cuentas" class="libro" aria-labelledby="libro-titulo">
     <header>
-      <h2>{{ t('wallet.title') }}</h2>
+      <h2 id="libro-titulo" ref="title" tabindex="-1">{{ t('wallet.title') }}</h2>
       <button type="button" class="cerrar" :aria-label="t('wallet.close')" @click="emit('close')">×</button>
     </header>
 
-    <p v-if="transactions.length === 0" class="vacio">{{ t('wallet.empty') }}</p>
+    <p v-if="error" class="fallo" role="alert">{{ message(error) }}</p>
+
+    <p v-else-if="transactions.length === 0" class="vacio">{{ t('wallet.empty') }}</p>
 
     <ol v-else>
       <li v-for="movement in transactions" :key="movement.id" class="movimiento">
@@ -48,8 +75,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <time :datetime="movement.createdAt">{{ when(movement.createdAt) }}</time>
         </div>
         <div class="cifras">
-          <span class="importe" :class="movement.amount > 0 ? 'entra' : 'sale'">{{ signed(movement.amount) }}</span>
-          <span class="saldo">{{ t('wallet.balanceAfter', { amount: movement.balanceAfter }) }}</span>
+          <span class="importe" :class="tone(movement.amount)">{{ signed(movement.amount) }}</span>
+          <span class="saldo">{{ t('wallet.balanceAfter', { amount: number(movement.balanceAfter) }) }}</span>
         </div>
       </li>
     </ol>
@@ -137,6 +164,15 @@ time,
 }
 
 .sale {
+  color: var(--burdeos);
+}
+
+/* Recibe el foco por código al abrir: sin contorno, el anuncio lo hace el lector de pantalla */
+h2:focus {
+  outline: none;
+}
+
+.fallo {
   color: var(--burdeos);
 }
 

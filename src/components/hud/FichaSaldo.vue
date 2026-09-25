@@ -1,24 +1,37 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // El saldo del socio como una ficha de latón. Oro porque es dinero (tokens.css: el oro se gana).
 // Pulsarla abre el libro de cuentas
 const props = defineProps({
   balance: { type: Number, default: null }, // null = cargando
+  expanded: { type: Boolean, default: false }, // el libro de cuentas está abierto
 })
 defineEmits(['open'])
 
 const { t, locale } = useI18n()
+const button = useTemplateRef('button')
 
-// 1.250 en ES, 1,250 en EN: las fichas son enteros (ADR-09), sin decimales
+// 12.500 en ES, 12,500 en EN: las fichas son enteros (ADR-09), sin decimales
 const formatted = computed(() =>
   props.balance === null ? '—' : new Intl.NumberFormat(locale.value).format(props.balance),
 )
+
+// El HUD devuelve aquí el foco al cerrar el libro
+defineExpose({ focus: () => button.value?.focus() })
 </script>
 
 <template>
-  <button type="button" class="ficha" :aria-label="t('hud.balance', { amount: formatted })" @click="$emit('open')">
+  <button
+    ref="button"
+    type="button"
+    class="ficha"
+    :aria-label="t('hud.balance', { amount: formatted })"
+    :aria-expanded="expanded"
+    aria-controls="libro-cuentas"
+    @click="$emit('open')"
+  >
     <span class="canto" aria-hidden="true"></span>
     <span class="cifra">{{ formatted }}</span>
     <span class="moneda">{{ t('currency.name') }}</span>
