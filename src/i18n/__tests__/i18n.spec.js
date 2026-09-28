@@ -9,6 +9,7 @@ const BACKEND_CODES = [
   'auth.required',
   'auth.invalid_credentials',
   'auth.invalid_token',
+  'auth.too_many_requests',
   'user.username_taken',
   'user.email_taken',
   'user.already_exists',

@@ -33,6 +33,7 @@
       "invalid_credentials": "That name and password don't open this door.",
       "required": "You need to sign in first.",
       "invalid_token": "Your session expired. Sign in again.",
+      "too_many_requests": "Too many tries. The doorman asks you to wait a minute.",
       "registered_sign_in": "You're a member now. Sign in with your name and password."
     },
     "user": {
