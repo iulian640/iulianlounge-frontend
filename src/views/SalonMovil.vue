@@ -1,22 +1,17 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 
-// El Salón en 2D para móvil: la misma sala que el lounge 3D (barra, mesa de cartas, escenario de jazz),
-// dibujada con CSS y sin canvas. El HUD lo pone LoungeView por encima, igual que en 3D
 const { t } = useI18n()
 
-// Los tres rincones de El Salón (docs/ficcion.md). Aún sin contenido: el barman llega en el sprint 10
 const RINCONES = ['barra', 'cartas', 'escenario']
 </script>
 
 <template>
   <main class="salon">
-    <!-- El HUD va aquí, en el flujo: ocupe una fila o dos, el letrero siempre queda debajo -->
     <slot name="hud" />
     <p class="letrero" aria-hidden="true">IULIAN'S</p>
     <h1 class="sala">{{ t('salon.name') }}</h1>
 
-    <!-- La pared del fondo: estantes con botellas, la lámpara y la barra. Solo decorado -->
     <div class="escena" aria-hidden="true">
       <span class="lampara"></span>
       <div class="estante">
@@ -41,7 +36,6 @@ const RINCONES = ['barra', 'cartas', 'escenario']
 
 <style scoped>
 .salon {
-  /* El body tiene overflow: hidden por el lounge 3D: aquí el scroll lo lleva la sala */
   height: 100dvh;
   overflow-y: auto;
   box-sizing: border-box;
@@ -55,13 +49,11 @@ const RINCONES = ['barra', 'cartas', 'escenario']
 }
 
 .letrero {
-  /* Aire entre el HUD (arriba, en el flujo) y el letrero */
   margin: 22px 0 0;
   font-family: var(--f-letrero);
   font-size: 2.4rem;
   color: var(--oro);
   letter-spacing: 0.06em;
-  /* Neón: el mismo letrero que cuelga en el lounge */
   text-shadow:
     0 0 6px rgba(232, 205, 143, 0.6),
     0 0 22px rgba(232, 205, 143, 0.35);
@@ -81,7 +73,6 @@ const RINCONES = ['barra', 'cartas', 'escenario']
   width: min(100%, 420px);
   padding: 34px 18px 0;
   box-sizing: border-box;
-  /* Pared de madera oscura con paneles */
   background:
     repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.25) 0 2px, transparent 2px 70px),
     linear-gradient(180deg, #1c1510 0%, #140f0b 100%);
@@ -110,7 +101,6 @@ const RINCONES = ['barra', 'cartas', 'escenario']
   border-bottom: 4px solid #3b2a1c;
 }
 
-/* Botellas: siluetas de vidrio con reflejo, en cuatro formas y tonos */
 .botella {
   width: 14px;
   border-radius: 5px 5px 2px 2px;

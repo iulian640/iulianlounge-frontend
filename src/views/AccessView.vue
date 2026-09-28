@@ -6,17 +6,15 @@ import { useRoute, useRouter } from 'vue-router'
 import { safeNext } from '@/router/safeNext'
 import { useAuthStore } from '@/stores/auth'
 
-// La puerta del club: entrar o hacerse socio. Los errores llegan como claves del backend (ADR-06)
-// y aquí se traducen; nunca se pinta texto que venga del servidor
 const { t, te, locale } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 
-const mode = ref('login') // 'login' | 'register'
+const mode = ref('login')
 const form = reactive({ username: '', email: '', password: '' })
-const fieldErrors = ref({}) // { campo: clave }
-const formError = ref(null) // clave del error general
+const fieldErrors = ref({})
+const formError = ref(null)
 const working = ref(false)
 const formElement = useTemplateRef('formElement')
 
@@ -32,7 +30,6 @@ function message(code) {
   return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
-// Enlaza el input con su mensaje de error para el lector de pantalla (solo si hay error)
 function describedBy(field) {
   return fieldErrors.value[field] ? `error-${field}` : undefined
 }
@@ -47,11 +44,9 @@ async function submit() {
     } else {
       await auth.login(form.username, form.password)
     }
-    // Vuelve a donde quería ir antes de que le pararan en la puerta (solo rutas propias que existan)
     await router.replace(safeNext(route.query.next, router))
   } catch (error) {
     if (error?.registered) {
-      // El alta fue bien y lo que falló fue entrar: a "Entrar" con el nombre puesto, no a repetir el alta
       mode.value = 'login'
       form.password = ''
       formError.value = 'auth.registered_sign_in'
@@ -59,7 +54,6 @@ async function submit() {
       fieldErrors.value = error?.errors ?? {}
       formError.value = error?.code ?? 'generic'
     }
-    // El foco va al primer campo que falla; si no hay ninguno, el aviso general ya se anuncia (role=alert)
     await nextTick()
     formElement.value?.querySelector('[aria-invalid="true"]')?.focus()
   } finally {
@@ -74,7 +68,6 @@ async function submit() {
       <h1 id="titulo-club" class="letrero">{{ t('club.name') }}</h1>
       <p class="subtitulo">{{ t('auth.subtitle') }}</p>
 
-      <!-- Dos botones que conmutan el formulario (aria-pressed): más simple y honesto que un tablist a medias -->
       <div class="pestanas" role="group" :aria-label="t('auth.modes')">
         <button
           type="button"
@@ -155,14 +148,12 @@ async function submit() {
 
 <style scoped>
 .puerta {
-  /* El body tiene overflow: hidden por el lounge 3D: el scroll lo lleva esta pantalla (móvil pequeño) */
   height: 100dvh;
   overflow-y: auto;
   box-sizing: border-box;
   display: grid;
   place-items: center;
   padding: 16px;
-  /* Un halo cálido detrás de la tarjeta, como la luz que se escapa por la mirilla */
   background: radial-gradient(ellipse at 50% 35%, var(--tapete) 0%, var(--medianoche) 65%);
 }
 

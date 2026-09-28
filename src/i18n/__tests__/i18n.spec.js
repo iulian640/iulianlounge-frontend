@@ -3,8 +3,6 @@ import { describe, expect, it } from 'vitest'
 import en from '../en.json'
 import es from '../es.json'
 
-// Copia congelada de los códigos que devuelve el backend (enum ErrorCode + claves de validación del
-// GlobalExceptionHandler). Si el backend añade uno, este test recuerda traducirlo (ADR-06)
 const BACKEND_CODES = [
   'auth.required',
   'auth.invalid_credentials',

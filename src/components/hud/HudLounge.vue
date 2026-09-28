@@ -8,10 +8,7 @@ import NombreSocio from './NombreSocio.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useWalletStore } from '@/stores/wallet'
 
-// El HUD sobre el lounge. No sabe nada del 3D: el mismo HUD sirve al salón móvil 2D (IUL-58)
 defineProps({
-  // En el salón móvil va dentro de la página, no flotando: en pantallas estrechas ocupa dos filas
-  // y, fijo en la esquina, se montaba encima del letrero
   inline: { type: Boolean, default: false },
 })
 
@@ -23,7 +20,6 @@ const leaving = ref(false)
 const chip = useTemplateRef('chip')
 
 onMounted(() => {
-  // Si falla, la ficha se queda en "—" y el store guarda el error: el lounge sigue siendo visitable
   wallet.loadBalance()
 })
 
@@ -36,7 +32,6 @@ async function toggleBook() {
   await wallet.loadTransactions()
 }
 
-// Al cerrar, el foco vuelve a la ficha: un usuario de teclado no se queda perdido en el <body>
 async function closeBook() {
   bookOpen.value = false
   await nextTick()
@@ -44,17 +39,12 @@ async function closeBook() {
 }
 
 async function logout() {
-  if (leaving.value) return // doble clic
+  if (leaving.value) return
   leaving.value = true
-  try {
-    await auth.logout()
-  } catch {
-    // El servidor no contestó: en este navegador la sesión ya está cerrada (lo hace el store igualmente)
-  } finally {
-    wallet.$reset()
-    leaving.value = false
-    await router.replace({ name: 'acceso' })
-  }
+  await auth.logout().catch(() => null)
+  wallet.$reset()
+  leaving.value = false
+  await router.replace({ name: 'acceso' })
 }
 </script>
 
@@ -76,7 +66,6 @@ async function logout() {
 </template>
 
 <style scoped>
-/* Arriba a la derecha y fuera del paso: solo sus piezas reciben clics, el resto va al lounge */
 .hud {
   position: fixed;
   top: 16px;
@@ -93,7 +82,6 @@ async function logout() {
   pointer-events: auto;
 }
 
-/* Dentro del flujo de la página (salón móvil): empuja el contenido en vez de taparlo */
 .hud.inline {
   position: static;
   width: 100%;

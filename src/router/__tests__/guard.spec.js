@@ -3,7 +3,6 @@ import { createPinia, setActivePinia } from 'pinia'
 
 import { useAuthStore } from '@/stores/auth'
 
-// LoungeView arrastra three/WebGPU: aquí solo interesa el guard
 vi.mock('../../views/LoungeView.vue', () => ({ default: {} }))
 
 const { guard } = await import('../index')
