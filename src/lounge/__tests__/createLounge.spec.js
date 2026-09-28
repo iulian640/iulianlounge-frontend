@@ -345,6 +345,17 @@ describe('createLounge', () => {
     addSpy.mockRestore()
   })
 
+  it('abortado antes de que arranque el renderer también libera la GPU', async () => {
+    const controller = new AbortController()
+    const pending = createLounge(document.createElement('canvas'), vi.fn(), vi.fn(), controller.signal)
+
+    controller.abort()
+
+    await expect(pending).resolves.toBeNull()
+    expect(mocks.rendererDispose).toHaveBeenCalledTimes(1)
+    expect(mocks.deviceDestroy).toHaveBeenCalledTimes(1)
+  })
+
   it('abortar con el lounge ya montado equivale a dispose()', async () => {
     const controller = new AbortController()
     await runLounge({ signal: controller.signal })

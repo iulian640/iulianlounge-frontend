@@ -95,6 +95,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   renderer.lighting = new DynamicLighting({ maxPointLights: 40 }) // 39 en escena (ley 5): justo, subir el tope antes de añadir más
   await renderer.init()
   let walk = null
+  let panel = null
   const releaseEarly = () => {
     walk?.dispose()
     panel?.destroy()
@@ -217,7 +218,6 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   // resolución nativa. El selector del panel sigue mandando
   setQuality(isWebGPU ? 'alta' : 'baja')
 
-  let panel = null // instancia lil-gui, para destruirla en dispose()
   const mountPanel = (smoke) => {
     if (!import.meta.env.DEV) return
     // mandos de depuración en consola + panel de afinado del director de arte
