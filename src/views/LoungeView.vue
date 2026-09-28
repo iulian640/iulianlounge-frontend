@@ -15,6 +15,7 @@ const progress = ref(0) // 0..1, lo reporta createLounge por tramos reales
 // gráficos (compilación síncrona del grafo nuevo) — lo manda createLounge
 const ajustando = ref(false)
 let lounge = null // handle con dispose(), para matar el lounge al desmontar
+const loading = new AbortController()
 
 onMounted(async () => {
   if (flat) return
@@ -31,6 +32,7 @@ onMounted(async () => {
       (busy) => {
         ajustando.value = busy
       },
+      loading.signal,
     )
   } catch (error) {
     console.error('[lounge]', error)
@@ -46,6 +48,7 @@ onMounted(async () => {
 // fichero) el lounge anterior se apaga de verdad: sin esto se iban apilando
 // lounges invisibles y la pestaña se atascaba más con cada guardado
 onUnmounted(() => {
+  loading.abort()
   lounge?.dispose()
   lounge = null
 })

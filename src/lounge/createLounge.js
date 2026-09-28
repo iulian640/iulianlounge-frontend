@@ -47,7 +47,7 @@ function clampCameraToRoom(camera) {
 // onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
 // 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
 // 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
-export async function createLounge(canvas, onProgress = () => {}, onQualityBusy = () => {}) {
+export async function createLounge(canvas, onProgress = () => {}, onQualityBusy = () => {}, signal) {
   // cronómetro de tramos del arranque: se imprime al final y queda en
   // window.__loungeTiming — sirve para comparar la máquina real con el
   // banco headless sin depender de capturas ni de DevTools
@@ -94,6 +94,15 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   // individual — la imagen no cambia, solo el tamaño del código
   renderer.lighting = new DynamicLighting({ maxPointLights: 40 }) // 39 en escena (ley 5): justo, subir el tope antes de añadir más
   await renderer.init()
+  let walk = null
+  const releaseEarly = () => {
+    walk?.dispose()
+    panel?.destroy()
+    renderer.dispose()
+    renderer.backend?.device?.destroy?.()
+    return null
+  }
+  if (signal?.aborted) return releaseEarly()
   // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
   // no soporta WebGPU (Brave lo trae desactivado por defecto)
   const isWebGPU = renderer.backend?.isWebGPUBackend === true
@@ -235,7 +244,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   }
 
   // paseo en primera persona (precursor de la tercera persona de IUL-28)
-  const walk = createWalkControls(camera, canvas)
+  walk = createWalkControls(camera, canvas)
   camera.position.set(0, 1.7, 4.6)
   camera.lookAt(-3, 1.5, 0) // al entrar, la mirada cae hacia la barra
 
@@ -319,6 +328,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   // eran dos tandas completas — la primera se invalidaba entera al poner
   // scene.environment (trabajo tirado, medido ~11s en headless)
   await Promise.all([ready, texturesSettled])
+  if (signal?.aborted) return releaseEarly()
   cronometra('assets')
 
   // higiene de variantes (laboratorio 2026-07-14): un material compartido
@@ -445,6 +455,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   for (const o of culled) o.frustumCulled = true
   cronometra('compilacion')
   onProgress(0.78)
+  if (signal?.aborted) return releaseEarly()
 
   const stats = new Stats()
   document.body.appendChild(stats.dom)
@@ -494,6 +505,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   // la recarga (F5) no pasa por onUnmounted de Vue: pagehide es la única
   // señal que llega antes de morir la página — soltamos el device ahí también
   window.addEventListener('pagehide', dispose)
+  signal?.addEventListener('abort', dispose, { once: true })
 
   // calentón ANTES de levantar el telón: barrida de orientaciones para que
   // el primer giro del jugador no encuentre NADA sin preparar. Los pipelines
@@ -523,6 +535,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
     camera.rotation.y = yawInicial + (paso / PASOS) * Math.PI * 2
     postProcessing.render()
     await nextFrame()
+    if (!alive) return null
     pasoGlobal++
     onProgress(0.78 + (pasoGlobal / TOTAL_PASOS) * 0.22)
   }
@@ -530,6 +543,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
     camera.rotation.y = yawInicial + (paso / PASOS) * Math.PI * 2
     postProcessing.render()
     await nextFrame()
+    if (!alive) return null
     pasoGlobal++
     onProgress(0.78 + (pasoGlobal / TOTAL_PASOS) * 0.22)
   }
@@ -550,6 +564,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   }
   console.log('[lounge] arranque (ms):', JSON.stringify(tiempos))
   window.__loungeTiming = tiempos
+  if (!alive) return null
   onProgress(1)
   tick()
 
