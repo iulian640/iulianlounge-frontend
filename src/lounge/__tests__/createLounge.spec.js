@@ -26,6 +26,7 @@ const mocks = vi.hoisted(() => ({
   deviceDestroy: vi.fn(),
   pipelineRender: vi.fn(),
   panelDestroy: vi.fn(),
+  unlock: vi.fn(),
   fsr1: vi.fn(() => ({ add: vi.fn(() => ({})) })),
 }))
 
@@ -163,7 +164,11 @@ vi.mock('../letrero', async () => {
 })
 
 vi.mock('../walkControls', () => ({
-  createWalkControls: vi.fn(() => ({ update: vi.fn(), dispose: vi.fn() })),
+  createWalkControls: vi.fn(() => ({
+    controls: { unlock: mocks.unlock },
+    update: vi.fn(),
+    dispose: vi.fn(),
+  })),
 }))
 
 vi.mock('../decor/architecture', () => ({ addArchitecture: vi.fn() }))
@@ -208,12 +213,12 @@ vi.mock('../tuningPanel', () => ({
 // y el bucle de render lo necesitan, así que se apunta a setTimeout(0).
 const disposers = []
 
-async function runLounge({ webgpu = true, signal } = {}) {
+async function runLounge({ webgpu = true, signal, onNearBarman } = {}) {
   mocks.isWebGPU = webgpu
   const canvas = document.createElement('canvas')
   const onProgress = vi.fn()
   const onQualityBusy = vi.fn()
-  const pending = createLounge(canvas, onProgress, onQualityBusy, signal)
+  const pending = createLounge(canvas, onProgress, onQualityBusy, signal, onNearBarman)
 
   // dejar que createLounge arranque el renderer, monte la escena e instale el
   // gancho del LoadingManager, y quede esperando a que asienten las texturas
@@ -514,5 +519,35 @@ describe('createLounge', () => {
     // Assert
     expect(onQualityBusy).not.toHaveBeenCalled()
     expect(mocks.fsr1).not.toHaveBeenCalled()
+  })
+
+  it('reports when the camera comes within reach of the barman and when it walks away', async () => {
+    const onNearBarman = vi.fn()
+    await runLounge({ onNearBarman })
+    const { camera } = window.__lounge
+
+    camera.position.set(-5, 1.7, 0.4)
+    await vi.waitFor(() => expect(onNearBarman).toHaveBeenLastCalledWith(true))
+    camera.position.set(0, 1.7, 4.6)
+    await vi.waitFor(() => expect(onNearBarman).toHaveBeenLastCalledWith(false))
+
+    expect(onNearBarman).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not require a proximity callback', async () => {
+    await runLounge()
+    const { camera } = window.__lounge
+
+    camera.position.set(-5, 1.7, 0.4)
+
+    await expect(new Promise((resolve) => setTimeout(resolve, 50))).resolves.toBeUndefined()
+  })
+
+  it('exposes releasePointer to give the mouse back to the page', async () => {
+    const { api } = await runLounge()
+
+    api.releasePointer()
+
+    expect(mocks.unlock).toHaveBeenCalledTimes(1)
   })
 })
