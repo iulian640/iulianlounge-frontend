@@ -172,4 +172,9 @@ describe('bar dictionaries', () => {
       }
     }
   })
+
+  it('does not promise anything soon on the mobile corners', () => {
+    expect(lookup(es, 'salon.soon')).toBeUndefined()
+    expect(lookup(en, 'salon.soon')).toBeUndefined()
+  })
 })

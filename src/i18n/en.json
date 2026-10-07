@@ -25,7 +25,8 @@
       "register": "Make me a member",
       "working": "Knocking on the door…"
     },
-    "modes": "Sign in or become a member"
+    "modes": "Sign in or become a member",
+    "privacyLink": "Privacy"
   },
   "errors": {
     "generic": "Something went wrong. Try again.",
@@ -91,7 +92,6 @@
   },
   "salon": {
     "name": "The Parlor",
-    "soon": "Soon",
     "corners": {
       "barra": "The bar",
       "cartas": "The card table",
@@ -149,6 +149,9 @@
         "recommend": "What do you recommend?",
         "rank": "How do I rank up?"
       }
+    },
+    "scene": {
+      "glass": "A drink served on the bar"
     }
   },
   "barman": {

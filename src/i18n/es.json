@@ -25,7 +25,8 @@
       "register": "Hacerme socio",
       "working": "Llamando a la puerta…"
     },
-    "modes": "Entrar o hacerse socio"
+    "modes": "Entrar o hacerse socio",
+    "privacyLink": "Privacidad"
   },
   "errors": {
     "generic": "Algo ha fallado. Inténtalo otra vez.",
@@ -91,7 +92,6 @@
   },
   "salon": {
     "name": "El Salón",
-    "soon": "Pronto",
     "corners": {
       "barra": "La barra",
       "cartas": "La mesa de cartas",
@@ -149,6 +149,9 @@
         "recommend": "¿Qué me recomiendas?",
         "rank": "¿Cómo subo de rango?"
       }
+    },
+    "scene": {
+      "glass": "Una copa servida en la barra"
     }
   },
   "barman": {
