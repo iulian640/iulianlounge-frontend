@@ -64,6 +64,11 @@
       "insufficient_funds": "Eso cuesta más chikilicuatres de los que llevas encima.",
       "conflict": "Tu cartera estaba ocupada. Inténtalo otra vez.",
       "idempotency_mismatch": "Esa operación ya se hizo con otros datos."
+    },
+    "bar": {
+      "credit_not_needed": "Todavía te llega para una copa. La invitación es para quien está a cero.",
+      "credit_used_today": "Hoy ya te invitó la casa. Mañana más.",
+      "too_many_requests": "Vas muy rápido. Dame un minuto."
     }
   },
   "hud": {
@@ -77,6 +82,10 @@
     "balanceAfter": "Saldo: {amount}",
     "types": {
       "WELCOME_BONUS": "Fichas de bienvenida",
+      "BAR_ORDER": "Copa en la barra",
+      "HOUSE_CREDIT": "Invitación de la casa",
+      "BLACKJACK_BET": "Apuesta al blackjack",
+      "BLACKJACK_PAYOUT": "Premio del blackjack",
       "unknown": "Movimiento"
     }
   },
@@ -87,6 +96,91 @@
       "barra": "La barra",
       "cartas": "La mesa de cartas",
       "escenario": "El escenario"
+    },
+    "closed": "Cerrado"
+  },
+  "rank": {
+    "nadie": "Recién llegado",
+    "habitual": "Cliente",
+    "confianza": "Habitual",
+    "socio": "Socio"
+  },
+  "bar": {
+    "corner": {
+      "title": "Pedir una copa"
+    },
+    "menu": {
+      "title": "La carta",
+      "order": "Pedir",
+      "ordering": "Sirviendo…",
+      "price": "{amount} ¢"
+    },
+    "credit": {
+      "accept": "Aceptar la invitación · +50 ¢",
+      "accepting": "Un momento…"
+    },
+    "drinks": {
+      "BATHTUB_GIN": "Bathtub Gin",
+      "BEES_KNEES": "Bee's Knees",
+      "GIN_RICKEY": "Gin Rickey",
+      "SIDECAR": "Sidecar",
+      "FRENCH_75": "French 75"
+    },
+    "window": {
+      "title": "El barman",
+      "rank": "Tu rango: {rank}",
+      "close": "Cerrar",
+      "hint": "Esc para cerrar"
+    },
+    "prompt": {
+      "key": "E",
+      "action": "Hablar con el barman"
+    },
+    "talk": {
+      "label": "Conversación con el barman",
+      "placeholder": "Escribe al barman…",
+      "send": "Enviar",
+      "thinking": "El barman lo está pensando…",
+      "resting": "El barman descansa un momento. Usa las preguntas o la carta.",
+      "privacy": "Lo que escribes al barman se envía a Anthropic (EE. UU.), que lo trata por cuenta nuestra para responderte y lo borra según su política. Nosotros no lo guardamos: solo se recuerda unos minutos para seguir la charla. No escribas datos personales. Más en {link}.",
+      "privacyLink": "Privacidad",
+      "chips": {
+        "recommend": "¿Qué me recomiendas?",
+        "rank": "¿Cómo subo de rango?"
+      }
+    }
+  },
+  "barman": {
+    "greeting": {
+      "nadie": "Buenas. ¿Qué te pongo?",
+      "habitual": "Otra vez por aquí. ¿Qué va a ser?",
+      "confianza": "¿Lo de siempre?",
+      "socio": "Pasa, que te guardo el sitio."
+    },
+    "serve": {
+      "nadie": "Aquí tienes. Que aproveche.",
+      "habitual": "Marchando.",
+      "confianza": "Ahí lo tienes, bien frío.",
+      "socio": "Para ti, de la botella buena."
+    },
+    "promotion": {
+      "nadie": "Aquí tienes.",
+      "habitual": "Aquí tienes. Ya eres cliente de la casa.",
+      "confianza": "Ya te conozco. Desde hoy, habitual.",
+      "socio": "Socio de la casa. Esto se celebra."
+    },
+    "broke": {
+      "nadie": "¿Sin fichas? Hoy invita la casa.",
+      "habitual": "¿Sin fichas? Tranquilo, hoy invito yo.",
+      "confianza": "¿A cero? A ti te invito sin problema.",
+      "socio": "¿Un socio a cero? Eso lo arreglo yo."
+    },
+    "no_credit": "Hoy ya te invité. Mañana más.",
+    "house_credit": "Aquí tienes 50 fichas. Invita la casa.",
+    "busy": "Ahora mismo no doy abasto. Elige algo de la carta o una de las preguntas.",
+    "ask": {
+      "recommend": "Si es tu primera vez, un Bee's Knees. Suave, con miel.",
+      "rank": "Cuanto más pidas, más te conozco. Ahora eres {rank}."
     }
   }
 }

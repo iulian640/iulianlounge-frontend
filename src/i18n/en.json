@@ -64,6 +64,11 @@
       "insufficient_funds": "That costs more Shrutebucks than you're carrying.",
       "conflict": "Your wallet was busy. Try again.",
       "idempotency_mismatch": "That operation already went through with different details."
+    },
+    "bar": {
+      "credit_not_needed": "You can still afford a drink. The invitation is for anyone who's broke.",
+      "credit_used_today": "The house already treated you today. More tomorrow.",
+      "too_many_requests": "You're going too fast. Give me a minute."
     }
   },
   "hud": {
@@ -77,6 +82,10 @@
     "balanceAfter": "Balance: {amount}",
     "types": {
       "WELCOME_BONUS": "Welcome chips",
+      "BAR_ORDER": "Drink at the bar",
+      "HOUSE_CREDIT": "On the house",
+      "BLACKJACK_BET": "Blackjack bet",
+      "BLACKJACK_PAYOUT": "Blackjack payout",
       "unknown": "Movement"
     }
   },
@@ -87,6 +96,91 @@
       "barra": "The bar",
       "cartas": "The card table",
       "escenario": "The stage"
+    },
+    "closed": "Closed"
+  },
+  "rank": {
+    "nadie": "Newcomer",
+    "habitual": "Customer",
+    "confianza": "Regular",
+    "socio": "Member"
+  },
+  "bar": {
+    "corner": {
+      "title": "Order a drink"
+    },
+    "menu": {
+      "title": "The menu",
+      "order": "Order",
+      "ordering": "Pouring…",
+      "price": "{amount} ¢"
+    },
+    "credit": {
+      "accept": "Accept the invitation · +50 ¢",
+      "accepting": "One moment…"
+    },
+    "drinks": {
+      "BATHTUB_GIN": "Bathtub Gin",
+      "BEES_KNEES": "Bee's Knees",
+      "GIN_RICKEY": "Gin Rickey",
+      "SIDECAR": "Sidecar",
+      "FRENCH_75": "French 75"
+    },
+    "window": {
+      "title": "The barman",
+      "rank": "Your rank: {rank}",
+      "close": "Close",
+      "hint": "Esc to close"
+    },
+    "prompt": {
+      "key": "E",
+      "action": "Talk to the barman"
+    },
+    "talk": {
+      "label": "Conversation with the barman",
+      "placeholder": "Write to the barman…",
+      "send": "Send",
+      "thinking": "The barman is thinking it over…",
+      "resting": "The barman is taking a breather. Use the questions or the menu.",
+      "privacy": "What you type is sent to Anthropic (USA), which processes it on our behalf to reply and deletes it under its own policy. We don't store it: it's only kept for a few minutes to follow the chat. Don't share personal data. More in {link}.",
+      "privacyLink": "Privacy",
+      "chips": {
+        "recommend": "What do you recommend?",
+        "rank": "How do I rank up?"
+      }
+    }
+  },
+  "barman": {
+    "greeting": {
+      "nadie": "Evening. What can I get you?",
+      "habitual": "Back again. What'll it be?",
+      "confianza": "The usual?",
+      "socio": "Come in, I saved your seat."
+    },
+    "serve": {
+      "nadie": "Here you go. Enjoy.",
+      "habitual": "Coming right up.",
+      "confianza": "There you go, nice and cold.",
+      "socio": "For you, from the good bottle."
+    },
+    "promotion": {
+      "nadie": "Here you go.",
+      "habitual": "Here you go. You're a customer of the house now.",
+      "confianza": "I know you now. From today, a regular.",
+      "socio": "A member of the house. That calls for a toast."
+    },
+    "broke": {
+      "nadie": "Out of chips? Tonight it's on the house.",
+      "habitual": "Out of chips? Relax, tonight's on me.",
+      "confianza": "Broke? For you, it's on me.",
+      "socio": "A member, broke? I'll sort that out."
+    },
+    "no_credit": "I already treated you today. More tomorrow.",
+    "house_credit": "Here's 50 chips, on the house.",
+    "busy": "I'm swamped right now. Pick something from the menu or one of the questions.",
+    "ask": {
+      "recommend": "First time? Try a Bee's Knees. Smooth, with honey.",
+      "rank": "The more you order, the better I know you. Right now you're a {rank}."
     }
   }
 }
