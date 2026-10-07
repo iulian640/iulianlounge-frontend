@@ -61,7 +61,10 @@ export const useBlackjackStore = defineStore('blackjack', () => {
     }
   }
 
-  async function run(request, { apply, recover = true, onSuccess, onFailure }) {
+  async function run(
+    request,
+    { apply, recover = true, resyncWhenInconclusive = false, onSuccess, onFailure },
+  ) {
     if (busy.value) return null
     const startedAt = epoch
     busy.value = true
@@ -76,7 +79,9 @@ export const useBlackjackStore = defineStore('blackjack', () => {
       if (epoch !== startedAt) return null
       onFailure?.(failure)
       error.value = errorCode(failure)
-      if (recover && RESYNC_CODES.has(error.value)) await resync(startedAt)
+      const shouldResync =
+        RESYNC_CODES.has(error.value) || (resyncWhenInconclusive && isInconclusive(failure))
+      if (recover && shouldResync) await resync(startedAt)
       return null
     } finally {
       if (epoch === startedAt) busy.value = false
@@ -115,6 +120,7 @@ export const useBlackjackStore = defineStore('blackjack', () => {
     if (!playing.value) return Promise.resolve(null)
     return run(() => api(`/blackjack/hands/${hand.value.id}/${action}`, { method: 'POST' }), {
       apply: applyHand,
+      resyncWhenInconclusive: true,
     })
   }
 

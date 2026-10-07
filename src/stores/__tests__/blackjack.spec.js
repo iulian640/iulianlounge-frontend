@@ -528,14 +528,42 @@ describe('useBlackjackStore', () => {
       expect(blackjack.busy).toBe(false)
     })
 
-    it('uses the generic error after a network failure', async () => {
+    it('rereads the table after a network failure since the server may have acted', async () => {
       await startHand()
+      api.mockRejectedValueOnce(networkFailure())
+      api.mockResolvedValueOnce(table({ hand: finishedHand(), balance: 140 }))
+
+      await blackjack[action]()
+
+      expect(blackjack.error).toBe('generic')
+      expect(api).toHaveBeenLastCalledWith('/blackjack')
+      expect(blackjack.hand).toEqual(finishedHand())
+      expect(wallet.balance).toBe(140)
+      expect(blackjack.busy).toBe(false)
+    })
+
+    it('rereads the table after a server error', async () => {
+      await startHand()
+      api.mockRejectedValueOnce(rejection(503, 'internal.error'))
+      api.mockResolvedValueOnce(table({ hand: playingHand({ playerTotal: 20 }), balance: 80 }))
+
+      await blackjack[action]()
+
+      expect(blackjack.error).toBe('internal.error')
+      expect(api).toHaveBeenLastCalledWith('/blackjack')
+      expect(blackjack.hand.playerTotal).toBe(20)
+    })
+
+    it('keeps the hand when rereading the table fails after a network failure', async () => {
+      await startHand()
+      api.mockRejectedValueOnce(networkFailure())
       api.mockRejectedValueOnce(networkFailure())
 
       await blackjack[action]()
 
       expect(blackjack.error).toBe('generic')
       expect(blackjack.hand).toEqual(playingHand())
+      expect(blackjack.busy).toBe(false)
     })
 
     it.each(['blackjack.hand_finished', 'blackjack.hand_not_found', 'wallet.conflict'])(
