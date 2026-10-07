@@ -26,6 +26,12 @@ export default defineConfig([
   ...pluginVue.configs['flat/essential'],
 
   {
+    name: 'app/no-raw-html',
+    files: ['**/*.vue'],
+    rules: { 'vue/no-v-html': 'error' },
+  },
+
+  {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
