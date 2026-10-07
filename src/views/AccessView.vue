@@ -3,10 +3,12 @@ import { computed, nextTick, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import { useErrorMessage } from '@/composables/useErrorMessage'
 import { safeNext } from '@/router/safeNext'
 import { useAuthStore } from '@/stores/auth'
 
-const { t, te, locale } = useI18n()
+const { t, locale } = useI18n()
+const { message } = useErrorMessage()
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
@@ -24,10 +26,6 @@ function switchMode(next) {
   mode.value = next
   fieldErrors.value = {}
   formError.value = null
-}
-
-function message(code) {
-  return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
 function describedBy(field) {

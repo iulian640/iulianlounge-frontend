@@ -2,6 +2,7 @@
 import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useErrorMessage } from '@/composables/useErrorMessage'
 import { useEscapeKey } from '@/composables/useEscapeKey'
 
 defineProps({
@@ -11,6 +12,7 @@ defineProps({
 const emit = defineEmits(['close'])
 
 const { t, te, locale } = useI18n()
+const { message } = useErrorMessage()
 const title = useTemplateRef('title')
 
 function typeLabel(type) {
@@ -37,10 +39,6 @@ function when(isoDate) {
   const date = new Date(isoDate)
   if (Number.isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
-}
-
-function message(code) {
-  return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
 useEscapeKey(() => emit('close'))
