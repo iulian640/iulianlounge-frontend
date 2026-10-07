@@ -16,6 +16,11 @@ export const routes = [
     name: 'acceso',
     component: () => import('../views/AccessView.vue'),
   },
+  {
+    path: '/privacidad',
+    name: 'privacy',
+    component: () => import('../views/PrivacyView.vue'),
+  },
   { path: '/:pathMatch(.*)*', name: LOST_ROUTE, redirect: '/' },
 ]
 

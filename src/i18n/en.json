@@ -186,5 +186,45 @@
       "recommend": "First time? Try a Bee's Knees. Smooth, with honey.",
       "rank": "The more you order, the better I know you. Right now you're a {rank}."
     }
+  },
+  "privacy": {
+    "title": "Privacy",
+    "back": "Back",
+    "intro": "What data we process at Iulian's, why, and who sees it.",
+    "sections": {
+      "controller": {
+        "title": "Who is responsible",
+        "body": "The data controller for your data is Iulian Timofei."
+      },
+      "contact": {
+        "title": "How to get in touch",
+        "body": "To exercise your rights or ask anything about your data, open an issue in the public GitHub repository. Don't put personal data in it: it is public.",
+        "link": "Open an issue on GitHub"
+      },
+      "data": {
+        "title": "What data we process",
+        "items": {
+          "account": "Your account: member name, email and password (the password is stored encrypted).",
+          "chips": "Your chips: the balance and the movements (welcome bonus, drinks, house invitations).",
+          "barman": "What you write to the barman, only for as long as the conversation lasts."
+        }
+      },
+      "purpose": {
+        "title": "Why, and on what basis",
+        "body": "To give you access to the club and provide what you ask for: your account, your chips, the bar and the chat with the barman. The legal basis is performing the service you request (art. 6.1.b GDPR)."
+      },
+      "processor": {
+        "title": "The barman and Anthropic",
+        "body": "What you write to the barman is sent to Anthropic (USA), which acts as data processor: it processes the text on our behalf to produce the reply and deletes it under its own policy. Only your rank, what you have spent, your balance, the menu, the language and the ongoing conversation travel with the text. Never your name, your email or your identifier."
+      },
+      "storage": {
+        "title": "What we don't store",
+        "body": "We don't store any message from the chat with the barman. It is only remembered in memory for a few minutes to follow the conversation, then it is lost. Your account data and movements are kept for as long as your account exists."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "You can ask for access, rectification, erasure, objection, restriction and portability of your data. If you think we are not handling it properly, you can complain to the Spanish Data Protection Agency (aepd.es)."
+      }
+    }
   }
 }

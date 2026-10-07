@@ -173,6 +173,22 @@ describe('bar dictionaries', () => {
     }
   })
 
+  it.each(['controller', 'contact', 'data', 'purpose', 'processor', 'storage', 'rights'])(
+    'the privacy section %s has a title in both languages',
+    (section) => {
+      expect(typeof lookup(es, `privacy.sections.${section}.title`)).toBe('string')
+      expect(typeof lookup(en, `privacy.sections.${section}.title`)).toBe('string')
+    },
+  )
+
+  it('names the controller, Anthropic and the issue contact in the privacy text', () => {
+    for (const tree of [es, en]) {
+      expect(lookup(tree, 'privacy.sections.controller.body')).toContain('Iulian Timofei')
+      expect(lookup(tree, 'privacy.sections.processor.body')).toContain('Anthropic')
+      expect(lookup(tree, 'privacy.sections.contact.body')).toContain('GitHub')
+    }
+  })
+
   it('does not promise anything soon on the mobile corners', () => {
     expect(lookup(es, 'salon.soon')).toBeUndefined()
     expect(lookup(en, 'salon.soon')).toBeUndefined()

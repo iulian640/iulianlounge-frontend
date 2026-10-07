@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { safeNext } from '@/router/safeNext'
@@ -140,6 +140,8 @@ async function submit() {
           {{ working ? t('auth.submit.working') : t(isRegister ? 'auth.submit.register' : 'auth.submit.login') }}
         </button>
       </form>
+
+      <RouterLink class="privacy-link" to="/privacidad">{{ t('auth.privacyLink') }}</RouterLink>
     </section>
   </main>
 </template>
@@ -289,6 +291,26 @@ async function submit() {
 .llamar:focus-visible {
   outline: 2px solid var(--oro);
   outline-offset: 3px;
+}
+
+.privacy-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--humo);
+}
+
+.privacy-link:hover {
+  color: var(--marfil);
+}
+
+.privacy-link:focus-visible {
+  outline: 2px solid var(--oro);
+  outline-offset: 2px;
 }
 
 .llamar:disabled {

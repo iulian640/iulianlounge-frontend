@@ -186,5 +186,45 @@
       "recommend": "Si es tu primera vez, un Bee's Knees. Suave, con miel.",
       "rank": "Cuanto más pidas, más te conozco. Ahora eres {rank}."
     }
+  },
+  "privacy": {
+    "title": "Privacidad",
+    "back": "Volver",
+    "intro": "Qué datos tratamos en Iulian's, para qué y quién los ve.",
+    "sections": {
+      "controller": {
+        "title": "Quién es el responsable",
+        "body": "El responsable del tratamiento de tus datos es Iulian Timofei."
+      },
+      "contact": {
+        "title": "Cómo contactar",
+        "body": "Para ejercer tus derechos o resolver cualquier duda sobre tus datos, abre una incidencia (issue) en el repositorio público de GitHub. No pongas datos personales en ella: es pública.",
+        "link": "Abrir una incidencia en GitHub"
+      },
+      "data": {
+        "title": "Qué datos tratamos",
+        "items": {
+          "account": "Tu cuenta: nombre de socio, email y contraseña (la contraseña se guarda cifrada).",
+          "chips": "Tus fichas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
+          "barman": "Lo que escribes al barman, solo mientras dura la conversación."
+        }
+      },
+      "purpose": {
+        "title": "Para qué y con qué base",
+        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus fichas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
+      },
+      "processor": {
+        "title": "El barman y Anthropic",
+        "body": "Lo que escribes al barman se envía a Anthropic (EE. UU.), que actúa como encargado del tratamiento: lo procesa por cuenta nuestra para generar la respuesta y lo borra según su política. Junto al texto solo viajan tu rango, lo gastado, el saldo, la carta, el idioma y la conversación en curso. Nunca tu nombre, tu email ni tu identificador."
+      },
+      "storage": {
+        "title": "Qué no guardamos",
+        "body": "No guardamos ningún mensaje de la charla con el barman. Solo se recuerda unos minutos en memoria para seguir la conversación y después se pierde. Los datos de tu cuenta y tus movimientos se conservan mientras tu cuenta exista."
+      },
+      "rights": {
+        "title": "Tus derechos",
+        "body": "Puedes pedir acceso, rectificación, supresión, oposición, limitación y portabilidad de tus datos. Si crees que no los tratamos bien, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es)."
+      }
+    }
   }
 }
