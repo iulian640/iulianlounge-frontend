@@ -144,4 +144,74 @@ describe('api', () => {
     expect(results).toEqual([true, true])
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
+
+  it('merges per-request headers before Authorization and Content-Type', async () => {
+    setAccessToken('access-1')
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, {}))
+
+    await api('/bar/orders', {
+      method: 'POST',
+      body: { drink: 'SIDECAR' },
+      headers: { 'Idempotency-Key': 'key-1', Authorization: 'Bearer forged', 'Content-Type': 'text/plain' },
+    })
+
+    const { headers } = fetchMock.mock.calls[0][1]
+    expect(headers['Idempotency-Key']).toBe('key-1')
+    expect(headers.Authorization).toBe('Bearer access-1')
+    expect(headers['Content-Type']).toBe('application/json')
+  })
+
+  it('passes the abort signal to fetch and omits it when none is given', async () => {
+    const controller = new AbortController()
+    fetchMock.mockResolvedValue(jsonResponse(200, {}))
+
+    await api('/bar/talk', { method: 'POST', body: {}, signal: controller.signal })
+    await api('/wallet')
+
+    expect(fetchMock.mock.calls[0][1].signal).toBe(controller.signal)
+    expect('signal' in fetchMock.mock.calls[1][1]).toBe(false)
+  })
+
+  it('keeps headers and signal in the retry after a token refresh', async () => {
+    const controller = new AbortController()
+    setAccessToken('expired')
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(401, { code: 'auth.required' }))
+      .mockResolvedValueOnce(jsonResponse(200, { accessToken: 'access-2' }))
+      .mockResolvedValueOnce(jsonResponse(200, { ok: true }))
+
+    await api('/bar/orders', {
+      method: 'POST',
+      body: { drink: 'SIDECAR' },
+      headers: { 'Idempotency-Key': 'key-1' },
+      signal: controller.signal,
+    })
+
+    const retry = fetchMock.mock.calls[2][1]
+    expect(retry.headers['Idempotency-Key']).toBe('key-1')
+    expect(retry.headers.Authorization).toBe('Bearer access-2')
+    expect(retry.signal).toBe(controller.signal)
+  })
+
+  it('does not send the abort signal to the refresh request', async () => {
+    const controller = new AbortController()
+    setAccessToken('expired')
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(401, { code: 'auth.required' }))
+      .mockResolvedValueOnce(jsonResponse(200, { accessToken: 'access-2' }))
+      .mockResolvedValueOnce(jsonResponse(200, {}))
+
+    await api('/bar/talk', { method: 'POST', body: {}, signal: controller.signal })
+
+    expect(fetchMock.mock.calls[1][1].signal).toBeUndefined()
+  })
+
+  it('lets an aborted request reject with the fetch error instead of an ApiError', async () => {
+    const controller = new AbortController()
+    const abortError = new DOMException('aborted', 'AbortError')
+    fetchMock.mockRejectedValueOnce(abortError)
+    controller.abort()
+
+    await expect(api('/bar/talk', { method: 'POST', body: {}, signal: controller.signal })).rejects.toBe(abortError)
+  })
 })

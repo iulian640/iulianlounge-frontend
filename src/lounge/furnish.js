@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 
+import { BARMAN_AT } from './barmanProximity'
 import { loadProp } from './models'
 import { ROOM, TABLE_SPOTS } from './salon'
 
@@ -185,7 +186,7 @@ function manifest() {
       animate: 'Idle',
       recolor: { Texture: '#585862' },
     },
-    at: [-7.15, 0, 0.4],
+    at: BARMAN_AT,
   })
 
   return props

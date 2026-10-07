@@ -7,6 +7,7 @@ import Stats from 'three/addons/libs/stats.module.js'
 
 import { buildSalon, materials, ROOM } from './salon'
 import { addSalonLights } from './lights'
+import { createBarmanProximity } from './barmanProximity'
 import { furnishSalon } from './furnish'
 import { addLetrero } from './letrero'
 import { createWalkControls } from './walkControls'
@@ -47,7 +48,13 @@ function clampCameraToRoom(camera) {
 // onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
 // 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
 // 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
-export async function createLounge(canvas, onProgress = () => {}, onQualityBusy = () => {}, signal) {
+export async function createLounge(
+  canvas,
+  onProgress = () => {},
+  onQualityBusy = () => {},
+  signal,
+  onNearBarman = () => {},
+) {
   // cronómetro de tramos del arranque: se imprime al final y queda en
   // window.__loungeTiming — sirve para comparar la máquina real con el
   // banco headless sin depender de capturas ni de DevTools
@@ -468,6 +475,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   window.addEventListener('resize', onResize)
 
   const timer = new THREE.Timer()
+  const barmanProximity = createBarmanProximity(onNearBarman)
 
   // interruptor de vida: dispose() lo apaga y el bucle muere en el siguiente
   // frame. Sin esto, cada remontaje del componente (HMR de Vite al guardar
@@ -482,6 +490,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
     for (const update of updatables) update(delta)
     walk.update(delta)
     clampCameraToRoom(camera)
+    barmanProximity.update(camera.position)
     postProcessing.render()
     stats?.update()
     requestAnimationFrame(tick)
@@ -568,5 +577,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   onProgress(1)
   tick()
 
-  return { dispose }
+  const releasePointer = () => walk.controls?.unlock()
+
+  return { dispose, releasePointer }
 }

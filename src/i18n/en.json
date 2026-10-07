@@ -25,7 +25,8 @@
       "register": "Make me a member",
       "working": "Knocking on the door…"
     },
-    "modes": "Sign in or become a member"
+    "modes": "Sign in or become a member",
+    "privacyLink": "Privacy"
   },
   "errors": {
     "generic": "Something went wrong. Try again.",
@@ -64,6 +65,11 @@
       "insufficient_funds": "That costs more Shrutebucks than you're carrying.",
       "conflict": "Your wallet was busy. Try again.",
       "idempotency_mismatch": "That operation already went through with different details."
+    },
+    "bar": {
+      "credit_not_needed": "You can still afford a drink. The invitation is for anyone who's broke.",
+      "credit_used_today": "The house already treated you today. More tomorrow.",
+      "too_many_requests": "You're going too fast. Give me a minute."
     }
   },
   "hud": {
@@ -77,16 +83,148 @@
     "balanceAfter": "Balance: {amount}",
     "types": {
       "WELCOME_BONUS": "Welcome chips",
+      "BAR_ORDER": "Drink at the bar",
+      "HOUSE_CREDIT": "On the house",
+      "BLACKJACK_BET": "Blackjack bet",
+      "BLACKJACK_PAYOUT": "Blackjack payout",
       "unknown": "Movement"
     }
   },
   "salon": {
     "name": "The Parlor",
-    "soon": "Soon",
     "corners": {
       "barra": "The bar",
       "cartas": "The card table",
       "escenario": "The stage"
+    },
+    "closed": "Closed"
+  },
+  "rank": {
+    "nadie": "Newcomer",
+    "habitual": "Customer",
+    "confianza": "Regular",
+    "socio": "Member"
+  },
+  "bar": {
+    "corner": {
+      "title": "Order a drink"
+    },
+    "menu": {
+      "title": "The menu",
+      "order": "Order",
+      "ordering": "Pouring…",
+      "said": "A {drink}.",
+      "price": "{amount} ¢"
+    },
+    "credit": {
+      "accept": "Accept the invitation · +50 ¢",
+      "accepting": "One moment…"
+    },
+    "drinks": {
+      "BATHTUB_GIN": "Bathtub Gin",
+      "BEES_KNEES": "Bee's Knees",
+      "GIN_RICKEY": "Gin Rickey",
+      "SIDECAR": "Sidecar",
+      "FRENCH_75": "French 75"
+    },
+    "window": {
+      "title": "The barman",
+      "rank": "Your rank: {rank}",
+      "close": "Close",
+      "hint": "Esc to close"
+    },
+    "prompt": {
+      "key": "E",
+      "action": "Talk to the barman"
+    },
+    "talk": {
+      "label": "Conversation with the barman",
+      "placeholder": "Write to the barman…",
+      "send": "Send",
+      "thinking": "The barman is thinking it over…",
+      "resting": "The barman is taking a breather. Use the questions or the menu.",
+      "privacy": "What you type is sent to Anthropic (USA), which processes it on our behalf to reply and deletes it under its own policy. We don't store it: it's only kept for a few minutes to follow the chat. Don't share personal data. More in {link}.",
+      "privacyLink": "Privacy",
+      "chips": {
+        "recommend": "What do you recommend?",
+        "rank": "How do I rank up?"
+      }
+    },
+    "scene": {
+      "glass": "A drink served on the bar"
+    }
+  },
+  "barman": {
+    "greeting": {
+      "nadie": "Evening. What can I get you?",
+      "habitual": "Back again. What'll it be?",
+      "confianza": "The usual?",
+      "socio": "Come in, I saved your seat."
+    },
+    "serve": {
+      "nadie": "Here you go. Enjoy.",
+      "habitual": "Coming right up.",
+      "confianza": "There you go, nice and cold.",
+      "socio": "For you, from the good bottle."
+    },
+    "promotion": {
+      "nadie": "Here you go.",
+      "habitual": "Here you go. You're a customer of the house now.",
+      "confianza": "I know you now. From today, a regular.",
+      "socio": "A member of the house. That calls for a toast."
+    },
+    "broke": {
+      "nadie": "Out of chips? Tonight it's on the house.",
+      "habitual": "Out of chips? Relax, tonight's on me.",
+      "confianza": "Broke? For you, it's on me.",
+      "socio": "A member, broke? I'll sort that out."
+    },
+    "no_credit": "I already treated you today. More tomorrow.",
+    "house_credit": "Here's 50 chips, on the house.",
+    "busy": "I'm swamped right now. Pick something from the menu or one of the questions.",
+    "ask": {
+      "recommend": "First time? Try a Bee's Knees. Smooth, with honey.",
+      "rank": "The more you order, the better I know you. Right now you're a {rank}."
+    }
+  },
+  "privacy": {
+    "title": "Privacy",
+    "back": "Back",
+    "intro": "What data we process at Iulian's, why, and who sees it.",
+    "sections": {
+      "controller": {
+        "title": "Who is responsible",
+        "body": "The data controller for your data is Iulian Timofei."
+      },
+      "contact": {
+        "title": "How to get in touch",
+        "body": "To exercise your rights or ask anything about your data, open an issue in the public GitHub repository. Don't put personal data in it: it is public.",
+        "link": "Open an issue on GitHub"
+      },
+      "data": {
+        "title": "What data we process",
+        "items": {
+          "account": "Your account: member name, email and password (the password is stored encrypted).",
+          "chips": "Your chips: the balance and the movements (welcome bonus, drinks, house invitations).",
+          "barman": "What you write to the barman, only for as long as the conversation lasts."
+        }
+      },
+      "purpose": {
+        "title": "Why, and on what basis",
+        "body": "To give you access to the club and provide what you ask for: your account, your chips, the bar and the chat with the barman. The legal basis is performing the service you request (art. 6.1.b GDPR)."
+      },
+      "processor": {
+        "title": "The barman and Anthropic",
+        "body": "What you write to the barman is sent to Anthropic (USA), which acts as data processor: it processes the text on our behalf to produce the reply and deletes it under its own policy. Only your rank, what you have spent, your balance, the menu, the language and the ongoing conversation travel with the text. Never your name, your email or your identifier."
+      },
+      "storage": {
+        "title": "What we don't store",
+        "body": "We don't store any message from the chat with the barman. It is only remembered in memory for a few minutes to follow the conversation, then it is lost. Your account data and movements are kept for as long as your account exists."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "You can ask for access, rectification, erasure, objection, restriction and portability of your data. If you think we are not handling it properly, you can complain to the Spanish Data Protection Agency (aepd.es)."
+      }
     }
   }
 }

@@ -5,9 +5,10 @@ import { useAuthStore } from '@/stores/auth'
 
 vi.mock('../../views/LoungeView.vue', () => ({ default: {} }))
 
-const { guard } = await import('../index')
+const { guard, routes } = await import('../index')
 
 const LOUNGE = { name: 'loungeview', fullPath: '/', meta: { requiresAuth: true } }
+const PRIVACY = { name: 'privacy', fullPath: '/privacidad', meta: {} }
 const ACCESO = { name: 'acceso', fullPath: '/acceso', meta: {} }
 
 describe('guard del router', () => {
@@ -40,5 +41,25 @@ describe('guard del router', () => {
     vi.spyOn(auth, 'restoreSession').mockResolvedValue(false)
 
     await expect(guard(ACCESO)).resolves.toBe(true)
+  })
+
+  it('lets the privacy page through without a session', async () => {
+    vi.spyOn(auth, 'restoreSession').mockResolvedValue(false)
+
+    await expect(guard(PRIVACY)).resolves.toBe(true)
+  })
+
+  it('lets the privacy page through with a session too', async () => {
+    vi.spyOn(auth, 'restoreSession').mockResolvedValue(true)
+
+    await expect(guard(PRIVACY)).resolves.toBe(true)
+  })
+
+  it('declares the privacy route as public and lazy loaded', async () => {
+    const route = routes.find((candidate) => candidate.path === '/privacidad')
+
+    expect(route.name).toBe('privacy')
+    expect(route.meta?.requiresAuth).toBeFalsy()
+    expect((await route.component()).default.__name).toBe('PrivacyView')
   })
 })

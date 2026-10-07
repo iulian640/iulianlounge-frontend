@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
 import AccessView from '../AccessView.vue'
@@ -7,7 +7,8 @@ import i18n from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 
 const replace = vi.fn()
-vi.mock('vue-router', () => ({
+vi.mock('vue-router', async (importOriginal) => ({
+  ...(await importOriginal()),
   useRouter: () => ({ replace, resolve: () => ({ matched: [{ name: 'loungeview' }] }) }),
   useRoute: () => ({ query: { next: '/' } }),
 }))
@@ -18,7 +19,7 @@ function montar() {
   const auth = useAuthStore()
   vi.spyOn(auth, 'login').mockResolvedValue()
   vi.spyOn(auth, 'register').mockResolvedValue()
-  const wrapper = mount(AccessView, { global: { plugins: [pinia, i18n] } })
+  const wrapper = mount(AccessView, { global: { plugins: [pinia, i18n], stubs: { RouterLink: RouterLinkStub } } })
   return { wrapper, auth }
 }
 
@@ -114,5 +115,17 @@ describe('AccessView', () => {
     await wrapper.findAll('.pestanas button')[1].trigger('click')
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+  })
+
+  it('links the privacy page from the access card, in both languages', () => {
+    const { wrapper } = montar()
+
+    const link = wrapper.findComponent(RouterLinkStub)
+
+    expect(link.props('to')).toBe('/privacidad')
+    expect(link.text()).toBe('Privacidad')
+
+    i18n.global.locale.value = 'en'
+    return wrapper.vm.$nextTick().then(() => expect(wrapper.findComponent(RouterLinkStub).text()).toBe('Privacy'))
   })
 })

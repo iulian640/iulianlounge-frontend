@@ -25,7 +25,8 @@
       "register": "Hacerme socio",
       "working": "Llamando a la puerta…"
     },
-    "modes": "Entrar o hacerse socio"
+    "modes": "Entrar o hacerse socio",
+    "privacyLink": "Privacidad"
   },
   "errors": {
     "generic": "Algo ha fallado. Inténtalo otra vez.",
@@ -64,6 +65,11 @@
       "insufficient_funds": "Eso cuesta más chikilicuatres de los que llevas encima.",
       "conflict": "Tu cartera estaba ocupada. Inténtalo otra vez.",
       "idempotency_mismatch": "Esa operación ya se hizo con otros datos."
+    },
+    "bar": {
+      "credit_not_needed": "Todavía te llega para una copa. La invitación es para quien está a cero.",
+      "credit_used_today": "Hoy ya te invitó la casa. Mañana más.",
+      "too_many_requests": "Vas muy rápido. Dame un minuto."
     }
   },
   "hud": {
@@ -77,16 +83,148 @@
     "balanceAfter": "Saldo: {amount}",
     "types": {
       "WELCOME_BONUS": "Fichas de bienvenida",
+      "BAR_ORDER": "Copa en la barra",
+      "HOUSE_CREDIT": "Invitación de la casa",
+      "BLACKJACK_BET": "Apuesta al blackjack",
+      "BLACKJACK_PAYOUT": "Premio del blackjack",
       "unknown": "Movimiento"
     }
   },
   "salon": {
     "name": "El Salón",
-    "soon": "Pronto",
     "corners": {
       "barra": "La barra",
       "cartas": "La mesa de cartas",
       "escenario": "El escenario"
+    },
+    "closed": "Cerrado"
+  },
+  "rank": {
+    "nadie": "Recién llegado",
+    "habitual": "Cliente",
+    "confianza": "Habitual",
+    "socio": "Socio"
+  },
+  "bar": {
+    "corner": {
+      "title": "Pedir una copa"
+    },
+    "menu": {
+      "title": "La carta",
+      "order": "Pedir",
+      "ordering": "Sirviendo…",
+      "said": "Un {drink}.",
+      "price": "{amount} ¢"
+    },
+    "credit": {
+      "accept": "Aceptar la invitación · +50 ¢",
+      "accepting": "Un momento…"
+    },
+    "drinks": {
+      "BATHTUB_GIN": "Bathtub Gin",
+      "BEES_KNEES": "Bee's Knees",
+      "GIN_RICKEY": "Gin Rickey",
+      "SIDECAR": "Sidecar",
+      "FRENCH_75": "French 75"
+    },
+    "window": {
+      "title": "El barman",
+      "rank": "Tu rango: {rank}",
+      "close": "Cerrar",
+      "hint": "Esc para cerrar"
+    },
+    "prompt": {
+      "key": "E",
+      "action": "Hablar con el barman"
+    },
+    "talk": {
+      "label": "Conversación con el barman",
+      "placeholder": "Escribe al barman…",
+      "send": "Enviar",
+      "thinking": "El barman lo está pensando…",
+      "resting": "El barman descansa un momento. Usa las preguntas o la carta.",
+      "privacy": "Lo que escribes al barman se envía a Anthropic (EE. UU.), que lo trata por cuenta nuestra para responderte y lo borra según su política. Nosotros no lo guardamos: solo se recuerda unos minutos para seguir la charla. No escribas datos personales. Más en {link}.",
+      "privacyLink": "Privacidad",
+      "chips": {
+        "recommend": "¿Qué me recomiendas?",
+        "rank": "¿Cómo subo de rango?"
+      }
+    },
+    "scene": {
+      "glass": "Una copa servida en la barra"
+    }
+  },
+  "barman": {
+    "greeting": {
+      "nadie": "Buenas. ¿Qué te pongo?",
+      "habitual": "Otra vez por aquí. ¿Qué va a ser?",
+      "confianza": "¿Lo de siempre?",
+      "socio": "Pasa, que te guardo el sitio."
+    },
+    "serve": {
+      "nadie": "Aquí tienes. Que aproveche.",
+      "habitual": "Marchando.",
+      "confianza": "Ahí lo tienes, bien frío.",
+      "socio": "Para ti, de la botella buena."
+    },
+    "promotion": {
+      "nadie": "Aquí tienes.",
+      "habitual": "Aquí tienes. Ya eres cliente de la casa.",
+      "confianza": "Ya te conozco. Desde hoy, habitual.",
+      "socio": "Socio de la casa. Esto se celebra."
+    },
+    "broke": {
+      "nadie": "¿Sin fichas? Hoy invita la casa.",
+      "habitual": "¿Sin fichas? Tranquilo, hoy invito yo.",
+      "confianza": "¿A cero? A ti te invito sin problema.",
+      "socio": "¿Un socio a cero? Eso lo arreglo yo."
+    },
+    "no_credit": "Hoy ya te invité. Mañana más.",
+    "house_credit": "Aquí tienes 50 fichas. Invita la casa.",
+    "busy": "Ahora mismo no doy abasto. Elige algo de la carta o una de las preguntas.",
+    "ask": {
+      "recommend": "Si es tu primera vez, un Bee's Knees. Suave, con miel.",
+      "rank": "Cuanto más pidas, más te conozco. Ahora eres {rank}."
+    }
+  },
+  "privacy": {
+    "title": "Privacidad",
+    "back": "Volver",
+    "intro": "Qué datos tratamos en Iulian's, para qué y quién los ve.",
+    "sections": {
+      "controller": {
+        "title": "Quién es el responsable",
+        "body": "El responsable del tratamiento de tus datos es Iulian Timofei."
+      },
+      "contact": {
+        "title": "Cómo contactar",
+        "body": "Para ejercer tus derechos o resolver cualquier duda sobre tus datos, abre una incidencia (issue) en el repositorio público de GitHub. No pongas datos personales en ella: es pública.",
+        "link": "Abrir una incidencia en GitHub"
+      },
+      "data": {
+        "title": "Qué datos tratamos",
+        "items": {
+          "account": "Tu cuenta: nombre de socio, email y contraseña (la contraseña se guarda cifrada).",
+          "chips": "Tus fichas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
+          "barman": "Lo que escribes al barman, solo mientras dura la conversación."
+        }
+      },
+      "purpose": {
+        "title": "Para qué y con qué base",
+        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus fichas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
+      },
+      "processor": {
+        "title": "El barman y Anthropic",
+        "body": "Lo que escribes al barman se envía a Anthropic (EE. UU.), que actúa como encargado del tratamiento: lo procesa por cuenta nuestra para generar la respuesta y lo borra según su política. Junto al texto solo viajan tu rango, lo gastado, el saldo, la carta, el idioma y la conversación en curso. Nunca tu nombre, tu email ni tu identificador."
+      },
+      "storage": {
+        "title": "Qué no guardamos",
+        "body": "No guardamos ningún mensaje de la charla con el barman. Solo se recuerda unos minutos en memoria para seguir la conversación y después se pierde. Los datos de tu cuenta y tus movimientos se conservan mientras tu cuenta exista."
+      },
+      "rights": {
+        "title": "Tus derechos",
+        "body": "Puedes pedir acceso, rectificación, supresión, oposición, limitación y portabilidad de tus datos. Si crees que no los tratamos bien, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es)."
+      }
     }
   }
 }

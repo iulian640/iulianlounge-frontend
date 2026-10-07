@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import { installSessionExpiry } from './session'
 import { onSessionExpired } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
+import { useBarStore } from '@/stores/bar'
 import { useWalletStore } from '@/stores/wallet'
 
 vi.mock('@/api/http', () => ({
@@ -34,6 +35,20 @@ describe('installSessionExpiry', () => {
     expect(auth.isAuthenticated).toBe(false)
     expect(wallet.balance).toBeNull()
     expect(router.replace).toHaveBeenCalledWith({ name: 'acceso', query: { next: '/' } })
+  })
+
+  it('forgets the bar conversation and the pending talk when the session is lost', () => {
+    const pinia = createPinia()
+    const router = routerEn('loungeview', '/')
+    const bar = useBarStore(pinia)
+    bar.conversation = [{ id: 1, from: 'member', text: 'private' }]
+    bar.talkLockedUntil = 123
+
+    installSessionExpiry(router, pinia)
+    onSessionExpired.mock.calls.at(-1)[0]()
+
+    expect(bar.conversation).toEqual([])
+    expect(bar.talkLockedUntil).toBe(0)
   })
 
   it('si ya estaba en la puerta, no redirige otra vez', () => {
