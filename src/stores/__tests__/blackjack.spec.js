@@ -327,7 +327,7 @@ describe('useBlackjackStore', () => {
       expect(second).not.toBe(first)
     })
 
-    it('keeps the unresolved key of a bet while another bet is dealt in between', async () => {
+    it('uses a new key for a bet once another bet was dealt in between', async () => {
       api.mockRejectedValueOnce(networkFailure())
       api.mockResolvedValueOnce({ hand: finishedHand(), balance: 90 })
       api.mockResolvedValueOnce({ hand: playingHand(), balance: 80 })
@@ -337,7 +337,37 @@ describe('useBlackjackStore', () => {
       await blackjack.deal('TWENTY')
 
       const [first, , third] = keysSent()
-      expect(third).toBe(first)
+      expect(third).not.toBe(first)
+    })
+
+    it('uses a new key once the hand in progress was resumed and played out', async () => {
+      api.mockRejectedValueOnce(networkFailure())
+      api.mockRejectedValueOnce(rejection(409, 'blackjack.hand_in_progress'))
+      api.mockResolvedValueOnce(table({ hand: playingHand() }))
+      api.mockResolvedValueOnce({ hand: finishedHand(), balance: 120 })
+      api.mockResolvedValueOnce({ hand: playingHand({ id: 'next' }), balance: 100 })
+
+      await blackjack.deal('TWENTY')
+      await blackjack.deal('TEN')
+      await blackjack.stand()
+      await blackjack.deal('TWENTY')
+
+      const keys = keysSent()
+      expect(keys[4]).toMatch(UUID)
+      expect(keys[4]).not.toBe(keys[0])
+    })
+
+    it('uses a new key after the table was reloaded following an inconclusive deal', async () => {
+      api.mockRejectedValueOnce(networkFailure())
+      api.mockResolvedValueOnce(table())
+      api.mockResolvedValueOnce({ hand: playingHand(), balance: 80 })
+
+      await blackjack.deal('TWENTY')
+      await blackjack.load()
+      await blackjack.deal('TWENTY')
+
+      const keys = keysSent()
+      expect(keys[2]).not.toBe(keys[0])
     })
 
     it('keeps the error code and the previous balance when the deal is rejected', async () => {

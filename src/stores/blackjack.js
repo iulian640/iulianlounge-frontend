@@ -40,12 +40,14 @@ export const useBlackjackStore = defineStore('blackjack', () => {
   }
 
   function applyTable(table) {
+    pendingKeys.clear()
     hand.value = table.hand
     bets.value = table.bets
     applyBalance(table.balance)
   }
 
   function applyHand(result) {
+    pendingKeys.clear()
     hand.value = result.hand
     applyBalance(result.balance)
   }
