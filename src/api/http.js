@@ -56,14 +56,14 @@ export function refreshAccessToken() {
   return refreshInFlight
 }
 
-export async function api(path, { method = 'GET', body } = {}) {
+export async function api(path, { method = 'GET', body, headers, signal } = {}) {
   const tokenUsed = accessToken
-  let response = await send(path, method, body)
+  let response = await send(path, method, body, headers, signal)
 
   if (response.status === 401 && !path.startsWith('/auth/')) {
     const renewed = (accessToken !== null && accessToken !== tokenUsed) || (await refreshAccessToken())
     if (renewed) {
-      response = await send(path, method, body)
+      response = await send(path, method, body, headers, signal)
     } else {
       sessionExpiredHandler?.()
     }
@@ -71,12 +71,13 @@ export async function api(path, { method = 'GET', body } = {}) {
   return parse(response)
 }
 
-function send(path, method, body) {
+function send(path, method, body, headers, signal) {
   const options = {
     method,
-    headers: {},
+    headers: { ...headers },
     credentials: 'same-origin',
   }
+  if (signal) options.signal = signal
   if (accessToken) options.headers.Authorization = `Bearer ${accessToken}`
   if (body !== undefined) {
     options.headers['Content-Type'] = 'application/json'
