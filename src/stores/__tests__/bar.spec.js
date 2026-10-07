@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { mount } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
 
 import { useBarStore } from '../bar'
 import { useAuthStore } from '../auth'
@@ -443,6 +445,41 @@ describe('useBarStore', () => {
       expect(bar.conversation.at(-1).text).toBe('Ya estoy.')
     })
 
+    it('flips the reactive lock flag by itself when the lock ends', async () => {
+      const Field = defineComponent({
+        setup() {
+          return () => h('input', { disabled: bar.talkLocked })
+        },
+      })
+      const wrapper = mount(Field)
+      expect(wrapper.find('input').element.disabled).toBe(false)
+      api.mockResolvedValueOnce({ source: 'FALLBACK', text: null, line: 'barman.busy' })
+
+      await bar.say('hola', 'es')
+      await wrapper.vm.$nextTick()
+      expect(bar.talkLocked).toBe(true)
+      expect(wrapper.find('input').element.disabled).toBe(true)
+
+      vi.advanceTimersByTime(FALLBACK_LOCK_MS - 1)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.find('input').element.disabled).toBe(true)
+
+      vi.advanceTimersByTime(1)
+      await wrapper.vm.$nextTick()
+      expect(bar.talkLocked).toBe(false)
+      expect(wrapper.find('input').element.disabled).toBe(false)
+    })
+
+    it('releases the rate limit lock after one minute', async () => {
+      api.mockRejectedValueOnce(rejection(429, 'bar.too_many_requests'))
+
+      await bar.say('hola', 'es')
+      expect(bar.talkLocked).toBe(true)
+
+      vi.advanceTimersByTime(RATE_LIMIT_LOCK_MS)
+      expect(bar.talkLocked).toBe(false)
+    })
+
     it('keeps the chips and the menu usable while the text input is locked', async () => {
       api.mockResolvedValueOnce({ source: 'FALLBACK', text: null, line: 'barman.busy' })
       await bar.say('hola', 'es')
@@ -641,6 +678,18 @@ describe('useBarStore', () => {
       expect(bar.talking).toBe(false)
       expect(bar.talkLockedUntil).toBe(0)
       expect(bar.lastOrder).toBeNull()
+    })
+
+    it('clears the talk lock flag and its timer', async () => {
+      vi.useFakeTimers()
+      api.mockResolvedValueOnce({ source: 'FALLBACK', text: null, line: 'barman.busy' })
+      await bar.say('hola', 'es')
+      expect(bar.talkLocked).toBe(true)
+
+      bar.$reset()
+
+      expect(bar.talkLocked).toBe(false)
+      expect(vi.getTimerCount()).toBe(0)
     })
 
     it('forgets the pending idempotency key', async () => {

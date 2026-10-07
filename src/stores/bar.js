@@ -43,6 +43,7 @@ export const useBarStore = defineStore('bar', () => {
   const ordering = ref(false)
   const talking = ref(false)
   const talkLockedUntil = ref(0)
+  const talkLocked = ref(false)
   const lastOrder = ref(null)
 
   let epoch = 0
@@ -51,6 +52,7 @@ export const useBarStore = defineStore('bar', () => {
   let pendingOrder = null
   let talkController = null
   let talkTimer = null
+  let talkLockTimer = null
 
   function pushLine(line) {
     lineId += 1
@@ -145,8 +147,18 @@ export const useBarStore = defineStore('bar', () => {
     return now < talkLockedUntil.value
   }
 
+  function clearTalkLock() {
+    clearTimeout(talkLockTimer)
+    talkLockTimer = null
+    talkLockedUntil.value = 0
+    talkLocked.value = false
+  }
+
   function lockTalk(milliseconds) {
+    clearTimeout(talkLockTimer)
     talkLockedUntil.value = Date.now() + milliseconds
+    talkLocked.value = true
+    talkLockTimer = setTimeout(clearTalkLock, milliseconds)
   }
 
   function stopTalkTimer() {
@@ -223,7 +235,7 @@ export const useBarStore = defineStore('bar', () => {
     error.value = null
     ordering.value = false
     talking.value = false
-    talkLockedUntil.value = 0
+    clearTalkLock()
     lastOrder.value = null
   }
 
@@ -235,6 +247,7 @@ export const useBarStore = defineStore('bar', () => {
     ordering,
     talking,
     talkLockedUntil,
+    talkLocked,
     lastOrder,
     load,
     order,
