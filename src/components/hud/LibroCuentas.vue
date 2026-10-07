@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import { useEscapeKey } from '@/composables/useEscapeKey'
 
 defineProps({
   transactions: { type: Array, required: true },
@@ -41,15 +43,9 @@ function message(code) {
   return te(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic')
 }
 
-function onKey(event) {
-  if (event.key === 'Escape') emit('close')
-}
+useEscapeKey(() => emit('close'))
 
-onMounted(() => {
-  window.addEventListener('keydown', onKey)
-  title.value?.focus()
-})
-onUnmounted(() => window.removeEventListener('keydown', onKey))
+onMounted(() => title.value?.focus())
 </script>
 
 <template>
