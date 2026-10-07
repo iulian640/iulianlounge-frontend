@@ -8,12 +8,10 @@ import { useAuthStore } from '@/stores/auth'
 
 const replace = vi.fn()
 vi.mock('vue-router', () => ({
-  // resolve: lo usa safeNext para comprobar que la ruta de vuelta existe
   useRouter: () => ({ replace, resolve: () => ({ matched: [{ name: 'loungeview' }] }) }),
   useRoute: () => ({ query: { next: '/' } }),
 }))
 
-// Pinia real con login/register espiados: el componente no llega a la red
 function montar() {
   const pinia = createPinia()
   setActivePinia(pinia)
@@ -86,7 +84,6 @@ describe('AccessView', () => {
       locale: 'en',
     })
     expect(wrapper.find('input[name="email"]').attributes('aria-invalid')).toBe('true')
-    // El error va enlazado al campo: el lector de pantalla lo lee al llegar al input
     expect(wrapper.find('input[name="email"]').attributes('aria-describedby')).toBe('error-email')
     expect(wrapper.find('#error-email').text()).toBe("That doesn't look like an email.")
   })

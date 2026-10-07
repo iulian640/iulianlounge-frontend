@@ -2,23 +2,19 @@
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// El saldo del socio como una ficha de latón. Oro porque es dinero (tokens.css: el oro se gana).
-// Pulsarla abre el libro de cuentas
 const props = defineProps({
-  balance: { type: Number, default: null }, // null = cargando
-  expanded: { type: Boolean, default: false }, // el libro de cuentas está abierto
+  balance: { type: Number, default: null },
+  expanded: { type: Boolean, default: false },
 })
 defineEmits(['open'])
 
 const { t, locale } = useI18n()
 const button = useTemplateRef('button')
 
-// 12.500 en ES, 12,500 en EN: las fichas son enteros (ADR-09), sin decimales
 const formatted = computed(() =>
   props.balance === null ? '—' : new Intl.NumberFormat(locale.value).format(props.balance),
 )
 
-// El HUD devuelve aquí el foco al cerrar el libro
 defineExpose({ focus: () => button.value?.focus() })
 </script>
 
@@ -62,7 +58,6 @@ defineExpose({ focus: () => button.value?.focus() })
   outline-offset: 3px;
 }
 
-/* La ficha de casino: aro de latón con muescas y el centro oscuro */
 .canto {
   width: 26px;
   height: 26px;

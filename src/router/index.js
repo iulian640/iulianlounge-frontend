@@ -14,15 +14,11 @@ export const routes = [
   {
     path: '/acceso',
     name: 'acceso',
-    // Carga diferida: quien ya tiene sesión no descarga la pantalla de acceso
     component: () => import('../views/AccessView.vue'),
   },
-  // Cualquier otra ruta: al inicio (y de ahí a la puerta si no hay sesión), nunca una pantalla en blanco
   { path: '/:pathMatch(.*)*', name: LOST_ROUTE, redirect: '/' },
 ]
 
-// El lounge solo tras login. Al recargar la página la memoria se vacía, así que antes de mandar a nadie
-// a la puerta se intenta recuperar la sesión con la cookie del refresh (una vez)
 export async function guard(to) {
   const auth = useAuthStore()
   const hasSession = auth.isAuthenticated || (await auth.restoreSession())

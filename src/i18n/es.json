@@ -33,6 +33,7 @@
       "invalid_credentials": "Ese nombre y esa contraseña no abren esta puerta.",
       "required": "Primero hay que entrar.",
       "invalid_token": "La sesión ha caducado. Vuelve a entrar.",
+      "too_many_requests": "Demasiados intentos. El portero te pide un minuto de paciencia.",
       "registered_sign_in": "Ya eres socio. Entra con tu nombre y contraseña."
     },
     "user": {

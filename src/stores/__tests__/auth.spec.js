@@ -4,7 +4,6 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../auth'
 import { api, endSession, refreshAccessToken, setAccessToken, waitForRefresh } from '@/api/http'
 
-// El store se prueba contra un http falso: aquí interesa qué pide y en qué orden, no la red
 vi.mock('@/api/http', () => ({
   api: vi.fn(),
   refreshAccessToken: vi.fn(),

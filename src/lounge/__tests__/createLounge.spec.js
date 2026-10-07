@@ -109,6 +109,7 @@ vi.mock('three/addons/libs/stats.module.js', () => ({
   default: class {
     constructor() {
       this.dom = document.createElement('div')
+      this.dom.className = 'stats-falso'
       this.update = vi.fn()
     }
   },
@@ -207,12 +208,12 @@ vi.mock('../tuningPanel', () => ({
 // y el bucle de render lo necesitan, así que se apunta a setTimeout(0).
 const disposers = []
 
-async function runLounge({ webgpu = true } = {}) {
+async function runLounge({ webgpu = true, signal } = {}) {
   mocks.isWebGPU = webgpu
   const canvas = document.createElement('canvas')
   const onProgress = vi.fn()
   const onQualityBusy = vi.fn()
-  const pending = createLounge(canvas, onProgress, onQualityBusy)
+  const pending = createLounge(canvas, onProgress, onQualityBusy, signal)
 
   // dejar que createLounge arranque el renderer, monte la escena e instale el
   // gancho del LoadingManager, y quede esperando a que asienten las texturas
@@ -251,6 +252,27 @@ describe('createLounge', () => {
   afterEach(() => {
     // apaga el bucle de render de cada lounge (alive = false)
     for (const dispose of disposers.splice(0)) dispose()
+    vi.unstubAllEnvs()
+  })
+
+  it('en desarrollo cuelga el contador de FPS y dispose() lo retira', async () => {
+    vi.stubEnv('DEV', true)
+
+    const { api } = await runLounge()
+
+    expect(document.querySelector('.stats-falso')).not.toBeNull()
+
+    api.dispose()
+
+    expect(document.querySelector('.stats-falso')).toBeNull()
+  })
+
+  it('fuera de desarrollo no cuelga el contador de FPS', async () => {
+    vi.stubEnv('DEV', false)
+
+    await runLounge()
+
+    expect(document.querySelector('.stats-falso')).toBeNull()
   })
 
   it('en el respaldo WebGL2 pone la escena a dieta: sin sombras, sin haces y a resolución nativa', async () => {
@@ -325,6 +347,45 @@ describe('createLounge', () => {
     expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function))
     expect(removeSpy).toHaveBeenCalledWith('pagehide', expect.any(Function))
     removeSpy.mockRestore()
+  })
+
+  it('abortado mientras carga devuelve null, libera la GPU y no arranca el bucle ni los listeners', async () => {
+    const addSpy = vi.spyOn(window, 'addEventListener')
+    const controller = new AbortController()
+    const pending = createLounge(document.createElement('canvas'), vi.fn(), vi.fn(), controller.signal)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    controller.abort()
+    THREE.DefaultLoadingManager.onLoad?.()
+    const result = await pending
+
+    expect(result).toBeNull()
+    expect(mocks.rendererDispose).toHaveBeenCalledTimes(1)
+    expect(mocks.deviceDestroy).toHaveBeenCalledTimes(1)
+    expect(addSpy).not.toHaveBeenCalledWith('resize', expect.any(Function))
+    expect(window.__loungeTiming).toBeUndefined()
+    addSpy.mockRestore()
+  })
+
+  it('abortado antes de que arranque el renderer también libera la GPU', async () => {
+    const controller = new AbortController()
+    const pending = createLounge(document.createElement('canvas'), vi.fn(), vi.fn(), controller.signal)
+
+    controller.abort()
+
+    await expect(pending).resolves.toBeNull()
+    expect(mocks.rendererDispose).toHaveBeenCalledTimes(1)
+    expect(mocks.deviceDestroy).toHaveBeenCalledTimes(1)
+  })
+
+  it('abortar con el lounge ya montado equivale a dispose()', async () => {
+    const controller = new AbortController()
+    await runLounge({ signal: controller.signal })
+
+    controller.abort()
+
+    expect(mocks.rendererDispose).toHaveBeenCalledTimes(1)
+    expect(mocks.deviceDestroy).toHaveBeenCalledTimes(1)
   })
 
   it('onProgress avanza sin retroceder y llega a 1', async () => {

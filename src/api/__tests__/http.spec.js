@@ -116,7 +116,7 @@ describe('api', () => {
   it('si otra petición ya renovó el token, reintenta sin otro refresh', async () => {
     setAccessToken('viejo')
     fetchMock.mockImplementationOnce(async () => {
-      setAccessToken('nuevo') // otra petición terminó su refresh mientras esta volaba
+      setAccessToken('nuevo')
       return jsonResponse(401, { code: 'auth.required' })
     })
     fetchMock.mockResolvedValueOnce(jsonResponse(200, { balance: 100 }))

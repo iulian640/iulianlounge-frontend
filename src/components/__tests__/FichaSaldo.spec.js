@@ -14,7 +14,6 @@ describe('FichaSaldo', () => {
   })
 
   it('enseña el saldo con separador de miles y la moneda del idioma', () => {
-    // En español el separador de miles aparece a partir de 5 cifras: 1250, pero 12.500
     const wrapper = montar(12500)
 
     expect(wrapper.find('.cifra').text()).toBe('12.500')

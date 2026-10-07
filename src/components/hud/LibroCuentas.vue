@@ -2,11 +2,9 @@
 import { onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// El libro de cuentas: los últimos movimientos de fichas. Entradas en oro, salidas en burdeos
-// (tokens.css: ganar = oro, perder = burdeos). El tipo llega como clave y se traduce (ADR-06)
 defineProps({
   transactions: { type: Array, required: true },
-  error: { type: String, default: null }, // clave del fallo al cargar: no es lo mismo que "no hay nada"
+  error: { type: String, default: null },
 })
 const emit = defineEmits(['close'])
 
@@ -14,7 +12,6 @@ const { t, te, locale } = useI18n()
 const title = useTemplateRef('title')
 
 function typeLabel(type) {
-  // Un tipo nuevo del backend sin traducir aún: texto genérico, nunca la clave cruda del servidor
   return te(`wallet.types.${type}`) ? t(`wallet.types.${type}`) : t('wallet.types.unknown')
 }
 
@@ -36,7 +33,6 @@ function tone(amount) {
 
 function when(isoDate) {
   const date = new Date(isoDate)
-  // Una fecha rota no tumba el panel entero
   if (Number.isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
@@ -51,7 +47,6 @@ function onKey(event) {
 
 onMounted(() => {
   window.addEventListener('keydown', onKey)
-  // El foco entra en el panel al abrirlo: el lector de pantalla anuncia dónde está
   title.value?.focus()
 })
 onUnmounted(() => window.removeEventListener('keydown', onKey))
@@ -167,7 +162,6 @@ time,
   color: var(--burdeos);
 }
 
-/* Recibe el foco por código al abrir: sin contorno, el anuncio lo hace el lector de pantalla */
 h2:focus {
   outline: none;
 }
