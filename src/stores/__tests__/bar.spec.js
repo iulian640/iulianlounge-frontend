@@ -249,7 +249,7 @@ describe('useBarStore', () => {
       expect(second).not.toBe(first)
     })
 
-    it('uses a new key for a different drink after a network failure', async () => {
+    it('uses a different key for a different drink', async () => {
       api.mockRejectedValueOnce(networkFailure())
       api.mockResolvedValueOnce(served({ drink: 'BATHTUB_GIN' }))
 
@@ -258,6 +258,34 @@ describe('useBarStore', () => {
 
       const [first, second] = api.mock.calls.map(([, options]) => options.headers['Idempotency-Key'])
       expect(second).not.toBe(first)
+    })
+
+    it('keeps the unresolved key of a drink while another drink is ordered in between', async () => {
+      api.mockRejectedValueOnce(networkFailure())
+      api.mockResolvedValueOnce(served({ drink: 'BATHTUB_GIN' }))
+      api.mockResolvedValueOnce(served())
+
+      await bar.order('FRENCH_75')
+      await bar.order('BATHTUB_GIN')
+      await bar.order('FRENCH_75')
+
+      const [first, , third] = api.mock.calls.map(([, options]) => options.headers['Idempotency-Key'])
+      expect(third).toBe(first)
+    })
+
+    it('drops the key of a drink only when that drink is resolved', async () => {
+      api.mockRejectedValueOnce(networkFailure())
+      api.mockRejectedValueOnce(rejection(422, 'wallet.insufficient_funds'))
+      api.mockResolvedValueOnce(served())
+
+      await bar.order('FRENCH_75')
+      await bar.order('BATHTUB_GIN')
+      await bar.order('FRENCH_75')
+      await bar.order('FRENCH_75')
+
+      const keys = api.mock.calls.map(([, options]) => options.headers['Idempotency-Key'])
+      expect(keys[2]).toBe(keys[0])
+      expect(keys[3]).not.toBe(keys[0])
     })
 
     it('ignores a second order while one is in flight', async () => {

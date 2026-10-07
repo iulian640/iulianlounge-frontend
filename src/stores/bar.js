@@ -49,7 +49,7 @@ export const useBarStore = defineStore('bar', () => {
   let epoch = 0
   let lineId = 0
   let orderSerial = 0
-  let pendingOrder = null
+  const pendingKeys = new Map()
   let talkController = null
   let talkTimer = null
   let talkLockTimer = null
@@ -88,8 +88,8 @@ export const useBarStore = defineStore('bar', () => {
   }
 
   function keyFor(drink) {
-    if (pendingOrder?.drink !== drink) pendingOrder = { drink, key: newUuid() }
-    return pendingOrder.key
+    if (!pendingKeys.has(drink)) pendingKeys.set(drink, newUuid())
+    return pendingKeys.get(drink)
   }
 
   async function order(drink) {
@@ -104,7 +104,7 @@ export const useBarStore = defineStore('bar', () => {
         headers: { 'Idempotency-Key': keyFor(drink) },
       })
       if (epoch !== startedAt) return null
-      pendingOrder = null
+      pendingKeys.delete(drink)
       syncAccount(served)
       creditAvailable.value = served.creditAvailable
       orderSerial += 1
@@ -114,7 +114,7 @@ export const useBarStore = defineStore('bar', () => {
       return served
     } catch (failure) {
       if (epoch !== startedAt) return null
-      if (!isInconclusive(failure)) pendingOrder = null
+      if (!isInconclusive(failure)) pendingKeys.delete(drink)
       error.value = errorCode(failure)
       return null
     } finally {
@@ -228,7 +228,7 @@ export const useBarStore = defineStore('bar', () => {
     talkController?.abort()
     talkController = null
     stopTalkTimer()
-    pendingOrder = null
+    pendingKeys.clear()
     drinks.value = []
     creditAvailable.value = false
     conversation.value = []
