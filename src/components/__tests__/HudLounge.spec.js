@@ -25,7 +25,9 @@ describe('HudLounge logout', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     i18n.global.locale.value = 'es'
-    api.mockResolvedValue({ balance: 60 })
+    api.mockImplementation((path) =>
+      Promise.resolve(path.startsWith('/wallet/transactions') ? { content: [] } : { balance: 60 }),
+    )
   })
 
   it('forgets the wallet and the bar conversation when the member signs out', async () => {
