@@ -113,6 +113,7 @@
       "title": "La carta",
       "order": "Pedir",
       "ordering": "Sirviendo…",
+      "said": "Un {drink}.",
       "price": "{amount} ¢"
     },
     "credit": {

@@ -146,6 +146,18 @@ describe('bar dictionaries', () => {
     expect(lookup(en, 'bar.talk.privacy')).toContain('Anthropic')
   })
 
+  it('words what the member said when ordering a drink', () => {
+    i18n.global.locale.value = 'es'
+    expect(i18n.global.t('bar.menu.said', { drink: 'French 75' })).toBe('Un French 75.')
+    i18n.global.locale.value = 'en'
+    expect(i18n.global.t('bar.menu.said', { drink: 'French 75' })).toBe('A French 75.')
+  })
+
+  it.each(['recommend', 'rank'])('the chip %s has a label in both languages', (chip) => {
+    expect(typeof lookup(es, `bar.talk.chips.${chip}`)).toBe('string')
+    expect(typeof lookup(en, `bar.talk.chips.${chip}`)).toBe('string')
+  })
+
   it('never uses voseo in the Spanish texts', () => {
     const texts = keys(es).map((key) => lookup(es, key))
     expect(texts.filter((text) => VOSEO.test(text))).toEqual([])
