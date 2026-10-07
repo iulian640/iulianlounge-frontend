@@ -109,6 +109,7 @@ vi.mock('three/addons/libs/stats.module.js', () => ({
   default: class {
     constructor() {
       this.dom = document.createElement('div')
+      this.dom.className = 'stats-falso'
       this.update = vi.fn()
     }
   },
@@ -251,6 +252,27 @@ describe('createLounge', () => {
   afterEach(() => {
     // apaga el bucle de render de cada lounge (alive = false)
     for (const dispose of disposers.splice(0)) dispose()
+    vi.unstubAllEnvs()
+  })
+
+  it('en desarrollo cuelga el contador de FPS y dispose() lo retira', async () => {
+    vi.stubEnv('DEV', true)
+
+    const { api } = await runLounge()
+
+    expect(document.querySelector('.stats-falso')).not.toBeNull()
+
+    api.dispose()
+
+    expect(document.querySelector('.stats-falso')).toBeNull()
+  })
+
+  it('fuera de desarrollo no cuelga el contador de FPS', async () => {
+    vi.stubEnv('DEV', false)
+
+    await runLounge()
+
+    expect(document.querySelector('.stats-falso')).toBeNull()
   })
 
   it('en el respaldo WebGL2 pone la escena a dieta: sin sombras, sin haces y a resolución nativa', async () => {

@@ -457,8 +457,8 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
   onProgress(0.78)
   if (signal?.aborted) return releaseEarly()
 
-  const stats = new Stats()
-  document.body.appendChild(stats.dom)
+  const stats = import.meta.env.DEV ? new Stats() : null
+  if (stats) document.body.appendChild(stats.dom)
 
   const onResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight
@@ -483,7 +483,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
     walk.update(delta)
     clampCameraToRoom(camera)
     postProcessing.render()
-    stats.update()
+    stats?.update()
     requestAnimationFrame(tick)
   }
 
@@ -494,7 +494,7 @@ export async function createLounge(canvas, onProgress = () => {}, onQualityBusy 
     window.removeEventListener('pagehide', dispose)
     walk.dispose()
     panel?.destroy()
-    stats.dom.remove()
+    stats?.dom.remove()
     renderer.dispose()
     // renderer.dispose() NO destruye el GPUDevice: sin esto, cada remontaje
     // (HMR) deja un device entero vivo en el proceso GPU del navegador — que
