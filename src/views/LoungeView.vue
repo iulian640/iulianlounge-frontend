@@ -1,7 +1,10 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 import { createLounge } from '@/lounge/createLounge'
+import BarmanPrompt from '@/components/bar/BarmanPrompt.vue'
+import BarWindow from '@/components/bar/BarWindow.vue'
 import HudLounge from '@/components/hud/HudLounge.vue'
+import { useBarmanTalk } from '@/composables/useBarmanTalk'
 import { prefersFlatLounge } from '@/lounge/deviceMode'
 import SalonMovil from './SalonMovil.vue'
 
@@ -13,6 +16,13 @@ const progress = ref(0)
 const ajustando = ref(false)
 let lounge = null
 const loading = new AbortController()
+const hud = useTemplateRef('hud')
+const { near, open, setNear, closeWindow } = useBarmanTalk({
+  onOpen: () => {
+    hud.value?.dismissBook?.()
+    lounge?.releasePointer()
+  },
+})
 
 onMounted(async () => {
   if (flat) return
@@ -26,6 +36,7 @@ onMounted(async () => {
         ajustando.value = busy
       },
       loading.signal,
+      setNear,
     )
   } catch (error) {
     console.error('[lounge]', error)
@@ -47,7 +58,9 @@ onUnmounted(() => {
     <template #hud><HudLounge inline /></template>
   </SalonMovil>
   <canvas v-else ref="canvas"></canvas>
-  <HudLounge v-if="!flat && !entering" />
+  <HudLounge v-if="!flat && !entering" ref="hud" />
+  <BarmanPrompt v-if="!flat && !entering && near && !open" />
+  <BarWindow v-if="!flat && open" @close="closeWindow" />
   <Transition name="telon">
     <div v-if="entering" class="telon" aria-live="polite">
       <p class="letrero">IULIAN'S</p>

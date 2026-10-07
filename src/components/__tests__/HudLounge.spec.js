@@ -45,4 +45,23 @@ describe('HudLounge logout', () => {
     expect(replace).toHaveBeenCalledWith({ name: 'acceso' })
     wrapper.unmount()
   })
+
+  it('closes the accounts book on request without moving the focus', async () => {
+    useAuthStore().user = { username: 'cursaito', rank: 'HABITUAL' }
+    const wrapper = mount(HudLounge, { global: { plugins: [i18n] }, attachTo: document.body })
+    await flushPromises()
+    await wrapper.find('.ficha').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('#libro-cuentas').exists()).toBe(true)
+    const other = document.body.appendChild(document.createElement('button'))
+    other.focus()
+
+    wrapper.vm.dismissBook()
+    await flushPromises()
+
+    expect(wrapper.find('#libro-cuentas').exists()).toBe(false)
+    expect(document.activeElement).toBe(other)
+    wrapper.unmount()
+    document.body.innerHTML = ''
+  })
 })

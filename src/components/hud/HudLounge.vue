@@ -40,6 +40,12 @@ async function closeBook() {
   chip.value?.focus()
 }
 
+function dismissBook() {
+  bookOpen.value = false
+}
+
+defineExpose({ dismissBook })
+
 async function logout() {
   if (leaving.value) return
   leaving.value = true
