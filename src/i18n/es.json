@@ -3,7 +3,7 @@
     "name": "Iulian's"
   },
   "currency": {
-    "name": "chikilicuatres"
+    "name": "monedas"
   },
   "ui": {
     "loading": "Encendiendo el letrero…",
@@ -62,7 +62,7 @@
     },
     "wallet": {
       "not_found": "No encontramos tu cartera. Avisa a la casa.",
-      "insufficient_funds": "Eso cuesta más chikilicuatres de los que llevas encima.",
+      "insufficient_funds": "Eso cuesta más monedas de las que llevas encima.",
       "conflict": "Tu cartera estaba ocupada. Inténtalo otra vez.",
       "idempotency_mismatch": "Esa operación ya se hizo con otros datos."
     },
@@ -70,11 +70,18 @@
       "credit_not_needed": "Todavía te llega para una copa. La invitación es para quien está a cero.",
       "credit_used_today": "Hoy ya te invitó la casa. Mañana más.",
       "too_many_requests": "Vas muy rápido. Dame un minuto."
+    },
+    "blackjack": {
+      "hand_in_progress": "Ya tienes una mano abierta. Termínala antes de repartir otra.",
+      "hand_not_found": "Esa mano ya no está en la mesa.",
+      "hand_finished": "Esa mano ya ha terminado. Reparte otra.",
+      "too_many_requests": "Vas muy rápido. La banca necesita un minuto."
     }
   },
   "hud": {
     "balance": "Saldo: {amount} @:currency.name",
-    "logout": "Salir"
+    "logout": "Salir",
+    "rank": "rango"
   },
   "wallet": {
     "title": "Libro de cuentas",
@@ -82,7 +89,7 @@
     "empty": "Aún no hay movimientos.",
     "balanceAfter": "Saldo: {amount}",
     "types": {
-      "WELCOME_BONUS": "Fichas de bienvenida",
+      "WELCOME_BONUS": "Monedas de bienvenida",
       "BAR_ORDER": "Copa en la barra",
       "HOUSE_CREDIT": "Invitación de la casa",
       "BLACKJACK_BET": "Apuesta al blackjack",
@@ -154,6 +161,63 @@
       "glass": "Una copa servida en la barra"
     }
   },
+  "blackjack": {
+    "corner": {
+      "label": "Cartas",
+      "title": "Blackjack"
+    },
+    "title": "Blackjack",
+    "rules": "La banca pide hasta 17 · Blackjack paga 3:2",
+    "dealer": "La banca",
+    "you": "Tú",
+    "bet": "Apuesta",
+    "chooseBet": "Elige tu apuesta",
+    "deal": "Repartir · {chips} ¢",
+    "dealing": "Repartiendo…",
+    "hit": "Pedir carta",
+    "stand": "Plantarse",
+    "again": "Otra mano",
+    "outcome": {
+      "BLACKJACK": "¡Blackjack!",
+      "WIN": "Ganas",
+      "PUSH": "Empate",
+      "LOSE": "Pierdes"
+    },
+    "bust": "se pasa",
+    "hiddenTotal": "{total} + ?",
+    "payout": "+{amount} ¢",
+    "turn": "Tu turno · llevas {total}",
+    "prompt": {
+      "key": "E",
+      "action": "Sentarse a la mesa"
+    },
+    "standUpHint": "Esc para levantarte",
+    "cards": {
+      "hidden": "carta oculta",
+      "name": "{face} de {suit}",
+      "face": {
+        "ACE": "as",
+        "TWO": "dos",
+        "THREE": "tres",
+        "FOUR": "cuatro",
+        "FIVE": "cinco",
+        "SIX": "seis",
+        "SEVEN": "siete",
+        "EIGHT": "ocho",
+        "NINE": "nueve",
+        "TEN": "diez",
+        "JACK": "jota",
+        "QUEEN": "reina",
+        "KING": "rey"
+      },
+      "suit": {
+        "CLUBS": "tréboles",
+        "DIAMONDS": "diamantes",
+        "HEARTS": "corazones",
+        "SPADES": "picas"
+      }
+    }
+  },
   "barman": {
     "greeting": {
       "nadie": "Buenas. ¿Qué te pongo?",
@@ -174,13 +238,13 @@
       "socio": "Socio de la casa. Esto se celebra."
     },
     "broke": {
-      "nadie": "¿Sin fichas? Hoy invita la casa.",
-      "habitual": "¿Sin fichas? Tranquilo, hoy invito yo.",
+      "nadie": "¿Sin monedas? Hoy invita la casa.",
+      "habitual": "¿Sin monedas? Tranquilo, hoy invito yo.",
       "confianza": "¿A cero? A ti te invito sin problema.",
       "socio": "¿Un socio a cero? Eso lo arreglo yo."
     },
     "no_credit": "Hoy ya te invité. Mañana más.",
-    "house_credit": "Aquí tienes 50 fichas. Invita la casa.",
+    "house_credit": "Aquí tienes 50 monedas. Invita la casa.",
     "busy": "Ahora mismo no doy abasto. Elige algo de la carta o una de las preguntas.",
     "ask": {
       "recommend": "Si es tu primera vez, un Bee's Knees. Suave, con miel.",
@@ -205,13 +269,13 @@
         "title": "Qué datos tratamos",
         "items": {
           "account": "Tu cuenta: nombre de socio, email y contraseña (la contraseña se guarda cifrada).",
-          "chips": "Tus fichas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
+          "chips": "Tus monedas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
           "barman": "Lo que escribes al barman, solo mientras dura la conversación."
         }
       },
       "purpose": {
         "title": "Para qué y con qué base",
-        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus fichas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
+        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus monedas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
       },
       "processor": {
         "title": "El barman y Anthropic",

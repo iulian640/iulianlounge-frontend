@@ -3,7 +3,7 @@
     "name": "Iulian's"
   },
   "currency": {
-    "name": "Shrutebucks"
+    "name": "coins"
   },
   "ui": {
     "loading": "Warming up the marquee…",
@@ -62,7 +62,7 @@
     },
     "wallet": {
       "not_found": "We can't find your wallet. Let the house know.",
-      "insufficient_funds": "That costs more Shrutebucks than you're carrying.",
+      "insufficient_funds": "That costs more coins than you're carrying.",
       "conflict": "Your wallet was busy. Try again.",
       "idempotency_mismatch": "That operation already went through with different details."
     },
@@ -70,11 +70,18 @@
       "credit_not_needed": "You can still afford a drink. The invitation is for anyone who's broke.",
       "credit_used_today": "The house already treated you today. More tomorrow.",
       "too_many_requests": "You're going too fast. Give me a minute."
+    },
+    "blackjack": {
+      "hand_in_progress": "You already have a hand open. Finish it before dealing another.",
+      "hand_not_found": "That hand is no longer on the table.",
+      "hand_finished": "That hand is already over. Deal another.",
+      "too_many_requests": "You're going too fast. The dealer needs a minute."
     }
   },
   "hud": {
     "balance": "Balance: {amount} @:currency.name",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "rank": "rank"
   },
   "wallet": {
     "title": "Ledger",
@@ -82,7 +89,7 @@
     "empty": "No movements yet.",
     "balanceAfter": "Balance: {amount}",
     "types": {
-      "WELCOME_BONUS": "Welcome chips",
+      "WELCOME_BONUS": "Welcome coins",
       "BAR_ORDER": "Drink at the bar",
       "HOUSE_CREDIT": "On the house",
       "BLACKJACK_BET": "Blackjack bet",
@@ -154,6 +161,63 @@
       "glass": "A drink served on the bar"
     }
   },
+  "blackjack": {
+    "corner": {
+      "label": "Cards",
+      "title": "Blackjack"
+    },
+    "title": "Blackjack",
+    "rules": "The dealer draws to 17 · Blackjack pays 3:2",
+    "dealer": "Dealer",
+    "you": "You",
+    "bet": "Bet",
+    "chooseBet": "Choose your bet",
+    "deal": "Deal · {chips} ¢",
+    "dealing": "Dealing…",
+    "hit": "Hit",
+    "stand": "Stand",
+    "again": "Another hand",
+    "outcome": {
+      "BLACKJACK": "Blackjack!",
+      "WIN": "You win",
+      "PUSH": "Push",
+      "LOSE": "You lose"
+    },
+    "bust": "bust",
+    "hiddenTotal": "{total} + ?",
+    "payout": "+{amount} ¢",
+    "turn": "Your turn · you have {total}",
+    "prompt": {
+      "key": "E",
+      "action": "Sit at the table"
+    },
+    "standUpHint": "Esc to stand up",
+    "cards": {
+      "hidden": "face-down card",
+      "name": "{face} of {suit}",
+      "face": {
+        "ACE": "ace",
+        "TWO": "two",
+        "THREE": "three",
+        "FOUR": "four",
+        "FIVE": "five",
+        "SIX": "six",
+        "SEVEN": "seven",
+        "EIGHT": "eight",
+        "NINE": "nine",
+        "TEN": "ten",
+        "JACK": "jack",
+        "QUEEN": "queen",
+        "KING": "king"
+      },
+      "suit": {
+        "CLUBS": "clubs",
+        "DIAMONDS": "diamonds",
+        "HEARTS": "hearts",
+        "SPADES": "spades"
+      }
+    }
+  },
   "barman": {
     "greeting": {
       "nadie": "Evening. What can I get you?",
@@ -174,13 +238,13 @@
       "socio": "A member of the house. That calls for a toast."
     },
     "broke": {
-      "nadie": "Out of chips? Tonight it's on the house.",
-      "habitual": "Out of chips? Relax, tonight's on me.",
+      "nadie": "Out of coins? Tonight it's on the house.",
+      "habitual": "Out of coins? Relax, tonight's on me.",
       "confianza": "Broke? For you, it's on me.",
       "socio": "A member, broke? I'll sort that out."
     },
     "no_credit": "I already treated you today. More tomorrow.",
-    "house_credit": "Here's 50 chips, on the house.",
+    "house_credit": "Here's 50 coins, on the house.",
     "busy": "I'm swamped right now. Pick something from the menu or one of the questions.",
     "ask": {
       "recommend": "First time? Try a Bee's Knees. Smooth, with honey.",
@@ -205,13 +269,13 @@
         "title": "What data we process",
         "items": {
           "account": "Your account: member name, email and password (the password is stored encrypted).",
-          "chips": "Your chips: the balance and the movements (welcome bonus, drinks, house invitations).",
+          "chips": "Your coins: the balance and the movements (welcome bonus, drinks, house invitations).",
           "barman": "What you write to the barman, only for as long as the conversation lasts."
         }
       },
       "purpose": {
         "title": "Why, and on what basis",
-        "body": "To give you access to the club and provide what you ask for: your account, your chips, the bar and the chat with the barman. The legal basis is performing the service you request (art. 6.1.b GDPR)."
+        "body": "To give you access to the club and provide what you ask for: your account, your coins, the bar and the chat with the barman. The legal basis is performing the service you request (art. 6.1.b GDPR)."
       },
       "processor": {
         "title": "The barman and Anthropic",

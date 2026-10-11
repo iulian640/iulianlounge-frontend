@@ -7,6 +7,7 @@ import i18n from '@/i18n'
 import { api } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useBarStore } from '@/stores/bar'
+import { useBlackjackStore } from '@/stores/blackjack'
 import { useWalletStore } from '@/stores/wallet'
 
 const replace = vi.fn()
@@ -45,6 +46,20 @@ describe('HudLounge logout', () => {
     expect(bar.conversation).toEqual([])
     expect(auth.isAuthenticated).toBe(false)
     expect(replace).toHaveBeenCalledWith({ name: 'acceso' })
+    wrapper.unmount()
+  })
+
+  it('forgets the blackjack hand when the member signs out', async () => {
+    useAuthStore().user = { username: 'cursaito', rank: 'HABITUAL' }
+    const blackjack = useBlackjackStore()
+    blackjack.hand = { id: 'hand', status: 'PLAYER_TURN' }
+    const wrapper = mount(HudLounge, { global: { plugins: [i18n] } })
+    await flushPromises()
+
+    await wrapper.find('button.salir').trigger('click')
+    await flushPromises()
+
+    expect(blackjack.hand).toBeNull()
     wrapper.unmount()
   })
 

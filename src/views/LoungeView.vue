@@ -1,11 +1,15 @@
 <script setup>
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { createLounge } from '@/lounge/createLounge'
 import BarmanPrompt from '@/components/bar/BarmanPrompt.vue'
 import BarWindow from '@/components/bar/BarWindow.vue'
+import BlackjackBar from '@/components/blackjack/BlackjackBar.vue'
+import BlackjackPrompt from '@/components/blackjack/BlackjackPrompt.vue'
 import HudLounge from '@/components/hud/HudLounge.vue'
 import { useBarmanTalk } from '@/composables/useBarmanTalk'
+import { useTableSeat } from '@/composables/useTableSeat'
 import { prefersFlatLounge } from '@/lounge/deviceMode'
+import { useBlackjackStore } from '@/stores/blackjack'
 import SalonMovil from './SalonMovil.vue'
 
 const flat = prefersFlatLounge()
@@ -17,12 +21,32 @@ const ajustando = ref(false)
 let lounge = null
 const loading = new AbortController()
 const hud = useTemplateRef('hud')
+const blackjack = useBlackjackStore()
 const { near, open, setNear, closeWindow } = useBarmanTalk({
+  canOpen: () => !seated.value,
   onOpen: () => {
     hud.value?.dismissBook?.()
     lounge?.releasePointer()
   },
 })
+const {
+  near: nearTable,
+  seated,
+  setNear: setNearTable,
+} = useTableSeat({
+  canSit: () => !open.value,
+  onSit: () => {
+    hud.value?.dismissBook?.()
+    blackjack.load()
+    return lounge?.sitDown()
+  },
+  onStand: () => lounge?.standUp(),
+})
+
+watch(
+  () => blackjack.hand,
+  (hand) => lounge?.setHand(hand),
+)
 
 onMounted(async () => {
   if (flat) return
@@ -37,6 +61,7 @@ onMounted(async () => {
       },
       loading.signal,
       setNear,
+      setNearTable,
     )
   } catch (error) {
     console.error('[lounge]', error)
@@ -59,8 +84,10 @@ onUnmounted(() => {
   </SalonMovil>
   <canvas v-else ref="canvas"></canvas>
   <HudLounge v-if="!flat && !entering" ref="hud" />
-  <BarmanPrompt v-if="!flat && !entering && near && !open" />
+  <BarmanPrompt v-if="!flat && !entering && near && !open && !seated" />
+  <BlackjackPrompt v-if="!flat && !entering && nearTable && !seated && !open" />
   <BarWindow v-if="!flat && open" @close="closeWindow" />
+  <BlackjackBar v-if="!flat && seated" />
   <Transition name="telon">
     <div v-if="entering" class="telon" aria-live="polite">
       <p class="letrero">IULIAN'S</p>

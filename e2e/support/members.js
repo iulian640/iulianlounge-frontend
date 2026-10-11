@@ -29,7 +29,7 @@ export async function signIn(page, username, password) {
 }
 
 export function balanceChip(page, amount) {
-  return page.getByRole('button', { name: `Saldo: ${amount} chikilicuatres` })
+  return page.getByRole('button', { name: `Saldo: ${amount} monedas` })
 }
 
 export async function signOut(page) {

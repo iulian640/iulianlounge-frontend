@@ -241,6 +241,7 @@ async function submit() {
   border: 1px solid var(--linea);
   color: var(--marfil);
   font: inherit;
+  font-size: 16px;
   transition: border-color var(--duracion-corta);
 }
 

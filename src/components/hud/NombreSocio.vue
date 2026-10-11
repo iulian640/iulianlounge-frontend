@@ -1,17 +1,25 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 
-defineProps({
+import { useRankName } from '@/composables/useRankName'
+
+const props = defineProps({
   username: { type: String, default: '' },
+  rank: { type: String, default: null },
 })
 defineEmits(['logout'])
 
 const { t } = useI18n()
+const rankName = useRankName(() => props.rank)
 </script>
 
 <template>
   <div class="socio">
-    <span class="nombre">{{ username }}</span>
+    <p class="identidad">
+      <span class="nombre" :title="username">{{ username }}</span>
+      <span class="sr-only">, {{ t('hud.rank') }}: </span>
+      <span class="rango">{{ rankName }}</span>
+    </p>
     <button type="button" class="salir" :aria-label="t('hud.logout')" :title="t('hud.logout')" @click="$emit('logout')">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
         <path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4" />
@@ -25,35 +33,65 @@ const { t } = useI18n()
 <style scoped>
 .socio {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: stretch;
+  min-width: 0;
+  border-left: 1px solid var(--linea-suave);
+}
+
+.identidad {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px;
+  line-height: 1.2;
 }
 
 .nombre {
-  font-family: var(--f-titulo);
-  font-style: italic;
-  font-size: 1.1rem;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--marfil);
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.9),
-    0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+.rango {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--laton);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .salir {
   display: grid;
+  flex: none;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  min-height: 44px;
   padding: 0;
-  background: rgba(11, 21, 20, 0.82);
-  border: 1px solid var(--linea);
-  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--linea-suave);
   color: var(--humo);
   cursor: pointer;
-  backdrop-filter: blur(4px);
   transition:
-    color var(--duracion-corta),
-    border-color var(--duracion-corta);
+    color var(--duracion-corta) ease-out,
+    background-color var(--duracion-corta) ease-out;
 }
 
 .salir svg {
@@ -65,12 +103,22 @@ const { t } = useI18n()
 }
 
 .salir:hover {
-  color: var(--laton);
-  border-color: var(--laton);
+  color: var(--marfil);
+  background: var(--tapete);
+}
+
+.salir:active {
+  background: var(--fieltro);
 }
 
 .salir:focus-visible {
   outline: 2px solid var(--oro);
-  outline-offset: 3px;
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .salir {
+    transition: none;
+  }
 }
 </style>

@@ -29,6 +29,10 @@ const BACKEND_CODES = [
   'bar.credit_not_needed',
   'bar.credit_used_today',
   'bar.too_many_requests',
+  'blackjack.hand_in_progress',
+  'blackjack.hand_not_found',
+  'blackjack.hand_finished',
+  'blackjack.too_many_requests',
 ]
 
 const RANKS = ['nadie', 'habitual', 'confianza', 'socio']
@@ -36,6 +40,32 @@ const RANKED_SITUATIONS = ['greeting', 'serve', 'promotion', 'broke']
 const FLAT_SITUATIONS = ['no_credit', 'house_credit', 'busy']
 const DRINKS = ['BATHTUB_GIN', 'BEES_KNEES', 'GIN_RICKEY', 'SIDECAR', 'FRENCH_75']
 const TRANSACTION_TYPES = ['WELCOME_BONUS', 'BAR_ORDER', 'HOUSE_CREDIT', 'BLACKJACK_BET', 'BLACKJACK_PAYOUT']
+const FACES = ['ACE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'JACK', 'QUEEN', 'KING']
+const SUITS = ['CLUBS', 'DIAMONDS', 'HEARTS', 'SPADES']
+const OUTCOMES = ['BLACKJACK', 'WIN', 'PUSH', 'LOSE']
+const BLACKJACK_TEXTS = [
+  'title',
+  'rules',
+  'dealer',
+  'you',
+  'bet',
+  'chooseBet',
+  'deal',
+  'dealing',
+  'hit',
+  'stand',
+  'again',
+  'bust',
+  'hiddenTotal',
+  'payout',
+  'prompt.key',
+  'prompt.action',
+  'standUpHint',
+  'corner.label',
+  'corner.title',
+  'cards.hidden',
+  'cards.name',
+]
 const VOSEO = /\b(vos|tenés|querés|podés|sos|mirá|pedí|decime|dame bola|che)\b/i
 
 function keys(tree, prefix = '') {
@@ -101,7 +131,7 @@ describe('bar dictionaries', () => {
     expect(lookup(es, 'barman.greeting.nadie')).toBe('Buenas. ¿Qué te pongo?')
     expect(lookup(en, 'barman.greeting.nadie')).toBe('Evening. What can I get you?')
     expect(lookup(es, 'barman.promotion.habitual')).toBe('Aquí tienes. Ya eres cliente de la casa.')
-    expect(lookup(es, 'barman.house_credit')).toBe('Aquí tienes 50 fichas. Invita la casa.')
+    expect(lookup(es, 'barman.house_credit')).toBe('Aquí tienes 50 monedas. Invita la casa.')
     expect(lookup(en, 'barman.no_credit')).toBe('I already treated you today. More tomorrow.')
   })
 
@@ -192,5 +222,84 @@ describe('bar dictionaries', () => {
   it('does not promise anything soon on the mobile corners', () => {
     expect(lookup(es, 'salon.soon')).toBeUndefined()
     expect(lookup(en, 'salon.soon')).toBeUndefined()
+  })
+})
+
+describe('blackjack dictionaries', () => {
+  beforeEach(() => {
+    i18n.global.locale.value = 'es'
+  })
+
+  it.each(BLACKJACK_TEXTS)('the text blackjack.%s exists in both languages', (key) => {
+    expect(typeof lookup(es, `blackjack.${key}`)).toBe('string')
+    expect(typeof lookup(en, `blackjack.${key}`)).toBe('string')
+  })
+
+  it.each(OUTCOMES)('the outcome %s has a label in both languages', (outcome) => {
+    expect(typeof lookup(es, `blackjack.outcome.${outcome}`)).toBe('string')
+    expect(typeof lookup(en, `blackjack.outcome.${outcome}`)).toBe('string')
+  })
+
+  it('keeps the outcome wording decided in the mockups', () => {
+    expect(OUTCOMES.map((outcome) => lookup(es, `blackjack.outcome.${outcome}`))).toEqual([
+      '¡Blackjack!',
+      'Ganas',
+      'Empate',
+      'Pierdes',
+    ])
+  })
+
+  it('keeps the table wording decided in the mockups', () => {
+    expect(lookup(es, 'blackjack.rules')).toBe('La banca pide hasta 17 · Blackjack paga 3:2')
+    expect(lookup(es, 'blackjack.dealer')).toBe('La banca')
+    expect(lookup(es, 'blackjack.you')).toBe('Tú')
+    expect(lookup(es, 'blackjack.hit')).toBe('Pedir carta')
+    expect(lookup(es, 'blackjack.stand')).toBe('Plantarse')
+    expect(lookup(es, 'blackjack.again')).toBe('Otra mano')
+    expect(lookup(es, 'blackjack.bust')).toBe('se pasa')
+    expect(lookup(es, 'blackjack.prompt.action')).toBe('Sentarse a la mesa')
+    expect(lookup(es, 'blackjack.standUpHint')).toBe('Esc para levantarte')
+    expect(lookup(es, 'blackjack.corner.label')).toBe('Cartas')
+    expect(lookup(es, 'blackjack.corner.title')).toBe('Blackjack')
+  })
+
+  it('interpolates the chips in the deal button and the payout, in both languages', () => {
+    expect(i18n.global.t('blackjack.deal', { chips: 20 })).toBe('Repartir · 20 ¢')
+    expect(i18n.global.t('blackjack.payout', { amount: 40 })).toBe('+40 ¢')
+    i18n.global.locale.value = 'en'
+    expect(i18n.global.t('blackjack.deal', { chips: 20 })).toContain('20')
+    expect(i18n.global.t('blackjack.payout', { amount: 40 })).toContain('40')
+  })
+
+  it.each(FACES)('the face %s has a name in both languages', (face) => {
+    expect(typeof lookup(es, `blackjack.cards.face.${face}`)).toBe('string')
+    expect(typeof lookup(en, `blackjack.cards.face.${face}`)).toBe('string')
+  })
+
+  it.each(SUITS)('the suit %s has a name in both languages', (suit) => {
+    expect(typeof lookup(es, `blackjack.cards.suit.${suit}`)).toBe('string')
+    expect(typeof lookup(en, `blackjack.cards.suit.${suit}`)).toBe('string')
+  })
+
+  it('builds an accessible card name in both languages', () => {
+    const face = i18n.global.t('blackjack.cards.face.QUEEN')
+    const suit = i18n.global.t('blackjack.cards.suit.HEARTS')
+    expect(i18n.global.t('blackjack.cards.name', { face, suit })).toBe('reina de corazones')
+    i18n.global.locale.value = 'en'
+    const faceEn = i18n.global.t('blackjack.cards.face.QUEEN')
+    const suitEn = i18n.global.t('blackjack.cards.suit.HEARTS')
+    expect(i18n.global.t('blackjack.cards.name', { face: faceEn, suit: suitEn })).toBe('queen of hearts')
+  })
+
+  it('names every card of the deck with a distinct text', () => {
+    const names = FACES.flatMap((face) =>
+      SUITS.map((suit) =>
+        i18n.global.t('blackjack.cards.name', {
+          face: i18n.global.t(`blackjack.cards.face.${face}`),
+          suit: i18n.global.t(`blackjack.cards.suit.${suit}`),
+        }),
+      ),
+    )
+    expect(new Set(names).size).toBe(FACES.length * SUITS.length)
   })
 })

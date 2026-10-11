@@ -5,6 +5,7 @@ import { installSessionExpiry } from './session'
 import { onSessionExpired } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useBarStore } from '@/stores/bar'
+import { useBlackjackStore } from '@/stores/blackjack'
 import { useWalletStore } from '@/stores/wallet'
 
 vi.mock('@/api/http', () => ({
@@ -49,6 +50,20 @@ describe('installSessionExpiry', () => {
 
     expect(bar.conversation).toEqual([])
     expect(bar.talkLockedUntil).toBe(0)
+  })
+
+  it('forgets the blackjack hand when the session is lost', () => {
+    const pinia = createPinia()
+    const router = routerEn('loungeview', '/')
+    const blackjack = useBlackjackStore(pinia)
+    blackjack.hand = { id: 'hand', status: 'PLAYER_TURN' }
+    blackjack.error = 'generic'
+
+    installSessionExpiry(router, pinia)
+    onSessionExpired.mock.calls.at(-1)[0]()
+
+    expect(blackjack.hand).toBeNull()
+    expect(blackjack.error).toBeNull()
   })
 
   it('si ya estaba en la puerta, no redirige otra vez', () => {

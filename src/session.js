@@ -1,6 +1,7 @@
 import { onSessionExpired } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useBarStore } from '@/stores/bar'
+import { useBlackjackStore } from '@/stores/blackjack'
 import { useWalletStore } from '@/stores/wallet'
 
 export function installSessionExpiry(router, pinia) {
@@ -8,6 +9,7 @@ export function installSessionExpiry(router, pinia) {
     useAuthStore(pinia).expireSession()
     useWalletStore(pinia).$reset()
     useBarStore(pinia).$reset()
+    useBlackjackStore(pinia).$reset()
 
     const current = router.currentRoute.value
     if (current.name !== 'acceso') {

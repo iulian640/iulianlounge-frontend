@@ -6,6 +6,7 @@ import SalonMovil from '../SalonMovil.vue'
 import i18n from '@/i18n'
 import { api } from '@/api/http'
 import { useBarStore } from '@/stores/bar'
+import { useBlackjackStore } from '@/stores/blackjack'
 import { useWalletStore } from '@/stores/wallet'
 
 vi.mock('@/api/http', () => ({
@@ -30,6 +31,29 @@ const MENU = {
   line: 'barman.greeting.habitual',
 }
 
+const BLACKJACK_BETS = [
+  { code: 'TEN', chips: 10 },
+  { code: 'TWENTY', chips: 20 },
+  { code: 'FIFTY', chips: 50 },
+]
+
+const EMPTY_TABLE = { hand: null, balance: 60, bets: BLACKJACK_BETS }
+
+const BLACKJACK_HAND = {
+  id: '7f1c2d9e-3a4b-4c5d-8e6f-0a1b2c3d4e5f',
+  bet: 20,
+  status: 'PLAYER_TURN',
+  playerCards: [
+    { face: 'TEN', suit: 'SPADES' },
+    { face: 'FIVE', suit: 'HEARTS' },
+  ],
+  playerTotal: 15,
+  dealerCards: [{ face: 'KING', suit: 'CLUBS' }],
+  dealerTotal: 10,
+  outcome: null,
+  payout: null,
+}
+
 const BROKE_MENU = { ...MENU, balance: 0, creditAvailable: true, line: 'barman.broke.habitual' }
 
 const SERVED = {
@@ -44,8 +68,15 @@ const SERVED = {
 
 let wrapper = null
 
-async function mountSalon(menu = MENU) {
-  api.mockResolvedValue(menu)
+function routeApi(menu, blackjackTable = EMPTY_TABLE) {
+  api.mockImplementation((path) => {
+    if (path === '/blackjack') return Promise.resolve(blackjackTable)
+    return Promise.resolve(menu)
+  })
+}
+
+async function mountSalon(menu = MENU, blackjackTable = EMPTY_TABLE) {
+  routeApi(menu, blackjackTable)
   wrapper = mount(SalonMovil, {
     global: { plugins: [i18n], stubs: { RouterLink: RouterLinkStub } },
     slots: { hud: '<div class="hud-slot"></div>' },
@@ -56,7 +87,12 @@ async function mountSalon(menu = MENU) {
 }
 
 async function openBar() {
-  await wrapper.find('.toggle').trigger('click')
+  await wrapper.find('.toggle:not(.cards-toggle)').trigger('click')
+}
+
+async function openCards() {
+  await wrapper.find('.cards-toggle').trigger('click')
+  await flushPromises()
 }
 
 describe('SalonMovil', () => {
@@ -260,7 +296,7 @@ describe('SalonMovil', () => {
     await flushPromises()
 
     expect(wrapper.find('.glass').exists()).toBe(false)
-    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más chikilicuatres de los que llevas encima.')
+    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más monedas de las que llevas encima.')
   })
 
   it('removes the glass when the bar store is reset', async () => {
@@ -286,7 +322,7 @@ describe('SalonMovil', () => {
     const orders = wrapper.findAll('.order')
     expect(orders).toHaveLength(5)
     expect(orders.every((button) => button.attributes('disabled') !== undefined)).toBe(true)
-    expect(wrapper.find('.speech-text').text()).toBe('¿Sin fichas? Tranquilo, hoy invito yo.')
+    expect(wrapper.find('.speech-text').text()).toBe('¿Sin monedas? Tranquilo, hoy invito yo.')
   })
 
   it('accepting the invitation asks the house credit and enables the drinks', async () => {
@@ -300,7 +336,7 @@ describe('SalonMovil', () => {
 
     expect(api).toHaveBeenLastCalledWith('/bar/house-credit', { method: 'POST' })
     expect(wrapper.find('.credit').exists()).toBe(false)
-    expect(wrapper.find('.speech-text').text()).toBe('Aquí tienes 50 fichas. Invita la casa.')
+    expect(wrapper.find('.speech-text').text()).toBe('Aquí tienes 50 monedas. Invita la casa.')
     expect(wrapper.findAll('.order')[0].attributes('disabled')).toBeUndefined()
   })
 
@@ -311,29 +347,104 @@ describe('SalonMovil', () => {
     expect(wrapper.find('.credit').exists()).toBe(false)
   })
 
-  it('keeps the cards table and the stage as closed corners without promising anything', async () => {
+  it('keeps only the stage as a closed corner without promising anything', async () => {
     await mountSalon()
 
     const corners = wrapper.findAll('.corner.closed')
 
-    expect(corners.map((corner) => corner.find('.corner-title').text())).toEqual([
-      'La mesa de cartas',
-      'El escenario',
-    ])
-    expect(corners.map((corner) => corner.find('.corner-state').text())).toEqual(['Cerrado', 'Cerrado'])
+    expect(corners.map((corner) => corner.find('.corner-title').text())).toEqual(['El escenario'])
+    expect(corners.map((corner) => corner.find('.corner-state').text())).toEqual(['Cerrado'])
     expect(corners.some((corner) => corner.find('button, a').exists())).toBe(false)
     expect(wrapper.text()).not.toMatch(/pronto|soon/i)
   })
 
-  it('shows the closed corners in English', async () => {
+  it('shows the closed stage in English', async () => {
     i18n.global.locale.value = 'en'
 
     await mountSalon()
 
-    expect(wrapper.findAll('.corner.closed').map((corner) => corner.text())).toEqual([
-      'The card tableClosed',
-      'The stageClosed',
+    expect(wrapper.findAll('.corner.closed').map((corner) => corner.text())).toEqual(['The stageClosed'])
+  })
+
+  it('starts with the cards table collapsed and the toggle wired to the panel', async () => {
+    await mountSalon()
+
+    const toggle = wrapper.find('.cards-toggle')
+
+    expect(toggle.element.tagName).toBe('BUTTON')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(toggle.attributes('aria-controls')).toBe('cards-panel')
+    expect(wrapper.find('#cards-panel').isVisible()).toBe(false)
+    expect(toggle.text()).toContain('Cartas')
+    expect(toggle.text()).toContain('Blackjack')
+  })
+
+  it('does not touch the blackjack api until the cards table is opened', async () => {
+    await mountSalon()
+
+    expect(api).not.toHaveBeenCalledWith('/blackjack')
+    expect(wrapper.find('.table').exists()).toBe(false)
+  })
+
+  it('reveals the betting table when the cards toggle is pressed', async () => {
+    await mountSalon()
+
+    await openCards()
+
+    expect(wrapper.find('.cards-toggle').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('#cards-panel').isVisible()).toBe(true)
+    expect(api).toHaveBeenCalledWith('/blackjack')
+    expect(wrapper.findAll('.bet-chip')).toHaveLength(3)
+    expect(wrapper.find('#cards-panel .action.primary').text()).toBe('Repartir · 20 ¢')
+  })
+
+  it('collapses the cards table again and keeps its state', async () => {
+    await mountSalon(MENU, { ...EMPTY_TABLE, hand: BLACKJACK_HAND })
+    await openCards()
+
+    await openCards()
+
+    expect(wrapper.find('.cards-toggle').attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('#cards-panel').isVisible()).toBe(false)
+    expect(useBlackjackStore().hand.id).toBe(BLACKJACK_HAND.id)
+    expect(api.mock.calls.filter(([path]) => path === '/blackjack')).toHaveLength(1)
+  })
+
+  it('opens the cards table independently of the bar', async () => {
+    await mountSalon()
+    await openBar()
+
+    await openCards()
+
+    expect(wrapper.find('#bar-panel').isVisible()).toBe(true)
+    expect(wrapper.find('#cards-panel').isVisible()).toBe(true)
+  })
+
+  it('deals a hand from the salon and updates the balance', async () => {
+    await mountSalon()
+    await openCards()
+    api.mockResolvedValueOnce({ hand: BLACKJACK_HAND, balance: 40 })
+
+    await wrapper.find('#cards-panel .action.primary').trigger('click')
+    await flushPromises()
+
+    expect(api).toHaveBeenLastCalledWith(
+      '/blackjack/hands',
+      expect.objectContaining({ method: 'POST', body: { bet: 'TWENTY' } }),
+    )
+    expect(useWalletStore().balance).toBe(40)
+    expect(wrapper.findAll('#cards-panel .action').map((button) => button.text())).toEqual([
+      'Pedir carta',
+      'Plantarse',
     ])
+  })
+
+  it('shows the cards toggle in English', async () => {
+    i18n.global.locale.value = 'en'
+
+    await mountSalon()
+
+    expect(wrapper.find('.cards-toggle').text()).toContain('Cards')
   })
 
   it('links the privacy page from the notice under the text input', async () => {

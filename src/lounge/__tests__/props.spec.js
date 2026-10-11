@@ -32,6 +32,7 @@ const { furnishSalon } = await import('../furnish')
 const { addLetrero } = await import('../letrero')
 const { addSmoke } = await import('../decor/smoke')
 const { ROOM, TABLE_SPOTS } = await import('../salon')
+const { BLACKJACK_TABLE, CROUPIER, PLAYER_SEAT, SEATS } = await import('../blackjackLayout')
 
 // --- fábricas de datos sintéticos --------------------------------------
 
@@ -353,6 +354,58 @@ describe('furnishSalon', () => {
     }
   })
 
+  it('places a croupier behind the blackjack table, facing the player seat', async () => {
+    const scene = new THREE.Scene()
+
+    await furnishSalon(scene, [])
+
+    const croupier = scene.children.find((prop) => prop.name === 'croupier')
+    expect(croupier).toBeDefined()
+    expect(croupier.position.x).toBeCloseTo(CROUPIER.at[0], 6)
+    expect(croupier.position.z).toBeCloseTo(CROUPIER.at[2], 6)
+    expect(croupier.rotation.y).toBeCloseTo(CROUPIER.yaw, 6)
+  })
+
+  it('loads the croupier as a second barman.glb instance with another tint', async () => {
+    const scene = new THREE.Scene()
+    gltfLoadMock.mockClear()
+
+    await furnishSalon(scene, [])
+
+    const barmanLoads = gltfLoadMock.mock.calls.filter(([url]) => /barman\.glb/.test(url))
+    expect(barmanLoads).toHaveLength(2)
+  })
+
+  it('places three blackjack seats from barstool.glb, the player one at the seat pose', async () => {
+    const scene = new THREE.Scene()
+
+    await furnishSalon(scene, [])
+
+    const seats = scene.children.filter((prop) => prop.name === 'blackjack-seat')
+    expect(seats).toHaveLength(SEATS.length)
+    const playerSeat = seats.find(
+      (seat) =>
+        Math.abs(seat.position.x - PLAYER_SEAT.at[0]) < 1e-6 &&
+        Math.abs(seat.position.z - PLAYER_SEAT.at[2]) < 1e-6,
+    )
+    expect(playerSeat).toBeDefined()
+  })
+
+  it('makes the blackjack seats face the table with their front on -Z', async () => {
+    const scene = new THREE.Scene()
+
+    await furnishSalon(scene, [])
+
+    for (const seat of scene.children.filter((prop) => prop.name === 'blackjack-seat')) {
+      const front = new THREE.Vector2(-Math.sin(seat.rotation.y), -Math.cos(seat.rotation.y))
+      const toTable = new THREE.Vector2(
+        BLACKJACK_TABLE.at[0] - seat.position.x,
+        BLACKJACK_TABLE.at[2] - seat.position.z,
+      ).normalize()
+      expect(front.dot(toTable)).toBeCloseTo(1, 3)
+    }
+  })
+
   it('sitúa el guardarropa junto a la entrada, en la posición fija del manifest', async () => {
     // Arrange
     const scene = new THREE.Scene()
@@ -400,7 +453,7 @@ describe('furnishSalon', () => {
     }
   })
 
-  it('registra la animación del camarero (userData.update) como actualizable', async () => {
+  it('registers the barman and croupier animations (userData.update) as updatables', async () => {
     // Arrange: solo el camarero devuelve un clip 'Idle' de verdad (la banda se retiró el 25-sep)
     gltfLoadMock.mockImplementation((url, onLoad) => {
       const animado = /barman\.glb/.test(url)
@@ -413,8 +466,7 @@ describe('furnishSalon', () => {
     // Act
     await furnishSalon(scene, updatables)
 
-    // Assert: 1 camarero + 2 ventiladores = 3 funciones actualizables
-    expect(updatables).toHaveLength(3)
+    expect(updatables).toHaveLength(4)
     for (const update of updatables) {
       expect(() => update(0.016)).not.toThrow()
     }

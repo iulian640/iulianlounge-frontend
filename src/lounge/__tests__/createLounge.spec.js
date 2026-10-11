@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as THREE from 'three'
 
 import { createLounge } from '../createLounge'
+import { createWalkControls } from '../walkControls'
+import { BLACKJACK_TABLE, SEAT_POSE } from '../blackjackLayout'
+import { stubCanvasContext } from './canvasStub'
 import { addAshtrays } from '../decor/ashtrays'
 import { addCurtains } from '../decor/curtains'
 import { addFloorLamps } from '../decor/floorLamps'
@@ -165,7 +168,7 @@ vi.mock('../letrero', async () => {
 
 vi.mock('../walkControls', () => ({
   createWalkControls: vi.fn(() => ({
-    controls: { unlock: mocks.unlock },
+    controls: { unlock: mocks.unlock, enabled: true },
     update: vi.fn(),
     dispose: vi.fn(),
   })),
@@ -213,12 +216,19 @@ vi.mock('../tuningPanel', () => ({
 // y el bucle de render lo necesitan, así que se apunta a setTimeout(0).
 const disposers = []
 
-async function runLounge({ webgpu = true, signal, onNearBarman } = {}) {
+async function runLounge({ webgpu = true, signal, onNearBarman, onNearTable } = {}) {
   mocks.isWebGPU = webgpu
   const canvas = document.createElement('canvas')
   const onProgress = vi.fn()
   const onQualityBusy = vi.fn()
-  const pending = createLounge(canvas, onProgress, onQualityBusy, signal, onNearBarman)
+  const pending = createLounge(
+    canvas,
+    onProgress,
+    onQualityBusy,
+    signal,
+    onNearBarman,
+    onNearTable,
+  )
 
   // dejar que createLounge arranque el renderer, monte la escena e instale el
   // gancho del LoadingManager, y quede esperando a que asienten las texturas
@@ -238,7 +248,10 @@ async function runLounge({ webgpu = true, signal, onNearBarman } = {}) {
 }
 
 describe('createLounge', () => {
+  let canvasStub
+
   beforeEach(() => {
+    canvasStub = stubCanvasContext()
     vi.clearAllMocks()
     mocks.isWebGPU = true
     Object.defineProperty(window, 'devicePixelRatio', {
@@ -258,6 +271,8 @@ describe('createLounge', () => {
     // apaga el bucle de render de cada lounge (alive = false)
     for (const dispose of disposers.splice(0)) dispose()
     vi.unstubAllEnvs()
+    canvasStub.spy.mockRestore()
+    delete window.matchMedia
   })
 
   it('en desarrollo cuelga el contador de FPS y dispose() lo retira', async () => {
@@ -549,5 +564,162 @@ describe('createLounge', () => {
     api.releasePointer()
 
     expect(mocks.unlock).toHaveBeenCalledTimes(1)
+  })
+  describe('blackjack table', () => {
+    function stubReducedMotion(matches) {
+      Object.defineProperty(window, 'matchMedia', {
+        value: () => ({ matches }),
+        configurable: true,
+        writable: true,
+      })
+    }
+
+    function lastWalk() {
+      return vi.mocked(createWalkControls).mock.results.at(-1).value
+    }
+
+    function visibleCards(scene) {
+      const cards = []
+      scene.traverse((o) => {
+        if (o.userData.isCard && o.visible && o.name === 'blackjack-card') cards.push(o)
+      })
+      return cards
+    }
+
+    it('adds the card table to the scene', async () => {
+      await runLounge()
+
+      expect(window.__lounge.scene.getObjectByName('blackjack-table-cards')).toBeDefined()
+      expect(window.__lounge.scene.getObjectByName('blackjack-shoe')).toBeDefined()
+    })
+
+    it('keeps the card meshes out of the receiveShadow unification and leaves the rest in', async () => {
+      await runLounge()
+
+      const cards = []
+      const others = []
+      window.__lounge.scene.traverse((o) => {
+        if (!o.isMesh) return
+        if (o.userData.isCard) cards.push(o)
+        else others.push(o)
+      })
+
+      expect(cards.length).toBeGreaterThan(0)
+      expect(others.length).toBeGreaterThan(0)
+      expect(cards.some((mesh) => mesh.receiveShadow || mesh.castShadow)).toBe(false)
+      expect(others.every((mesh) => mesh.receiveShadow)).toBe(true)
+    })
+
+    it('hides the parked pool once the warm-up is over and keeps the shoe visible', async () => {
+      await runLounge()
+
+      expect(visibleCards(window.__lounge.scene)).toHaveLength(0)
+      const shoe = window.__lounge.scene.getObjectByName('blackjack-shoe')
+      expect(shoe.children.every((child) => child.visible)).toBe(true)
+    })
+
+    it('hides the cards from the environment capture, so the shoe is not baked into the floor', async () => {
+      await runLounge()
+
+      const cards = []
+      window.__lounge.scene.traverse((o) => {
+        if (o.userData.isCard) cards.push(o)
+      })
+
+      expect(cards.length).toBeGreaterThan(0)
+      expect(cards.every((mesh) => mesh.userData.hideFromEnv)).toBe(true)
+    })
+
+    it('exposes sitDown, standUp, setHand and the seat state', async () => {
+      const { api } = await runLounge()
+
+      expect(api.sitDown).toBeTypeOf('function')
+      expect(api.standUp).toBeTypeOf('function')
+      expect(api.setHand).toBeTypeOf('function')
+      expect(api.getSeatState()).toBe('standing')
+    })
+
+    it('reports when the camera comes within reach of the table and when it walks away', async () => {
+      const onNearTable = vi.fn()
+      await runLounge({ onNearTable })
+      const { camera } = window.__lounge
+
+      camera.position.set(BLACKJACK_TABLE.at[0] - 2, 1.7, BLACKJACK_TABLE.at[2])
+      await vi.waitFor(() => expect(onNearTable).toHaveBeenLastCalledWith(true))
+      camera.position.set(0, 1.7, 4.6)
+      await vi.waitFor(() => expect(onNearTable).toHaveBeenLastCalledWith(false))
+
+      expect(onNearTable).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not require a table proximity callback', async () => {
+      await runLounge()
+      const { camera } = window.__lounge
+
+      camera.position.set(BLACKJACK_TABLE.at[0] - 2, 1.7, BLACKJACK_TABLE.at[2])
+
+      await expect(new Promise((resolve) => setTimeout(resolve, 50))).resolves.toBeUndefined()
+    })
+
+    it('sitDown releases the pointer, stops walking and puts the camera at the seat', async () => {
+      stubReducedMotion(true)
+      const { api } = await runLounge()
+      const walk = lastWalk()
+
+      await api.sitDown()
+      const updatesAtSeat = walk.update.mock.calls.length
+      await new Promise((resolve) => setTimeout(resolve, 60))
+
+      expect(api.getSeatState()).toBe('seated')
+      expect(mocks.unlock).toHaveBeenCalled()
+      expect(walk.controls.enabled).toBe(false)
+      expect(walk.update.mock.calls.length).toBe(updatesAtSeat)
+      const { camera } = window.__lounge
+      camera.position.toArray().forEach((value, axis) => {
+        expect(value).toBeCloseTo(SEAT_POSE.position[axis], 6)
+      })
+    })
+
+    it('standUp restores the previous pose and gives walking back', async () => {
+      stubReducedMotion(true)
+      const { api } = await runLounge()
+      const walk = lastWalk()
+      const { camera } = window.__lounge
+      camera.position.set(2.5, 1.7, 1)
+      await api.sitDown()
+
+      await api.standUp()
+      const updatesBefore = walk.update.mock.calls.length
+      await vi.waitFor(() => expect(walk.update.mock.calls.length).toBeGreaterThan(updatesBefore))
+
+      expect(api.getSeatState()).toBe('standing')
+      expect(walk.controls.enabled).toBe(true)
+      expect(camera.position.x).toBeCloseTo(2.5, 5)
+      expect(camera.position.z).toBeCloseTo(1, 5)
+    })
+
+    it('setHand deals the cards on the felt', async () => {
+      stubReducedMotion(true)
+      const { api } = await runLounge()
+      const card = { face: 'ACE', suit: 'SPADES' }
+
+      api.setHand({
+        id: 'h1',
+        status: 'PLAYER_TURN',
+        playerCards: [card, card],
+        dealerCards: [card],
+      })
+
+      expect(visibleCards(window.__lounge.scene)).toHaveLength(4)
+    })
+
+    it('dispose takes the card table out of the scene', async () => {
+      const { api } = await runLounge()
+      const { scene } = window.__lounge
+
+      api.dispose()
+
+      expect(scene.getObjectByName('blackjack-table-cards')).toBeUndefined()
+    })
   })
 })
