@@ -64,7 +64,7 @@ async function logout() {
   <div class="hud" :class="{ inline }">
     <div class="barra">
       <FichaSaldo ref="chip" :balance="wallet.balance" :expanded="bookOpen" @open="toggleBook" />
-      <NombreSocio :username="auth.user?.username" @logout="logout" />
+      <NombreSocio :username="auth.user?.username" :rank="auth.user?.rank" @logout="logout" />
     </div>
     <Transition name="libro">
       <LibroCuentas
@@ -101,16 +101,23 @@ async function logout() {
 
 .barra {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
+  align-items: stretch;
+  max-width: 100%;
+  background: rgba(17, 31, 29, 0.94);
+  border: 1px solid var(--linea);
+  border-radius: 2px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.hud.inline .barra {
+  box-shadow: none;
 }
 
 .libro-enter-active,
 .libro-leave-active {
   transition:
-    opacity var(--duracion-media),
-    transform var(--duracion-media);
+    opacity 200ms ease-out,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .libro-enter-from,

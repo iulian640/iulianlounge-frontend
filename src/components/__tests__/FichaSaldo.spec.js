@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
 import FichaSaldo from '../hud/FichaSaldo.vue'
@@ -11,6 +12,10 @@ function montar(balance) {
 describe('FichaSaldo', () => {
   beforeEach(() => {
     i18n.global.locale.value = 'es'
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('enseña el saldo con separador de miles y la moneda del idioma', () => {
@@ -46,5 +51,30 @@ describe('FichaSaldo', () => {
     const wrapper = montar(100)
 
     expect(wrapper.find('button').attributes('aria-label')).toBe('Saldo: 100 monedas')
+  })
+
+  it('shows what a balance change cost or paid, then lets it go', async () => {
+    vi.useFakeTimers()
+    const wrapper = montar(100)
+
+    await wrapper.setProps({ balance: 60 })
+    expect(wrapper.find('.delta').text()).toBe('−40')
+    expect(wrapper.find('.delta').classes()).toContain('out')
+
+    await wrapper.setProps({ balance: 110 })
+    expect(wrapper.find('.delta').text()).toBe('+50')
+    expect(wrapper.find('.delta').classes()).toContain('in')
+
+    vi.advanceTimersByTime(1100)
+    await nextTick()
+    expect(wrapper.find('.delta').exists()).toBe(false)
+  })
+
+  it('does not take the first balance that arrives for a change', async () => {
+    const wrapper = montar(null)
+
+    await wrapper.setProps({ balance: 100 })
+
+    expect(wrapper.find('.delta').exists()).toBe(false)
   })
 })
