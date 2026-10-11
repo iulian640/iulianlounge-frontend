@@ -32,10 +32,11 @@ function handOf(overrides) {
   }
 }
 
-function mountRound() {
+function mountRound(prepare = () => {}) {
   let round
   const pinia = createPinia()
   setActivePinia(pinia)
+  prepare(useBlackjackStore())
   const app = createApp(
     defineComponent({
       setup() {
@@ -93,6 +94,35 @@ describe('useBlackjackRound', () => {
 
     expect(round.isBetting.value).toBe(true)
     expect(round.announcement.value).toBe('')
+  })
+
+  it('opens on the bets when the last hand was already finished before sitting down', () => {
+    const round = mountRound((store) => {
+      store.hand = handOf({ status: 'FINISHED', outcome: 'WIN', payout: 40 })
+    })
+
+    expect(round.isBetting.value).toBe(true)
+    expect(round.announcement.value).toBe('')
+  })
+
+  it('does not bring back an old result that arrives finished from a reload', () => {
+    const round = mountRound()
+
+    useBlackjackStore().hand = handOf({ id: 'old-hand', status: 'FINISHED', outcome: 'LOSE', payout: 0 })
+
+    expect(round.isBetting.value).toBe(true)
+  })
+
+  it('shows the result of a hand the member just played, even when it ends on the deal', async () => {
+    const round = mountRound()
+    const store = useBlackjackStore()
+
+    await round.perform(async () => {
+      store.hand = handOf({ id: 'natural', status: 'FINISHED', outcome: 'BLACKJACK', payout: 50 })
+    })
+
+    expect(round.isBetting.value).toBe(false)
+    expect(round.announcement.value).toContain('50')
   })
 
   it('refuses bets above the wallet balance', () => {

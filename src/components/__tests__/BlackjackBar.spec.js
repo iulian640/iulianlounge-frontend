@@ -61,12 +61,17 @@ function failure(status, code) {
 
 let wrapper = null
 
-function mountBar(hand = null, balance = 100) {
+async function mountBar(hand = null, balance = 100) {
   const blackjack = useBlackjackStore()
-  blackjack.hand = hand
+  const finished = hand?.status === 'FINISHED'
+  blackjack.hand = finished ? { ...hand, status: 'PLAYER_TURN', outcome: null, payout: null } : hand
   blackjack.bets = BETS
   useWalletStore().balance = balance
   wrapper = mount(BlackjackBar, { global: { plugins: [i18n] }, attachTo: document.body })
+  if (finished) {
+    blackjack.hand = hand
+    await flushPromises()
+  }
   return wrapper
 }
 
@@ -279,8 +284,8 @@ describe('BlackjackBar', () => {
   })
 
   describe('finished hand', () => {
-    it('shows the dealer total, the result with its payout and the another-hand button', () => {
-      mountBar(finishedHand())
+    it('shows the dealer total, the result with its payout and the another-hand button', async () => {
+      await mountBar(finishedHand())
 
       const values = wrapper.findAll('.datum').map((datum) => datum.text())
       expect(values).toEqual(['La banca25 · se pasa', 'Tú19', 'Apuesta20 ¢', 'Ganas+40 ¢'])
@@ -289,8 +294,8 @@ describe('BlackjackBar', () => {
       expect(wrapper.findAll('.value')[0].classes()).toContain('bust')
     })
 
-    it('announces the result and the payout', () => {
-      mountBar(finishedHand())
+    it('announces the result and the payout', async () => {
+      await mountBar(finishedHand())
 
       expect(wrapper.find('[role="status"]').text()).toBe('Ganas · +40 ¢')
     })
@@ -299,22 +304,22 @@ describe('BlackjackBar', () => {
       ['BLACKJACK', 'won', '¡Blackjack!'],
       ['PUSH', 'tied', 'Empate'],
       ['LOSE', 'lost', 'Pierdes'],
-    ])('styles a %s result as %s', (outcome, tone, text) => {
-      mountBar(finishedHand({ outcome, payout: outcome === 'LOSE' ? 0 : 20 }))
+    ])('styles a %s result as %s', async (outcome, tone, text) => {
+      await mountBar(finishedHand({ outcome, payout: outcome === 'LOSE' ? 0 : 20 }))
 
       expect(wrapper.find('.result').classes()).toContain(tone)
       expect(wrapper.find('.result').text()).toBe(text)
     })
 
-    it('omits the payout when nothing is paid', () => {
-      mountBar(finishedHand({ outcome: 'LOSE', payout: 0 }))
+    it('omits the payout when nothing is paid', async () => {
+      await mountBar(finishedHand({ outcome: 'LOSE', payout: 0 }))
 
       expect(wrapper.findAll('.datum').at(-1).text()).toBe('Pierdes')
       expect(wrapper.find('[role="status"]').text()).toBe('Pierdes')
     })
 
     it('goes back to the bets with another hand and focuses the deal button', async () => {
-      mountBar(finishedHand())
+      await mountBar(finishedHand())
 
       await press('.action.primary')
 
@@ -325,7 +330,7 @@ describe('BlackjackBar', () => {
     })
 
     it('deals a new hand after another hand', async () => {
-      mountBar(finishedHand())
+      await mountBar(finishedHand())
       await press('.action.primary')
       api.mockResolvedValueOnce({ hand: playingHand({ id: 'next-hand' }), balance: 60 })
 
@@ -335,10 +340,10 @@ describe('BlackjackBar', () => {
       expect(wrapper.findAll('.datum')[0].text()).toBe('La banca10 + ?')
     })
 
-    it('translates the result to English', () => {
+    it('translates the result to English', async () => {
       i18n.global.locale.value = 'en'
 
-      mountBar(finishedHand())
+      await mountBar(finishedHand())
 
       expect(wrapper.find('.result').text()).toBe('You win')
       expect(actionLabels()).toEqual(['Another hand'])

@@ -157,6 +157,32 @@ describe('createWalkControls', () => {
     expect(camera.position.y).toBe(1.7)
   })
 
+  it('a key held when the window loses focus does not keep walking', () => {
+    const walk = createWalkControls(camera, canvas)
+    walk.controls.isLocked = true
+    const moveForwardSpy = vi.spyOn(walk.controls, 'moveForward').mockImplementation(() => {})
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyW' }))
+
+    window.dispatchEvent(new Event('blur'))
+    walk.update(0.1)
+
+    expect(moveForwardSpy).not.toHaveBeenCalled()
+    walk.dispose()
+  })
+
+  it('releaseKeys forgets the keys held so far', () => {
+    const walk = createWalkControls(camera, canvas)
+    walk.controls.isLocked = true
+    const moveForwardSpy = vi.spyOn(walk.controls, 'moveForward').mockImplementation(() => {})
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyW' }))
+
+    walk.releaseKeys()
+    walk.update(0.1)
+
+    expect(moveForwardSpy).not.toHaveBeenCalled()
+    walk.dispose()
+  })
+
   it('dispose() retira del window los mismos listeners de teclado que registró', () => {
     // Arrange
     const addSpy = vi.spyOn(window, 'addEventListener')
