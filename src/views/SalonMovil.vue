@@ -5,13 +5,14 @@ import { useI18n } from 'vue-i18n'
 import BarmanChat from '@/components/bar/BarmanChat.vue'
 import BarmanFigure from '@/components/bar/BarmanFigure.vue'
 import DrinkMenu from '@/components/bar/DrinkMenu.vue'
+import BlackjackTable from '@/components/blackjack/BlackjackTable.vue'
 import { useBarLines } from '@/composables/useBarLines'
 import { useBarStore } from '@/stores/bar'
 import { useWalletStore } from '@/stores/wallet'
 
 const BOTTLE_VARIANTS = 4
 const LONG_LINE_LENGTH = 90
-const CLOSED_CORNERS = ['cartas', 'escenario']
+const CLOSED_CORNERS = ['escenario']
 const SHELVES = [
   { id: 'upper', count: 9, offset: 0 },
   { id: 'lower', count: 8, offset: 2 },
@@ -22,6 +23,8 @@ const { lineText } = useBarLines()
 const bar = useBarStore()
 const wallet = useWalletStore()
 const open = ref(false)
+const cardsOpen = ref(false)
+const cardsMounted = ref(false)
 
 const lastBarmanLine = computed(() => bar.conversation.findLast((line) => line.from === 'barman'))
 const speech = computed(() => (lastBarmanLine.value ? lineText(lastBarmanLine.value) : ''))
@@ -32,6 +35,11 @@ function bottles(shelf) {
     id: `${shelf.id}-${index}`,
     variant: (index + shelf.offset) % BOTTLE_VARIANTS,
   }))
+}
+
+function toggleCards() {
+  cardsOpen.value = !cardsOpen.value
+  if (cardsOpen.value) cardsMounted.value = true
 }
 
 onMounted(() => {
@@ -106,6 +114,25 @@ onMounted(() => {
           @order="bar.order"
           @accept-credit="bar.askCredit"
         />
+      </div>
+
+      <button
+        type="button"
+        class="corner toggle cards-toggle"
+        :class="{ expanded: cardsOpen }"
+        :aria-expanded="cardsOpen"
+        aria-controls="cards-panel"
+        @click="toggleCards"
+      >
+        <span class="corner-text">
+          <span class="corner-label">{{ t('blackjack.corner.label') }}</span>
+          <span class="corner-title">{{ t('blackjack.corner.title') }}</span>
+        </span>
+        <span class="corner-arrow" aria-hidden="true">{{ cardsOpen ? '▴' : '▾' }}</span>
+      </button>
+
+      <div v-show="cardsOpen" id="cards-panel" class="cards-panel">
+        <BlackjackTable v-if="cardsMounted" />
       </div>
 
       <ul class="corners">
