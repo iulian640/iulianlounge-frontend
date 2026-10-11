@@ -45,7 +45,6 @@ const SUITS = ['CLUBS', 'DIAMONDS', 'HEARTS', 'SPADES']
 const OUTCOMES = ['BLACKJACK', 'WIN', 'PUSH', 'LOSE']
 const BLACKJACK_TEXTS = [
   'title',
-  'rules',
   'dealer',
   'you',
   'bet',
@@ -250,7 +249,6 @@ describe('blackjack dictionaries', () => {
   })
 
   it('keeps the table wording decided in the mockups', () => {
-    expect(lookup(es, 'blackjack.rules')).toBe('La banca pide hasta 17 · Blackjack paga 3:2')
     expect(lookup(es, 'blackjack.dealer')).toBe('La banca')
     expect(lookup(es, 'blackjack.you')).toBe('Tú')
     expect(lookup(es, 'blackjack.hit')).toBe('Pedir carta')

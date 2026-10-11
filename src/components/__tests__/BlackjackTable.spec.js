@@ -117,7 +117,6 @@ describe('BlackjackTable', () => {
       const pressed = wrapper.findAll('.bet-chip').map((chip) => chip.attributes('aria-pressed'))
       expect(pressed).toEqual(['false', 'true', 'false'])
       expect(wrapper.find('.action.primary').text()).toBe('Repartir · 20 ¢')
-      expect(wrapper.find('.rules').text()).toBe('La banca pide hasta 17 · Blackjack paga 3:2')
     })
 
     it('keeps the three bets available when loading the table fails', async () => {

@@ -63,7 +63,6 @@ onMounted(() => {
       >
         {{ blackjack.busy ? t('blackjack.dealing') : t('blackjack.deal', { chips: activeBet.chips }) }}
       </button>
-      <p class="rules">{{ t('blackjack.rules') }}</p>
     </template>
 
     <template v-else>
@@ -139,8 +138,7 @@ onMounted(() => {
   border-radius: 2px;
 }
 
-.prompt,
-.rules {
+.prompt {
   margin: 0;
   text-align: center;
   font-family: var(--f-ui);
@@ -149,10 +147,6 @@ onMounted(() => {
 
 .prompt {
   font-size: 16px;
-}
-
-.rules {
-  font-size: 12px;
 }
 
 .bet-chips {
