@@ -43,3 +43,8 @@ __screenshots__/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Impeccable work files
+/.impeccable/mocks/
+/.impeccable/review/
+/.impeccable/questions/
