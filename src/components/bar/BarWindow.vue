@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { I18nT, useI18n } from 'vue-i18n'
 
 import BarmanChat from './BarmanChat.vue'
 import BarmanPortrait from './BarmanPortrait.vue'
 import DrinkMenu from './DrinkMenu.vue'
 import { useEscapeKey } from '@/composables/useEscapeKey'
+import { useRankName } from '@/composables/useRankName'
 import { useAuthStore } from '@/stores/auth'
 import { useBarStore } from '@/stores/bar'
 import { useWalletStore } from '@/stores/wallet'
@@ -14,7 +15,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabi
 
 const emit = defineEmits(['close'])
 
-const { t, te, locale } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
 const bar = useBarStore()
 const wallet = useWalletStore()
@@ -22,10 +23,7 @@ const dialog = useTemplateRef('dialog')
 const title = useTemplateRef('title')
 const previouslyFocused = document.activeElement
 
-const rankName = computed(() => {
-  const code = String(auth.user?.rank ?? 'NADIE').toLowerCase()
-  return t(te(`rank.${code}`) ? `rank.${code}` : 'rank.nadie')
-})
+const rankName = useRankName(() => auth.user?.rank)
 
 function trapFocus(event) {
   if (event.key !== 'Tab') return
