@@ -104,7 +104,13 @@
       "cartas": "The card table",
       "escenario": "The stage"
     },
-    "closed": "Closed"
+    "closed": "Closed",
+    "rooms": {
+      "label": "Club rooms",
+      "bar": "The bar",
+      "cards": "The table"
+    },
+    "goTo": "Go to {room}"
   },
   "rank": {
     "nadie": "Newcomer",
@@ -159,6 +165,16 @@
     },
     "scene": {
       "glass": "A drink served on the bar"
+    },
+    "sheet": {
+      "label": "Order and talk",
+      "menu": "The menu",
+      "chat": "Talk",
+      "expand": "Raise the menu",
+      "collapse": "Lower the menu"
+    },
+    "speech": {
+      "open": "Talk to the barman"
     }
   },
   "blackjack": {

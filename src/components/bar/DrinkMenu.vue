@@ -9,6 +9,7 @@ const props = defineProps({
   ordering: { type: Boolean, default: false },
   creditAvailable: { type: Boolean, default: false },
   error: { type: String, default: null },
+  titleHidden: { type: Boolean, default: false },
 })
 defineEmits(['order', 'accept-credit'])
 
@@ -32,7 +33,7 @@ function cannotOrder(drink) {
 
 <template>
   <section class="menu" aria-labelledby="bar-menu-title" :aria-busy="ordering">
-    <h3 id="bar-menu-title" class="title">{{ t('bar.menu.title') }}</h3>
+    <h3 id="bar-menu-title" class="title" :class="{ 'sr-only': titleHidden }">{{ t('bar.menu.title') }}</h3>
 
     <button
       v-if="creditAvailable"
@@ -70,6 +71,18 @@ function cannotOrder(drink) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .title {
