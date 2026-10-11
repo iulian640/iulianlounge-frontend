@@ -70,6 +70,14 @@ describe('FichaSaldo', () => {
     expect(wrapper.find('.delta').exists()).toBe(false)
   })
 
+  it('announces the change and the new balance to screen readers', async () => {
+    const wrapper = montar(100)
+
+    await wrapper.setProps({ balance: 60 })
+
+    expect(wrapper.find('[role="status"]').text()).toBe('−40 · Saldo: 60 monedas')
+  })
+
   it('does not take the first balance that arrives for a change', async () => {
     const wrapper = montar(null)
 

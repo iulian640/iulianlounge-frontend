@@ -18,6 +18,7 @@ describe('NombreSocio', () => {
 
     expect(wrapper.find('.nombre').text()).toBe('iulian')
     expect(wrapper.find('.rango').text()).toBe('Cliente')
+    expect(wrapper.find('.identidad').text()).toBe('iulian, rango: Cliente')
   })
 
   it('keeps the full name in the tooltip when it does not fit', () => {

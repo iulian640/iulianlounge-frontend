@@ -80,7 +80,8 @@
   },
   "hud": {
     "balance": "Balance: {amount} @:currency.name",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "rank": "rank"
   },
   "wallet": {
     "title": "Ledger",

@@ -17,6 +17,7 @@ const rankName = useRankName(() => props.rank)
   <div class="socio">
     <p class="identidad">
       <span class="nombre" :title="username">{{ username }}</span>
+      <span class="sr-only">, {{ t('hud.rank') }}: </span>
       <span class="rango">{{ rankName }}</span>
     </p>
     <button type="button" class="salir" :aria-label="t('hud.logout')" :title="t('hud.logout')" @click="$emit('logout')">
@@ -62,6 +63,18 @@ const rankName = useRankName(() => props.rank)
   font-size: 0.72rem;
   letter-spacing: 0.02em;
   color: var(--laton);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .salir {

@@ -80,7 +80,8 @@
   },
   "hud": {
     "balance": "Saldo: {amount} @:currency.name",
-    "logout": "Salir"
+    "logout": "Salir",
+    "rank": "rango"
   },
   "wallet": {
     "title": "Libro de cuentas",

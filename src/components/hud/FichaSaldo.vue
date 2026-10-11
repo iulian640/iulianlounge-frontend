@@ -13,6 +13,7 @@ defineEmits(['open'])
 const { t, locale } = useI18n()
 const button = useTemplateRef('button')
 const change = ref(null)
+const announcement = ref('')
 let changeTimer = null
 
 function number(amount) {
@@ -31,6 +32,7 @@ watch(
       direction: amount > 0 ? 'in' : 'out',
       text: amount > 0 ? `+${number(amount)}` : `−${number(-amount)}`,
     }
+    announcement.value = `${change.value.text} · ${t('hud.balance', { amount: number(next) })}`
     clearTimeout(changeTimer)
     changeTimer = setTimeout(() => {
       change.value = null
@@ -63,6 +65,7 @@ defineExpose({ focus: () => button.value?.focus() })
       {{ change.text }}
     </span>
   </button>
+  <p class="sr-only" role="status" aria-live="polite">{{ announcement }}</p>
 </template>
 
 <style scoped>
@@ -168,6 +171,18 @@ defineExpose({ focus: () => button.value?.focus() })
     opacity: 0;
     transform: translateY(4px);
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 379px) {
