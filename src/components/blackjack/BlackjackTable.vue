@@ -103,6 +103,10 @@ onMounted(() => {
         </button>
       </template>
       <div v-else-if="blackjack.playing" class="actions">
+        <p class="tray-stake" aria-hidden="true">
+          <span>{{ t('blackjack.bet') }}</span>
+          <span class="tray-stake-value">{{ chipsText(hand.bet) }}</span>
+        </p>
         <button
           ref="focusTarget"
           type="button"
@@ -128,11 +132,11 @@ onMounted(() => {
 
 <style scoped>
 .table {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   box-sizing: border-box;
-  padding: 4px 0 20px;
+  padding: 4px 0 0;
 }
 
 .croupier {
@@ -141,7 +145,7 @@ onMounted(() => {
   align-items: flex-end;
   gap: 4px;
   height: 136px;
-  padding: 0 16px;
+  padding: 0 16px 0 calc(16px + var(--croupier-inset, 0px));
 }
 
 .figure {
@@ -287,8 +291,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: 18px;
-  padding: 0 16px;
+  margin-top: auto;
+  padding: 18px 16px max(16px, env(safe-area-inset-bottom));
 }
 
 .bet-chips {
@@ -358,7 +362,12 @@ onMounted(() => {
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.tray-stake {
+  display: none;
 }
 
 .tray > .action {
@@ -384,7 +393,7 @@ onMounted(() => {
 
 .action.primary {
   border: 0;
-  background: linear-gradient(180deg, #ecd497, #c9a45c);
+  background: var(--marfil);
   color: var(--medianoche);
 }
 
@@ -444,6 +453,52 @@ onMounted(() => {
   .stake {
     flex-direction: column;
     border-radius: 14px;
+  }
+
+  .felt {
+    min-width: 0;
+    gap: 8px;
+    justify-content: space-evenly;
+  }
+
+  .felt .stake {
+    display: none;
+  }
+
+  .felt :deep(.hand li + li) {
+    margin-left: -30px;
+  }
+
+  .tray-stake {
+    display: flex;
+    justify-content: space-between;
+    flex: 1 1 100%;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--humo);
+  }
+
+  .tray-stake-value {
+    font-family: var(--f-mono);
+    color: var(--oro);
+  }
+
+  .spot {
+    width: 44px;
+    height: 62px;
+  }
+
+  .spots {
+    gap: 8px;
+  }
+
+  .felt-mark {
+    display: none;
+  }
+
+  .tray {
+    margin-top: 0;
+    padding-bottom: 12px;
   }
 
   .tray {

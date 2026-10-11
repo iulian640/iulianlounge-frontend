@@ -44,7 +44,7 @@ const { t } = useI18n()
 .back {
   position: absolute;
   left: 0;
-  top: 46%;
+  top: 22px;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -92,8 +92,23 @@ const { t } = useI18n()
 }
 
 .felt {
+  --croupier-inset: 44px;
+  display: flex;
+  flex-direction: column;
   min-height: 100%;
+  box-sizing: border-box;
   padding: 6px 0 0;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .back {
+    top: 46%;
+  }
+
+  .felt {
+    --croupier-inset: 0px;
+    padding-left: 46px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

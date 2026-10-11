@@ -47,6 +47,7 @@ const totalText = computed(() => totalLabel(t, props.total, props.hasHiddenCard)
   display: flex;
   align-items: baseline;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .hand-label {
