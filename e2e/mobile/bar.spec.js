@@ -74,7 +74,7 @@ test('the member walks to the table and plays a whole hand', async ({ page }) =>
   await page.getByRole('tab', { name: 'La mesa' }).click()
   await page.getByRole('button', { name: /Repartir/ }).click()
 
-  await expect(balanceChip(page, 100)).toBeHidden()
+  await expect(page.getByRole('list', { name: 'La banca' })).toBeVisible()
   const stand = page.getByRole('button', { name: 'Plantarse' })
   if (await stand.isVisible()) await stand.click()
   await expect(page.getByRole('button', { name: 'Otra mano' })).toBeVisible()
