@@ -7,3 +7,13 @@ body {
   font-family: var(--f-ui);
   overflow: hidden;
 }
+
+::selection {
+  background: rgba(232, 205, 143, 0.35);
+  color: var(--marfil);
+}
+
+input,
+textarea {
+  caret-color: var(--oro);
+}
