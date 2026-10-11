@@ -137,8 +137,9 @@ defineExpose({ focus: () => button.value?.focus() })
 
 .delta {
   position: absolute;
-  top: calc(100% + 6px);
-  left: 36px;
+  top: 50%;
+  right: calc(100% + 10px);
+  margin-top: -0.65em;
   font-family: var(--f-mono);
   font-size: 0.9rem;
   font-weight: 600;
