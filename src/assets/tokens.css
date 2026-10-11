@@ -12,6 +12,7 @@
   --marfil: #efe5cc; /* texto principal y papel */
   --humo: #93a69e; /* texto secundario */
   --burdeos: #b0524c; /* pérdidas, deudas, peligro */
+  --burdeos-claro: #d9857d;
   --linea: rgba(201, 164, 92, 0.28);
   --linea-suave: rgba(201, 164, 92, 0.14);
 

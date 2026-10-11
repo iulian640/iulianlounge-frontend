@@ -50,7 +50,11 @@ onMounted(() => title.value?.focus())
   <aside id="libro-cuentas" class="libro" aria-labelledby="libro-titulo">
     <header>
       <h2 id="libro-titulo" ref="title" tabindex="-1">{{ t('wallet.title') }}</h2>
-      <button type="button" class="cerrar" :aria-label="t('wallet.close')" @click="emit('close')">×</button>
+      <button type="button" class="cerrar" :aria-label="t('wallet.close')" @click="emit('close')">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
     </header>
 
     <p v-if="error" class="fallo" role="alert">{{ message(error) }}</p>
@@ -77,23 +81,25 @@ onMounted(() => title.value?.focus())
   width: min(92vw, 340px);
   max-height: min(70dvh, 520px);
   overflow-y: auto;
-  padding: 18px 20px;
+  overscroll-behavior: contain;
+  padding: 6px 20px 14px;
   box-sizing: border-box;
-  background: rgba(17, 31, 29, 0.95);
+  background: rgba(17, 31, 29, 0.96);
   border: 1px solid var(--linea);
+  border-radius: 2px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 
 header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin: 0 -10px 4px 0;
   border-bottom: 1px solid var(--linea);
 }
 
 h2 {
-  margin: 0 0 10px;
+  margin: 0;
   font-family: var(--f-titulo);
   font-weight: 600;
   font-size: 1.3rem;
@@ -101,17 +107,33 @@ h2 {
 }
 
 .cerrar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   background: none;
   border: none;
   color: var(--humo);
-  font-size: 1.4rem;
-  line-height: 1;
   cursor: pointer;
+  transition: color var(--duracion-corta) ease-out;
 }
 
-.cerrar:hover,
+.cerrar svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.cerrar:hover {
+  color: var(--marfil);
+}
+
 .cerrar:focus-visible {
   color: var(--marfil);
+  outline: 2px solid var(--oro);
+  outline-offset: -2px;
 }
 
 ol {
@@ -146,6 +168,7 @@ time,
 .importe {
   display: block;
   font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .entra {
@@ -153,7 +176,7 @@ time,
 }
 
 .sale {
-  color: var(--burdeos);
+  color: var(--burdeos-claro);
 }
 
 h2:focus {
@@ -161,7 +184,7 @@ h2:focus {
 }
 
 .fallo {
-  color: var(--burdeos);
+  color: var(--burdeos-claro);
 }
 
 .vacio {
