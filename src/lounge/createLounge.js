@@ -8,6 +8,10 @@ import Stats from 'three/addons/libs/stats.module.js'
 import { buildSalon, materials, ROOM } from './salon'
 import { addSalonLights } from './lights'
 import { createBarmanProximity } from './barmanProximity'
+import { createBlackjackTable } from './blackjackTable'
+import { createSeatController } from './seatController'
+import { createTableProximity } from './tableProximity'
+import { prefersReducedMotion } from './reducedMotion'
 import { furnishSalon } from './furnish'
 import { addLetrero } from './letrero'
 import { createWalkControls } from './walkControls'
@@ -54,6 +58,7 @@ export async function createLounge(
   onQualityBusy = () => {},
   signal,
   onNearBarman = () => {},
+  onNearTable = () => {},
 ) {
   // cronómetro de tramos del arranque: se imprime al final y queda en
   // window.__loungeTiming — sirve para comparar la máquina real con el
@@ -305,6 +310,12 @@ export async function createLounge(
 
   // animaciones activas (camarero, banda, ventiladores)
   const updatables = []
+  const blackjackTable = createBlackjackTable({
+    scene,
+    materials,
+    updatables,
+    reducedMotion: prefersReducedMotion,
+  })
   // ceniceros con puros encendidos (brasas que laten) y sus volutas de humo:
   // las puntas de los puros son los emisores. Antes de la captura de entorno
   // para que el hideFromEnv del humo valga (no se hornea en el suelo)
@@ -344,7 +355,7 @@ export async function createLounge(
   // estrenar ninguna sombra de contacto visible — es limpieza de censo, no
   // palanca de tiempo
   scene.traverse((o) => {
-    if (o.isMesh) o.receiveShadow = true
+    if (o.isMesh && !o.userData.isCard) o.receiveShadow = true
   })
 
   // dieta del respaldo WebGL2 (Firefox sin WebGPU, visitas por http de LAN):
@@ -476,6 +487,12 @@ export async function createLounge(
 
   const timer = new THREE.Timer()
   const barmanProximity = createBarmanProximity(onNearBarman)
+  const tableProximity = createTableProximity(onNearTable)
+  const seat = createSeatController({
+    camera,
+    pose: blackjackTable.seatPose,
+    reducedMotion: prefersReducedMotion,
+  })
 
   // interruptor de vida: dispose() lo apaga y el bucle muere en el siguiente
   // frame. Sin esto, cada remontaje del componente (HMR de Vite al guardar
@@ -488,9 +505,12 @@ export async function createLounge(
     timer.update()
     const delta = timer.getDelta()
     for (const update of updatables) update(delta)
-    walk.update(delta)
+    seat.update(delta)
+    walk.controls.enabled = !seat.isActive()
+    if (!seat.isActive()) walk.update(delta)
     clampCameraToRoom(camera)
     barmanProximity.update(camera.position)
+    tableProximity.update(camera.position)
     postProcessing.render()
     stats?.update()
     requestAnimationFrame(tick)
@@ -503,6 +523,7 @@ export async function createLounge(
     window.removeEventListener('pagehide', dispose)
     walk.dispose()
     panel?.destroy()
+    blackjackTable.dispose()
     stats?.dom.remove()
     renderer.dispose()
     // renderer.dispose() NO destruye el GPUDevice: sin esto, cada remontaje
@@ -558,6 +579,7 @@ export async function createLounge(
   }
   camera.rotation.y = yawInicial
   postProcessing.render() // frame de estreno con la mirada de entrada
+  blackjackTable.endWarmup()
   cronometra('barrida')
   tiempos.total = Math.round(performance.now() - t0)
   // lectura bajo demanda (no rolling): resuelve las queries del último
@@ -579,5 +601,18 @@ export async function createLounge(
 
   const releasePointer = () => walk.controls?.unlock()
 
-  return { dispose, releasePointer }
+  const sitDown = () => {
+    walk.controls.enabled = false
+    walk.controls.unlock()
+    return seat.sitDown()
+  }
+
+  return {
+    dispose,
+    releasePointer,
+    sitDown,
+    standUp: seat.standUp,
+    setHand: blackjackTable.setHand,
+    getSeatState: seat.getState,
+  }
 }

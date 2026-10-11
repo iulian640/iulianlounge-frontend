@@ -10,7 +10,9 @@ const RUN_SPEED = 4.6
 
 export function createWalkControls(camera, canvas) {
   const controls = new PointerLockControls(camera, canvas)
-  canvas.addEventListener('click', () => controls.lock())
+  canvas.addEventListener('click', () => {
+    if (controls.enabled) controls.lock()
+  })
 
   const keys = new Set()
   const onKeyDown = (event) => keys.add(event.code)
