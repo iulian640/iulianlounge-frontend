@@ -42,26 +42,35 @@ const { t } = useI18n()
 }
 
 .back {
-  position: sticky;
-  top: 12px;
-  z-index: 1;
-  display: inline-flex;
+  position: absolute;
+  left: 0;
+  top: 46%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  margin: 12px 0 0;
-  padding: 0 14px 0 10px;
+  width: 44px;
+  min-height: 124px;
+  padding: 10px 0;
   background: rgba(17, 31, 29, 0.94);
   border: 1px solid var(--linea);
   border-left: 0;
   border-radius: 0 6px 6px 0;
   color: var(--laton);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
   cursor: pointer;
   transition:
     color var(--duracion-corta) ease-out,
     background-color var(--duracion-corta) ease-out;
+}
+
+.back span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
 
 .back svg {
@@ -83,7 +92,8 @@ const { t } = useI18n()
 }
 
 .felt {
-  padding: 12px 16px 28px;
+  min-height: 100%;
+  padding: 6px 0 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
