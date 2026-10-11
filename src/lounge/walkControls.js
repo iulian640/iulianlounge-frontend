@@ -17,8 +17,10 @@ export function createWalkControls(camera, canvas) {
   const keys = new Set()
   const onKeyDown = (event) => keys.add(event.code)
   const onKeyUp = (event) => keys.delete(event.code)
+  const releaseKeys = () => keys.clear()
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
+  window.addEventListener('blur', releaseKeys)
 
   function update(delta) {
     if (!controls.isLocked) return
@@ -38,9 +40,10 @@ export function createWalkControls(camera, canvas) {
   function dispose() {
     window.removeEventListener('keydown', onKeyDown)
     window.removeEventListener('keyup', onKeyUp)
+    window.removeEventListener('blur', releaseKeys)
     controls.unlock()
     controls.dispose()
   }
 
-  return { controls, update, dispose }
+  return { controls, update, releaseKeys, dispose }
 }

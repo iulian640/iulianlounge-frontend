@@ -170,6 +170,7 @@ vi.mock('../walkControls', () => ({
   createWalkControls: vi.fn(() => ({
     controls: { unlock: mocks.unlock, enabled: true },
     update: vi.fn(),
+    releaseKeys: vi.fn(),
     dispose: vi.fn(),
   })),
 }))
@@ -672,6 +673,7 @@ describe('createLounge', () => {
 
       expect(api.getSeatState()).toBe('seated')
       expect(mocks.unlock).toHaveBeenCalled()
+      expect(walk.releaseKeys).toHaveBeenCalled()
       expect(walk.controls.enabled).toBe(false)
       expect(walk.update.mock.calls.length).toBe(updatesAtSeat)
       const { camera } = window.__lounge

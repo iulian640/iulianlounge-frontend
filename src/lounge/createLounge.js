@@ -603,6 +603,7 @@ export async function createLounge(
 
   const sitDown = () => {
     walk.controls.enabled = false
+    walk.releaseKeys()
     walk.controls.unlock()
     return seat.sitDown()
   }
