@@ -67,9 +67,15 @@ function failure(status, code) {
 let wrapper = null
 
 async function mountTable(initial = table()) {
-  api.mockResolvedValueOnce(initial)
+  const finished = initial?.hand?.status === 'FINISHED'
+  const playing = { ...initial?.hand, status: 'PLAYER_TURN', outcome: null, payout: null }
+  api.mockResolvedValueOnce(finished ? { ...initial, hand: playing } : initial)
   wrapper = mount(BlackjackTable, { global: { plugins: [i18n] }, attachTo: document.body })
   await flushPromises()
+  if (finished) {
+    useBlackjackStore().hand = initial.hand
+    await flushPromises()
+  }
   return wrapper
 }
 

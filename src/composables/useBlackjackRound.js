@@ -1,4 +1,4 @@
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
@@ -17,8 +17,17 @@ export function useBlackjackRound() {
   const wallet = useWalletStore()
 
   const selectedCode = ref(DEFAULT_BET_CODE)
-  const dismissedHandId = ref(null)
+  const dismissedHandId = ref(blackjack.finished ? (blackjack.hand?.id ?? null) : null)
   const focusTarget = ref(null)
+  let acting = false
+
+  watch(
+    () => blackjack.hand?.id,
+    (id) => {
+      if (!acting && id != null && blackjack.finished) dismissedHandId.value = id
+    },
+    { flush: 'sync' },
+  )
 
   const hand = computed(() => blackjack.hand)
   const options = computed(() => (blackjack.bets.length > 0 ? blackjack.bets : DEFAULT_BETS))
@@ -61,7 +70,12 @@ export function useBlackjackRound() {
   }
 
   async function perform(action) {
-    await action()
+    acting = true
+    try {
+      await action()
+    } finally {
+      acting = false
+    }
     await focusPrimary()
   }
 
