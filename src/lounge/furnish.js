@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 
 import { BARMAN_AT } from './barmanProximity'
+import { CROUPIER, SEATS } from './blackjackLayout'
 import { loadProp } from './models'
 import { ROOM, TABLE_SPOTS } from './salon'
 
@@ -22,6 +23,9 @@ const CLUB = {
   metalMedium: { color: '#8a6a33', metalness: 1, roughness: 0.45 },
   lamp: { color: '#e8cd8f', emissive: '#ffb46b', emissiveIntensity: 0.35 },
 }
+
+const CROUPIER_TINT = '#6b4a52'
+const SEAT_HEIGHT = 0.78
 
 const GLASS = {
   color: '#dfe8e2',
@@ -189,13 +193,39 @@ function manifest() {
     at: BARMAN_AT,
   })
 
+  props.push({
+    name: 'croupier',
+    url: HUNT + 'barman.glb',
+    opts: {
+      height: 1.78,
+      rotationY: CROUPIER.yaw,
+      animate: 'Idle',
+      recolor: { Texture: CROUPIER_TINT },
+    },
+    at: CROUPIER.at,
+  })
+
+  for (const seat of SEATS) {
+    props.push({
+      name: 'blackjack-seat',
+      url: HUNT + 'barstool.glb',
+      opts: {
+        height: SEAT_HEIGHT,
+        rotationY: seat.yaw,
+        recolor: { _crayfishdiffuse: '#3a2417' },
+      },
+      at: seat.at,
+    })
+  }
+
   return props
 }
 
 export async function furnishSalon(scene, updatables) {
   const results = await Promise.allSettled(
-    manifest().map(async ({ url, opts, at, fan, lightAt }) => {
+    manifest().map(async ({ name, url, opts, at, fan, lightAt }) => {
       const prop = await loadProp(url, opts)
+      if (name) prop.name = name
       prop.position.set(at[0], at[1], at[2])
       scene.add(prop)
 

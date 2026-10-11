@@ -34,6 +34,15 @@ describe('createWalkControls', () => {
     expect(canvas.requestPointerLock).toHaveBeenCalled()
   })
 
+  it('con los controles desactivados el click no pide el pointer lock', () => {
+    const walk = createWalkControls(camera, canvas)
+    walk.controls.enabled = false
+
+    canvas.dispatchEvent(new Event('click'))
+
+    expect(canvas.requestPointerLock).not.toHaveBeenCalled()
+  })
+
   it('con el puntero bloqueado, pulsar W mueve la cámara hacia delante', () => {
     // Arrange
     const walk = createWalkControls(camera, canvas)

@@ -70,6 +70,12 @@
       "credit_not_needed": "You can still afford a drink. The invitation is for anyone who's broke.",
       "credit_used_today": "The house already treated you today. More tomorrow.",
       "too_many_requests": "You're going too fast. Give me a minute."
+    },
+    "blackjack": {
+      "hand_in_progress": "You already have a hand open. Finish it before dealing another.",
+      "hand_not_found": "That hand is no longer on the table.",
+      "hand_finished": "That hand is already over. Deal another.",
+      "too_many_requests": "You're going too fast. The dealer needs a minute."
     }
   },
   "hud": {
@@ -152,6 +158,63 @@
     },
     "scene": {
       "glass": "A drink served on the bar"
+    }
+  },
+  "blackjack": {
+    "corner": {
+      "label": "Cards",
+      "title": "Blackjack"
+    },
+    "title": "Blackjack",
+    "rules": "The dealer draws to 17 · Blackjack pays 3:2",
+    "dealer": "Dealer",
+    "you": "You",
+    "bet": "Bet",
+    "chooseBet": "Choose your bet",
+    "deal": "Deal · {chips} ¢",
+    "dealing": "Dealing…",
+    "hit": "Hit",
+    "stand": "Stand",
+    "again": "Another hand",
+    "outcome": {
+      "BLACKJACK": "Blackjack!",
+      "WIN": "You win",
+      "PUSH": "Push",
+      "LOSE": "You lose"
+    },
+    "bust": "bust",
+    "hiddenTotal": "{total} + ?",
+    "payout": "+{amount} ¢",
+    "turn": "Your turn · you have {total}",
+    "prompt": {
+      "key": "E",
+      "action": "Sit at the table"
+    },
+    "standUpHint": "Esc to stand up",
+    "cards": {
+      "hidden": "face-down card",
+      "name": "{face} of {suit}",
+      "face": {
+        "ACE": "ace",
+        "TWO": "two",
+        "THREE": "three",
+        "FOUR": "four",
+        "FIVE": "five",
+        "SIX": "six",
+        "SEVEN": "seven",
+        "EIGHT": "eight",
+        "NINE": "nine",
+        "TEN": "ten",
+        "JACK": "jack",
+        "QUEEN": "queen",
+        "KING": "king"
+      },
+      "suit": {
+        "CLUBS": "clubs",
+        "DIAMONDS": "diamonds",
+        "HEARTS": "hearts",
+        "SPADES": "spades"
+      }
     }
   },
   "barman": {

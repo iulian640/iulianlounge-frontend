@@ -14,7 +14,7 @@ function isEditable(target) {
   return ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
 }
 
-export function useBarmanTalk({ onOpen = () => {} } = {}) {
+export function useBarmanTalk({ onOpen = () => {}, canOpen = () => true } = {}) {
   const near = ref(false)
   const open = ref(false)
 
@@ -23,7 +23,7 @@ export function useBarmanTalk({ onOpen = () => {} } = {}) {
   }
 
   function openWindow() {
-    if (!near.value || open.value) return false
+    if (!near.value || open.value || !canOpen()) return false
     open.value = true
     onOpen()
     return true

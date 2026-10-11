@@ -7,6 +7,7 @@ import LibroCuentas from './LibroCuentas.vue'
 import NombreSocio from './NombreSocio.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBarStore } from '@/stores/bar'
+import { useBlackjackStore } from '@/stores/blackjack'
 import { useWalletStore } from '@/stores/wallet'
 
 defineProps({
@@ -16,6 +17,7 @@ defineProps({
 const auth = useAuthStore()
 const wallet = useWalletStore()
 const bar = useBarStore()
+const blackjack = useBlackjackStore()
 const router = useRouter()
 const bookOpen = ref(false)
 const leaving = ref(false)
@@ -52,6 +54,7 @@ async function logout() {
   await auth.logout().catch(() => null)
   wallet.$reset()
   bar.$reset()
+  blackjack.$reset()
   leaving.value = false
   await router.replace({ name: 'acceso' })
 }

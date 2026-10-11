@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 
+import { BLACKJACK_TABLE } from './blackjackLayout'
+
 // El Salón en volúmenes placeholder (IUL-27).
 // Escala tomada del croquis: la barra mide ~7 m. Nada de aquí es asset final.
 
@@ -452,7 +454,7 @@ function buildTables(salon) {
   bj.add(brassRim(0.95, 0.79))
   bj.add(cylinder(0.16, 0.75, materials.woodDark, 0, 0.375, 0))
   bj.add(cylinder(0.45, 0.04, materials.woodDark, 0, 0.02, 0))
-  bj.position.set(4.6, 0, 2.2)
+  bj.position.set(...BLACKJACK_TABLE.at)
   bj.name = 'mesa-blackjack'
   salon.add(bj)
 

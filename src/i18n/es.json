@@ -70,6 +70,12 @@
       "credit_not_needed": "Todavía te llega para una copa. La invitación es para quien está a cero.",
       "credit_used_today": "Hoy ya te invitó la casa. Mañana más.",
       "too_many_requests": "Vas muy rápido. Dame un minuto."
+    },
+    "blackjack": {
+      "hand_in_progress": "Ya tienes una mano abierta. Termínala antes de repartir otra.",
+      "hand_not_found": "Esa mano ya no está en la mesa.",
+      "hand_finished": "Esa mano ya ha terminado. Reparte otra.",
+      "too_many_requests": "Vas muy rápido. La banca necesita un minuto."
     }
   },
   "hud": {
@@ -152,6 +158,63 @@
     },
     "scene": {
       "glass": "Una copa servida en la barra"
+    }
+  },
+  "blackjack": {
+    "corner": {
+      "label": "Cartas",
+      "title": "Blackjack"
+    },
+    "title": "Blackjack",
+    "rules": "La banca pide hasta 17 · Blackjack paga 3:2",
+    "dealer": "La banca",
+    "you": "Tú",
+    "bet": "Apuesta",
+    "chooseBet": "Elige tu apuesta",
+    "deal": "Repartir · {chips} ¢",
+    "dealing": "Repartiendo…",
+    "hit": "Pedir carta",
+    "stand": "Plantarse",
+    "again": "Otra mano",
+    "outcome": {
+      "BLACKJACK": "¡Blackjack!",
+      "WIN": "Ganas",
+      "PUSH": "Empate",
+      "LOSE": "Pierdes"
+    },
+    "bust": "se pasa",
+    "hiddenTotal": "{total} + ?",
+    "payout": "+{amount} ¢",
+    "turn": "Tu turno · llevas {total}",
+    "prompt": {
+      "key": "E",
+      "action": "Sentarse a la mesa"
+    },
+    "standUpHint": "Esc para levantarte",
+    "cards": {
+      "hidden": "carta oculta",
+      "name": "{face} de {suit}",
+      "face": {
+        "ACE": "as",
+        "TWO": "dos",
+        "THREE": "tres",
+        "FOUR": "cuatro",
+        "FIVE": "cinco",
+        "SIX": "seis",
+        "SEVEN": "siete",
+        "EIGHT": "ocho",
+        "NINE": "nueve",
+        "TEN": "diez",
+        "JACK": "jota",
+        "QUEEN": "reina",
+        "KING": "rey"
+      },
+      "suit": {
+        "CLUBS": "tréboles",
+        "DIAMONDS": "diamantes",
+        "HEARTS": "corazones",
+        "SPADES": "picas"
+      }
     }
   },
   "barman": {
