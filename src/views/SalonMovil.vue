@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BarRoom from '@/components/salon/BarRoom.vue'
@@ -21,8 +21,14 @@ function inertUnless(id) {
   return active.value === id ? null : ''
 }
 
-watch(active, (id) => {
+watch(active, async (id, previous) => {
   if (id === 'cards') cardsVisited.value = true
+  await nextTick()
+  const left = document.getElementById(`room-${previous}`)
+  const focused = document.activeElement
+  if (focused === document.body || left?.contains(focused)) {
+    document.getElementById(`room-tab-${id}`)?.focus()
+  }
 })
 
 onMounted(() => {

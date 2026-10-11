@@ -1,5 +1,5 @@
 <script setup>
-import { watch } from 'vue'
+import { nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BarmanChat from '@/components/bar/BarmanChat.vue'
@@ -21,12 +21,39 @@ function choose(id) {
   expanded.value = true
 }
 
+async function step(event) {
+  const delta = { ArrowRight: 1, ArrowLeft: -1 }[event.key]
+  if (!delta) return
+  event.preventDefault()
+  const next = TABS[(TABS.indexOf(tab.value) + delta + TABS.length) % TABS.length]
+  choose(next)
+  await nextTick()
+  document.getElementById(`bar-sheet-tab-${next}`)?.focus()
+}
+
+function isKeyboardFocus(element) {
+  try {
+    return element.matches(':focus-visible')
+  } catch {
+    return false
+  }
+}
+
+function onFocusIn(event) {
+  if (!expanded.value && isKeyboardFocus(event.target)) expanded.value = true
+}
+
+watch(
+  () => bar.lastOrder?.id,
+  (id) => {
+    if (id && tab.value === 'menu') expanded.value = false
+  },
+)
+
 watch(
   () => bar.error,
   (error) => {
-    if (!error) return
-    tab.value = 'menu'
-    expanded.value = true
+    if (error) expanded.value = true
   },
 )
 </script>
@@ -44,7 +71,7 @@ watch(
       <span class="handle" aria-hidden="true"></span>
     </button>
 
-    <div class="tabs" role="tablist" :aria-label="t('bar.sheet.label')">
+    <div class="tabs" role="tablist" @keydown="step">
       <button
         v-for="id in TABS"
         :id="`bar-sheet-tab-${id}`"
@@ -54,13 +81,14 @@ watch(
         class="tab"
         :aria-selected="tab === id"
         :aria-controls="`bar-sheet-${id}`"
+        :tabindex="tab === id ? 0 : -1"
         @click="choose(id)"
       >
         {{ t(`bar.sheet.${id}`) }}
       </button>
     </div>
 
-    <div id="bar-sheet-body" class="body">
+    <div id="bar-sheet-body" class="body" @focusin="onFocusIn">
       <div v-show="tab === 'menu'" id="bar-sheet-menu" role="tabpanel" aria-labelledby="bar-sheet-tab-menu">
         <DrinkMenu
           title-hidden

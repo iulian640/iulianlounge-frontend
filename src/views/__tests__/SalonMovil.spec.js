@@ -403,6 +403,52 @@ describe('SalonMovil', () => {
     expect(wrapper.find('#room-cards .action.primary').text()).toBe('Repartir · 20 ¢')
   })
 
+  it('hands the focus to the tab of the new room when the focused control is left behind', async () => {
+    await mountSalon()
+    const next = wrapper.find('.next')
+    next.element.focus()
+
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(document.activeElement.id).toBe('room-tab-cards')
+  })
+
+  it('moves between the sheet tabs with the arrow keys and raises the sheet', async () => {
+    await mountSalon()
+    wrapper.find('#bar-sheet-tab-menu').element.focus()
+
+    await wrapper.find('.sheet [role="tablist"]').trigger('keydown', { key: 'ArrowRight' })
+    await flushPromises()
+
+    expect(wrapper.find('#bar-sheet-tab-chat').attributes('aria-selected')).toBe('true')
+    expect(wrapper.find('#bar-sheet-tab-chat').attributes('tabindex')).toBe('0')
+    expect(document.activeElement.id).toBe('bar-sheet-tab-chat')
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+  })
+
+  it('raises the lowered sheet when keyboard focus reaches a hidden control', async () => {
+    await mountSalon()
+    const order = wrapper.findAll('.order')[4].element
+    order.matches = (selector) => selector === ':focus-visible'
+
+    order.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    await flushPromises()
+
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+  })
+
+  it('leaves the lowered sheet alone when a visible drink is tapped', async () => {
+    await mountSalon()
+    const order = wrapper.findAll('.order')[0].element
+    order.matches = () => false
+
+    order.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    await flushPromises()
+
+    expect(wrapper.find('.sheet').classes()).not.toContain('expanded')
+  })
+
   it('goes to the table from the handle at the edge of the bar', async () => {
     await mountSalon()
 
