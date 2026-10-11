@@ -14,6 +14,9 @@ export default defineConfig({
   server: {
     proxy: { '/api': 'http://localhost:8080' },
   },
+  preview: {
+    proxy: { '/api': 'http://localhost:8080' },
+  },
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
