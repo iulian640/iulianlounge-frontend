@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
 import { useRooms } from '../useRooms'
@@ -32,7 +32,7 @@ describe('useRooms', () => {
   beforeEach(() => {
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       callback()
-      return 1
+      return 0
     })
     window.matchMedia = vi.fn(() => ({ matches: false }))
   })
@@ -86,6 +86,61 @@ describe('useRooms', () => {
     expect(rooms.active.value).toBe('cards')
   })
 
+  it('ignores the frames of its own slide and settles when it arrives', () => {
+    const rooms = setup()
+    const scroller = fakeScroller()
+    rooms.scroller.value = scroller
+    rooms.goTo('cards')
+
+    scroller.scrollLeft = 100
+    rooms.onScroll()
+    expect(rooms.active.value).toBe('cards')
+
+    scroller.scrollLeft = 390
+    rooms.onScroll()
+    scroller.scrollLeft = 0
+    rooms.onScroll()
+    expect(rooms.active.value).toBe('bar')
+  })
+
+  it('lets a swipe take over when its own slide never arrives', () => {
+    vi.useFakeTimers()
+    const rooms = setup()
+    const scroller = fakeScroller()
+    rooms.scroller.value = scroller
+    rooms.goTo('cards')
+
+    vi.advanceTimersByTime(900)
+    scroller.scrollLeft = 0
+    rooms.onScroll()
+
+    expect(rooms.active.value).toBe('bar')
+    vi.useRealTimers()
+  })
+
+  it('snaps back to the current room when the scroller is resized', async () => {
+    let onResize
+    window.ResizeObserver = class {
+      constructor(callback) {
+        onResize = callback
+      }
+      observe() {}
+      disconnect() {}
+    }
+    const rooms = setup()
+    const scroller = fakeScroller()
+    rooms.scroller.value = scroller
+    await nextTick()
+    rooms.goTo('cards')
+    scroller.scrollTo.mockClear()
+
+    scroller.clientWidth = 667
+    onResize()
+
+    expect(scroller.scrollTo).toHaveBeenCalledWith({ left: 667, behavior: 'auto' })
+    delete window.ResizeObserver
+  })
+
   it('moves between rooms with the arrow keys and stops at the ends', () => {
     const rooms = setup()
     rooms.scroller.value = fakeScroller()
@@ -98,6 +153,7 @@ describe('useRooms', () => {
     expect(rooms.active.value).toBe('cards')
     rooms.onKeydown(key('ArrowLeft'))
     expect(rooms.active.value).toBe('bar')
+    expect(rooms.scroller.value.scrollTo).toHaveBeenLastCalledWith({ left: 0, behavior: 'smooth' })
   })
 
   it('leaves other keys alone', () => {
