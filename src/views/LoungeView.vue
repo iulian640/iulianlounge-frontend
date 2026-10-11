@@ -35,12 +35,17 @@ const {
   setNear: setNearTable,
 } = useTableSeat({
   canSit: () => !open.value,
+  canStand: () => !blackjack.busy,
   onSit: () => {
+    if (!lounge) return false
     hud.value?.dismissBook?.()
     blackjack.load()
-    return lounge?.sitDown()
+    return lounge.sitDown()
   },
-  onStand: () => lounge?.standUp(),
+  onStand: () => {
+    canvas.value?.focus()
+    return lounge?.standUp()
+  },
 })
 
 watch(
@@ -63,6 +68,7 @@ onMounted(async () => {
       setNear,
       setNearTable,
     )
+    if (blackjack.hand) lounge.setHand(blackjack.hand)
   } catch (error) {
     console.error('[lounge]', error)
   } finally {
@@ -82,7 +88,7 @@ onUnmounted(() => {
   <SalonMovil v-if="flat">
     <template #hud><HudLounge inline /></template>
   </SalonMovil>
-  <canvas v-else ref="canvas"></canvas>
+  <canvas v-else ref="canvas" tabindex="-1"></canvas>
   <HudLounge v-if="!flat && !entering" ref="hud" />
   <BarmanPrompt v-if="!flat && !entering && near && !open && !seated" />
   <BlackjackPrompt v-if="!flat && !entering && nearTable && !seated && !open" />
@@ -109,6 +115,10 @@ onUnmounted(() => {
 canvas {
   position: fixed;
   inset: 0;
+}
+
+canvas:focus {
+  outline: none;
 }
 
 .telon {

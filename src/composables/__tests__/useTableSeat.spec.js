@@ -155,6 +155,32 @@ describe('useTableSeat', () => {
     expect(onStand).toHaveBeenCalledTimes(1)
   })
 
+  it('stays seated while canStand says no, so a hand in play is not left behind', () => {
+    const onStand = vi.fn()
+    let busy = true
+    const seat = mountSeat({ onStand, canStand: () => !busy })
+    seat.setNear(true)
+    press('KeyE')
+
+    pressEscape()
+    expect(seat.seated.value).toBe(true)
+    expect(onStand).not.toHaveBeenCalled()
+
+    busy = false
+    pressEscape()
+    expect(seat.seated.value).toBe(false)
+    expect(onStand).toHaveBeenCalledTimes(1)
+  })
+
+  it('is not seated when onSit reports that the seat could not be taken', () => {
+    const seat = mountSeat({ onSit: () => false })
+    seat.setNear(true)
+
+    press('KeyE')
+
+    expect(seat.seated.value).toBe(false)
+  })
+
   it('Escape does nothing while standing', () => {
     const onStand = vi.fn()
     mountSeat({ onStand })

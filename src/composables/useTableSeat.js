@@ -14,7 +14,12 @@ function isEditable(target) {
   return ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
 }
 
-export function useTableSeat({ onSit = () => {}, onStand = () => {}, canSit = () => true } = {}) {
+export function useTableSeat({
+  onSit = () => {},
+  onStand = () => {},
+  canSit = () => true,
+  canStand = () => true,
+} = {}) {
   const near = ref(false)
   const seated = ref(false)
   let rising = false
@@ -26,12 +31,15 @@ export function useTableSeat({ onSit = () => {}, onStand = () => {}, canSit = ()
   function sit() {
     if (!near.value || seated.value || rising || !canSit()) return false
     seated.value = true
-    onSit()
+    if (onSit() === false) {
+      seated.value = false
+      return false
+    }
     return true
   }
 
   function standUp() {
-    if (!seated.value) return false
+    if (!seated.value || !canStand()) return false
     seated.value = false
     rising = true
     Promise.resolve(onStand())

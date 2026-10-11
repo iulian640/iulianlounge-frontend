@@ -313,6 +313,43 @@ describe('LoungeView', () => {
       ready.wrapper.unmount()
     })
 
+    it('puts a hand already in the store back on the table when the lounge is rebuilt', async () => {
+      const hand = playingHand()
+      useBlackjackStore().hand = hand
+
+      const ready = await mountReady()
+
+      expect(ready.setHand).toHaveBeenCalledWith(hand)
+      ready.wrapper.unmount()
+    })
+
+    it('keeps the member seated with Escape while a hand request is in flight', async () => {
+      const ready = await mountReady()
+      await sit(ready)
+      useBlackjackStore().busy = true
+
+      press('Escape')
+      await flushPromises()
+
+      expect(ready.standUp).not.toHaveBeenCalled()
+      expect(ready.wrapper.findComponent(BlackjackBar).exists()).toBe(true)
+      ready.wrapper.unmount()
+    })
+
+    it('hands the focus to the scene when standing up', async () => {
+      const ready = await mountReady()
+      await sit(ready)
+      const canvas = ready.wrapper.find('canvas')
+      const focus = vi.spyOn(canvas.element, 'focus')
+
+      press('Escape')
+      await flushPromises()
+
+      expect(canvas.attributes('tabindex')).toBe('-1')
+      expect(focus).toHaveBeenCalled()
+      ready.wrapper.unmount()
+    })
+
     it('hands every new hand to the lounge', async () => {
       const ready = await mountReady()
       await sit(ready)
