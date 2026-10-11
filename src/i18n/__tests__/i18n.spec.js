@@ -131,7 +131,7 @@ describe('bar dictionaries', () => {
     expect(lookup(es, 'barman.greeting.nadie')).toBe('Buenas. ¿Qué te pongo?')
     expect(lookup(en, 'barman.greeting.nadie')).toBe('Evening. What can I get you?')
     expect(lookup(es, 'barman.promotion.habitual')).toBe('Aquí tienes. Ya eres cliente de la casa.')
-    expect(lookup(es, 'barman.house_credit')).toBe('Aquí tienes 50 fichas. Invita la casa.')
+    expect(lookup(es, 'barman.house_credit')).toBe('Aquí tienes 50 monedas. Invita la casa.')
     expect(lookup(en, 'barman.no_credit')).toBe('I already treated you today. More tomorrow.')
   })
 

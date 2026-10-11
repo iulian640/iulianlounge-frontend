@@ -17,15 +17,15 @@ describe('FichaSaldo', () => {
     const wrapper = montar(12500)
 
     expect(wrapper.find('.cifra').text()).toBe('12.500')
-    expect(wrapper.find('.moneda').text()).toBe('chikilicuatres')
+    expect(wrapper.find('.moneda').text()).toBe('monedas')
   })
 
-  it('en inglés las fichas son Shrutebucks', () => {
+  it('en inglés las monedas son coins', () => {
     i18n.global.locale.value = 'en'
 
     const wrapper = montar(100)
 
-    expect(wrapper.find('.moneda').text()).toBe('Shrutebucks')
+    expect(wrapper.find('.moneda').text()).toBe('coins')
   })
 
   it('mientras carga enseña un guion, no un 0 que mentiría', () => {
@@ -45,6 +45,6 @@ describe('FichaSaldo', () => {
   it('el lector de pantalla oye el saldo entero, no solo un número suelto', () => {
     const wrapper = montar(100)
 
-    expect(wrapper.find('button').attributes('aria-label')).toBe('Saldo: 100 chikilicuatres')
+    expect(wrapper.find('button').attributes('aria-label')).toBe('Saldo: 100 monedas')
   })
 })

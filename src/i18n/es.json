@@ -3,7 +3,7 @@
     "name": "Iulian's"
   },
   "currency": {
-    "name": "chikilicuatres"
+    "name": "monedas"
   },
   "ui": {
     "loading": "Encendiendo el letrero…",
@@ -62,7 +62,7 @@
     },
     "wallet": {
       "not_found": "No encontramos tu cartera. Avisa a la casa.",
-      "insufficient_funds": "Eso cuesta más chikilicuatres de los que llevas encima.",
+      "insufficient_funds": "Eso cuesta más monedas de las que llevas encima.",
       "conflict": "Tu cartera estaba ocupada. Inténtalo otra vez.",
       "idempotency_mismatch": "Esa operación ya se hizo con otros datos."
     },
@@ -88,7 +88,7 @@
     "empty": "Aún no hay movimientos.",
     "balanceAfter": "Saldo: {amount}",
     "types": {
-      "WELCOME_BONUS": "Fichas de bienvenida",
+      "WELCOME_BONUS": "Monedas de bienvenida",
       "BAR_ORDER": "Copa en la barra",
       "HOUSE_CREDIT": "Invitación de la casa",
       "BLACKJACK_BET": "Apuesta al blackjack",
@@ -237,13 +237,13 @@
       "socio": "Socio de la casa. Esto se celebra."
     },
     "broke": {
-      "nadie": "¿Sin fichas? Hoy invita la casa.",
-      "habitual": "¿Sin fichas? Tranquilo, hoy invito yo.",
+      "nadie": "¿Sin monedas? Hoy invita la casa.",
+      "habitual": "¿Sin monedas? Tranquilo, hoy invito yo.",
       "confianza": "¿A cero? A ti te invito sin problema.",
       "socio": "¿Un socio a cero? Eso lo arreglo yo."
     },
     "no_credit": "Hoy ya te invité. Mañana más.",
-    "house_credit": "Aquí tienes 50 fichas. Invita la casa.",
+    "house_credit": "Aquí tienes 50 monedas. Invita la casa.",
     "busy": "Ahora mismo no doy abasto. Elige algo de la carta o una de las preguntas.",
     "ask": {
       "recommend": "Si es tu primera vez, un Bee's Knees. Suave, con miel.",
@@ -268,13 +268,13 @@
         "title": "Qué datos tratamos",
         "items": {
           "account": "Tu cuenta: nombre de socio, email y contraseña (la contraseña se guarda cifrada).",
-          "chips": "Tus fichas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
+          "chips": "Tus monedas: el saldo y los movimientos (bienvenida, copas, invitaciones de la casa).",
           "barman": "Lo que escribes al barman, solo mientras dura la conversación."
         }
       },
       "purpose": {
         "title": "Para qué y con qué base",
-        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus fichas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
+        "body": "Para darte acceso al club y prestarte lo que pides: tu cuenta, tus monedas, la barra y la charla con el barman. La base jurídica es la ejecución del servicio que solicitas (art. 6.1.b del RGPD)."
       },
       "processor": {
         "title": "El barman y Anthropic",

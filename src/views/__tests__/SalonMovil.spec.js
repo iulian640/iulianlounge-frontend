@@ -296,7 +296,7 @@ describe('SalonMovil', () => {
     await flushPromises()
 
     expect(wrapper.find('.glass').exists()).toBe(false)
-    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más chikilicuatres de los que llevas encima.')
+    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más monedas de las que llevas encima.')
   })
 
   it('removes the glass when the bar store is reset', async () => {
@@ -322,7 +322,7 @@ describe('SalonMovil', () => {
     const orders = wrapper.findAll('.order')
     expect(orders).toHaveLength(5)
     expect(orders.every((button) => button.attributes('disabled') !== undefined)).toBe(true)
-    expect(wrapper.find('.speech-text').text()).toBe('¿Sin fichas? Tranquilo, hoy invito yo.')
+    expect(wrapper.find('.speech-text').text()).toBe('¿Sin monedas? Tranquilo, hoy invito yo.')
   })
 
   it('accepting the invitation asks the house credit and enables the drinks', async () => {
@@ -336,7 +336,7 @@ describe('SalonMovil', () => {
 
     expect(api).toHaveBeenLastCalledWith('/bar/house-credit', { method: 'POST' })
     expect(wrapper.find('.credit').exists()).toBe(false)
-    expect(wrapper.find('.speech-text').text()).toBe('Aquí tienes 50 fichas. Invita la casa.')
+    expect(wrapper.find('.speech-text').text()).toBe('Aquí tienes 50 monedas. Invita la casa.')
     expect(wrapper.findAll('.order')[0].attributes('disabled')).toBeUndefined()
   })
 

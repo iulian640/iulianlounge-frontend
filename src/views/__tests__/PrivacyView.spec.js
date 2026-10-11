@@ -38,14 +38,14 @@ describe('PrivacyView', () => {
     expect(wrapper.text()).not.toMatch(/\S+@\S+\.\S+/)
   })
 
-  it('lists the data processed: account, chip movements and text sent to the barman', () => {
+  it('lists the data processed: account, coin movements and text sent to the barman', () => {
     const wrapper = mountPage()
 
     const items = wrapper.findAll('.items li').map((item) => item.text())
 
     expect(items).toHaveLength(3)
     expect(items[0]).toContain('cuenta')
-    expect(items[1]).toContain('fichas')
+    expect(items[1]).toContain('monedas')
     expect(items[2]).toContain('barman')
   })
 

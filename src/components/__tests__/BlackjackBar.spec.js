@@ -194,7 +194,7 @@ describe('BlackjackBar', () => {
       await press('.action.primary')
 
       expect(wrapper.find('[role="alert"]').text()).toBe(
-        'Eso cuesta más chikilicuatres de los que llevas encima.',
+        'Eso cuesta más monedas de las que llevas encima.',
       )
       expect(wrapper.findAll('.bet-chip')).toHaveLength(3)
     })

@@ -25,7 +25,7 @@ describe('useErrorMessage', () => {
   it('translates a known backend code', () => {
     const { message, wrapper } = setup()
 
-    expect(message('wallet.insufficient_funds')).toBe('Eso cuesta más chikilicuatres de los que llevas encima.')
+    expect(message('wallet.insufficient_funds')).toBe('Eso cuesta más monedas de las que llevas encima.')
     wrapper.unmount()
   })
 

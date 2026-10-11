@@ -117,7 +117,7 @@ describe('DrinkMenu', () => {
   it('shows the translated error as an alert', () => {
     const wrapper = mountMenu({ error: 'wallet.insufficient_funds' })
 
-    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más chikilicuatres de los que llevas encima.')
+    expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más monedas de las que llevas encima.')
   })
 
   it('falls back to the generic message for an unknown error code', () => {

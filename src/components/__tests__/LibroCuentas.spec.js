@@ -19,7 +19,7 @@ describe('LibroCuentas', () => {
   it('traduce el tipo de movimiento y pinta las entradas en oro', () => {
     const wrapper = montar([BONUS])
 
-    expect(wrapper.find('.tipo').text()).toBe('Fichas de bienvenida')
+    expect(wrapper.find('.tipo').text()).toBe('Monedas de bienvenida')
     expect(wrapper.find('.importe').text()).toBe('+100')
     expect(wrapper.find('.importe').classes()).toContain('entra')
     wrapper.unmount()
