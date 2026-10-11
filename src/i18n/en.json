@@ -185,6 +185,7 @@
     "bust": "bust",
     "hiddenTotal": "{total} + ?",
     "payout": "+{amount} ¢",
+    "turn": "Your turn · you have {total}",
     "prompt": {
       "key": "E",
       "action": "Sit at the table"

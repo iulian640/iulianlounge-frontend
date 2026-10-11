@@ -185,6 +185,7 @@
     "bust": "se pasa",
     "hiddenTotal": "{total} + ?",
     "payout": "+{amount} ¢",
+    "turn": "Tu turno · llevas {total}",
     "prompt": {
       "key": "E",
       "action": "Sentarse a la mesa"

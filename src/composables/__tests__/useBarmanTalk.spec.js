@@ -173,6 +173,18 @@ describe('useBarmanTalk', () => {
     expect(talk.open.value).toBe(false)
   })
 
+  it('refuses to open while canOpen says no', () => {
+    const onOpen = vi.fn()
+    const talk = mountTalk({ onOpen, canOpen: () => false })
+    talk.setNear(true)
+
+    const event = press('KeyE')
+
+    expect(talk.open.value).toBe(false)
+    expect(onOpen).not.toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(false)
+  })
+
   it('treats anything but true as not near', () => {
     const talk = mountTalk()
     talk.setNear(true)
