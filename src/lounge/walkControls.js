@@ -1,9 +1,5 @@
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'
 
-// Paseo en primera persona: click para capturar el ratón, WASD para andar,
-// Shift para apretar el paso, ESC para soltar. Es el precursor de la
-// tercera persona (IUL-28), que traerá personaje y colisión con muebles.
-
 const EYE_HEIGHT = 1.7
 const WALK_SPEED = 2.6
 const RUN_SPEED = 4.6
@@ -32,11 +28,9 @@ export function createWalkControls(camera, canvas) {
     if (forward) controls.moveForward(forward * speed * delta)
     if (sideways) controls.moveRight(sideways * speed * delta)
 
-    camera.position.y = EYE_HEIGHT // los pies en el suelo
+    camera.position.y = EYE_HEIGHT
   }
 
-  // suelta los listeners de window y el pointer lock: sin esto, cada
-  // remontaje del componente (HMR de Vite) dejaba un juego de listeners vivo
   function dispose() {
     window.removeEventListener('keydown', onKeyDown)
     window.removeEventListener('keyup', onKeyUp)

@@ -5,10 +5,6 @@ import { CROUPIER, SEATS } from './blackjackLayout'
 import { loadProp } from './models'
 import { ROOM, TABLE_SPOTS } from './salon'
 
-// Amueblado con assets low-poly CC0/CC-BY (autores y licencias: docs/CREDITS.md).
-// Alturas en metros reales; loadProp normaliza la escala y retinta materiales
-// a la paleta del club (madera oscura, latón, cuero burdeos).
-
 const KENNEY = '/models/kenney/'
 const HUNT = '/models/hunt/'
 const BAR_X = -ROOM.width / 2 + 1.45
@@ -35,14 +31,11 @@ const GLASS = {
 }
 
 function chesterfieldsAround(x, z) {
-  // proporciones de las referencias: butaca alta (1 m) sobre mesita de cóctel
   const pieces = []
   for (let i = 0; i < 3; i++) {
     const angle = (i / 3) * Math.PI * 2 + 0.5
     const chairX = x + Math.cos(angle) * 0.95
     const chairZ = z + Math.sin(angle) * 0.95
-    // Mirando a la mesa. El frente de chesterfield.glb es su +X (medido en el GLB: el respaldo
-    // está en -X). Girar θ en Y lleva +X a (cos θ, -sin θ), así que θ = atan2(-dz, dx)
     const rotationY = Math.atan2(-(z - chairZ), x - chairX)
     pieces.push({
       url: HUNT + 'chesterfield.glb',
@@ -56,10 +49,8 @@ function chesterfieldsAround(x, z) {
 function manifest() {
   const props = []
 
-  // butacas chesterfield alrededor de las mesas (la mesa la pone salon.js)
   for (const [x, z] of TABLE_SPOTS) props.push(...chesterfieldsAround(x, z))
 
-  // una copa de coñac en cada mesa
   for (const [x, z] of TABLE_SPOTS) {
     props.push({
       url: HUNT + 'cognac-glass.glb',
@@ -68,22 +59,15 @@ function manifest() {
     })
   }
 
-  // taburetes de barra (asiento negro; las patas claras se tiñen a nogal)
   for (let i = 0; i < 5; i++) {
     const z = -7 / 2 + 0.9 + i * ((7 - 1.8) / 4)
     props.push({
       url: HUNT + 'barstool.glb',
-      // Mirando a la barra (hacia -X): el frente de barstool.glb es su -Z (medido en el GLB),
-      // y π/2 lo lleva a -X. Sin giro miraban a lo largo de la barra
-      // 1.15 m con respaldo: el asiento cae al 0.67 de la altura del modelo (medido), o sea a ~0.77 m,
-      // la altura de un taburete para una barra de 1.09 m. Con 0.78 quedaba a 0.52, altura de silla
       opts: { height: 1.15, rotationY: Math.PI / 2, recolor: { _crayfishdiffuse: '#3a2417' } },
       at: [BAR_X + 0.85, 0, z],
     })
   }
 
-  // el mostrador: cristalería (la caja registradora del hunt resultó ser un
-  // modelo defectuoso — solo traía la bandeja; descartada)
   props.push(
     {
       url: HUNT + 'cocktail-glass.glb',
@@ -102,33 +86,18 @@ function manifest() {
     },
   )
 
-  // (el champán de la repisa alta se retiró 2026-07-14: esa balda pasó a
-  // cajas de puros y cristalería — decor/repisaAlta.js; el alcohol vive
-  // todo en la repisa baja)
-
-  // gramófono de trompa en la TAPA de la barra, extremo sur, haciendo
-  // esquina con la caja de puros abierta (z=2.35, cocktailStation) —
-  // movido de la encimera de la trasbarra a petición de Iulian
   props.push({
     url: HUNT + 'gramophone.glb',
     opts: { height: 0.55, rotationY: Math.PI / 2 },
     at: [BAR_X, 1.1, 2.95],
   })
 
-  // guardarropa junto a la entrada
   props.push({
     url: KENNEY + 'coatRackStanding.glb',
     opts: { height: 1.7, recolor: CLUB },
     at: [1.6, 0, 4.7],
   })
 
-  // (la alfombra del hunt se descartó: el GLB traía la matriz cocinada en
-  // vertical y ni con pivote se dejaba tumbar — vetada por Iulian)
-
-  // (los apliques de pared son procedurales en salon.js — el sconce.glb del
-  // hunt traía geometría corrupta que reventaba el bloom)
-
-  // ventiladores de techo perezosos
   props.push(
     {
       url: HUNT + 'ceiling-fan.glb',
@@ -144,10 +113,6 @@ function manifest() {
     },
   )
 
-  // (la lámpara de pie GLB se retiró 2026-07-13: la sustituyen las
-  // victorianas procedurales de decor/floorLamps.js)
-
-  // el escenario: piano de cola, saxo, contrabajo
   props.push(
     {
       url: HUNT + 'grand-piano.glb',
@@ -177,11 +142,6 @@ function manifest() {
     },
   )
 
-  // (la banda de musician.glb se retiró 2026-09-25: en idle, sin tocar, restaba más que sumaba;
-  // el escenario se queda con los instrumentos esperando a sus músicos)
-
-  // el camarero, en su pasillo detrás de la barra (Idle: el clip Working de
-  // Quaternius es de picar piedra agachado, nada que ver con secar vasos)
   props.push({
     url: HUNT + 'barman.glb',
     opts: {
@@ -237,7 +197,6 @@ export async function furnishSalon(scene, updatables) {
         })
       }
       if (lightAt) {
-        // lucecita cálida pegada a la lámpara
         const glow = new THREE.PointLight('#ffb46b', 3, 3.5, 2)
         glow.position.set(lightAt[0], lightAt[1], lightAt[2])
         scene.add(glow)

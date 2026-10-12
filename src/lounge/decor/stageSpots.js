@@ -2,23 +2,8 @@ import * as THREE from 'three'
 
 import { materials } from '../salon'
 
-// BARRA DE FOCOS DEL ESCENARIO (referencia de Iulian 2026-07-13: proscenio
-// cuajado de luces cálidas con haces cayendo sobre la tarima; primero fue
-// arco, él lo pasó a barra recta — los focos de trípode quedaron vetados).
-//
-// Una barra recta de madera oscura COLGADA DEL TECHO por varillas de latón
-// cruza la boca del escenario; bajo ella, nueve foquitos con bombilla
-// (emissive → cada uno con su halo vía bloom selectivo, como las bombillas
-// de la referencia). Cuatro de ellos proyectan luz DE VERDAD (SpotLight sin
-// sombra, presupuesto manda) con su haz de niebla translúcido cayendo en
-// abanico sobre la tarima.
-//
-// Mandos del panel (carpeta Focos): intensidad (kind 'foco'), anchura
-// (setWidth: escala haces + ángulo de las luces), haz (opacidad de los
-// conos), lente (brillo de las nueve lentes).
-
 const canMaterial = new THREE.MeshStandardMaterial({
-  color: '#6f5528', // latón envejecido, más apagado que el de la casa
+  color: '#6f5528',
   metalness: 1,
   roughness: 0.5,
 })
@@ -37,32 +22,25 @@ const beamMaterial = new THREE.MeshStandardMaterial({
   roughness: 1,
 })
 
-// la barra de focos: recta, horizontal, colgada sobre la boca del escenario
-// (el escenario vive en x 1.4–5.0, z −5.35…−2.95, tarima a 0.43)
 const BAR_Y = 3.05
 const BAR_Z = -3.0
-const BAR_FROM = 1.5 // extremos en x
+const BAR_FROM = 1.5
 const BAR_TO = 4.9
 const FIXTURES = 9
-const LIT = new Set([1, 3, 5, 7]) // cuáles llevan haz de niebla visible
-// solo dos llevan SpotLight REAL: cada luz de escena engorda el shader de
-// TODOS los materiales del salón (medido 2026-07-13: el decor nuevo entero
-// duplicaba el congelón de compilación) — los 4 conos visibles se quedan
+const LIT = new Set([1, 3, 5, 7])
 const REAL_LIGHTS = new Set([3, 5])
 
 function barPoint(t) {
-  // t = 0..1 a lo largo de la barra
   return new THREE.Vector3(THREE.MathUtils.lerp(BAR_FROM, BAR_TO, t), BAR_Y, BAR_Z)
 }
 
 function buildBar(scene) {
-  // la barra de madera oscura con remates de latón
   const length = BAR_TO - BAR_FROM + 0.16
   const bar = new THREE.Mesh(
     new THREE.CylinderGeometry(0.035, 0.035, length, 10),
     materials.woodDark,
   )
-  bar.rotation.z = Math.PI / 2 // tumbada a lo largo de x
+  bar.rotation.z = Math.PI / 2
   bar.position.set((BAR_FROM + BAR_TO) / 2, BAR_Y, BAR_Z)
   bar.castShadow = true
   scene.add(bar)
@@ -73,10 +51,9 @@ function buildBar(scene) {
     scene.add(cap)
   }
 
-  // las varillas que la cuelgan del techo, en latón fino
   for (const t of [0.12, 0.5, 0.88]) {
     const anchor = barPoint(t)
-    const drop = 3.6 - BAR_Y // hasta el techo
+    const drop = 3.6 - BAR_Y
     const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, drop, 6), materials.brass)
     rod.position.set(anchor.x, BAR_Y + drop / 2, anchor.z)
     scene.add(rod)
@@ -84,8 +61,6 @@ function buildBar(scene) {
 }
 
 function buildFixture(t) {
-  // foquito de latón mirando a +Z (lookAt lo apunta): cañón corto, culata
-  // y lente encendida
   const fixture = new THREE.Group()
 
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 14), canMaterial)
@@ -98,26 +73,17 @@ function buildFixture(t) {
   back.scale.z = 0.5
   fixture.add(back)
 
-  // bombilla esférica asomando del cañón: brilla en todas direcciones,
-  // como las bolas encendidas del arco de la referencia (desde el público
-  // una lente plana no se veía)
   const lens = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), lensMaterial)
   lens.position.z = 0.075
   lens.castShadow = false
   lens.userData.hideFromEnv = true
   fixture.add(lens)
 
-  // colgado bajo la barra
   fixture.position.copy(barPoint(t))
   fixture.position.y -= 0.1
   return fixture
 }
 
-/**
- * Cuelga el arco de focos sobre la boca del escenario.
- * @param {THREE.Scene} scene
- * @returns mandos para el panel: beamMaterial, lensMaterial y setWidth().
- */
 export function addStageSpots(scene) {
   buildBar(scene)
 
@@ -125,37 +91,28 @@ export function addStageSpots(scene) {
   const lights = []
 
   for (let i = 0; i < FIXTURES; i++) {
-    const t = i / (FIXTURES - 1) // 0..1 a lo largo de la barra
+    const t = i / (FIXTURES - 1)
     const fixture = buildFixture(t)
-    // fuera de la captura de entorno: cada material visible en el cubemap
-    // compila una segunda variante de pipeline, y estos foquitos ni se
-    // apreciarían en el reflejo del suelo
     fixture.userData.hideFromEnv = true
     scene.add(fixture)
 
-    // cada foco apunta en abanico a su franja de la tarima
     const aim = new THREE.Vector3(3.2 + (fixture.position.x - 3.2) * 0.5, 0.45, -4.25)
     fixture.updateWorldMatrix(true, false)
     fixture.lookAt(aim)
 
     if (!LIT.has(i)) continue
 
-    // haz de niebla visible (los cuatro lo llevan)
     const distance = fixture.position.distanceTo(aim)
     const beamGeometry = new THREE.ConeGeometry(0.5, distance, 18, 1, true)
-    beamGeometry.rotateX(-Math.PI / 2) // ápice a −Z…
-    beamGeometry.translate(0, 0, distance / 2 + 0.07) // …pegado a la lente
+    beamGeometry.rotateX(-Math.PI / 2)
+    beamGeometry.translate(0, 0, distance / 2 + 0.07)
     const beam = new THREE.Mesh(beamGeometry, beamMaterial)
-    beam.renderOrder = 9 // translúcido: después de lo opaco, antes del humo
+    beam.renderOrder = 9
     beam.userData.hideFromEnv = true
-    // etiqueta para la vía de respaldo WebGL2: estos conos translúcidos a
-    // pantalla completa castigan por overdraw (medido: -35% de carga y +fps
-    // al quitarlos) y allí se apagan
     beam.userData.haz = true
     fixture.add(beam)
     beams.push(beam)
 
-    // ...pero solo dos proyectan luz de verdad (presupuesto de compilación)
     if (!REAL_LIGHTS.has(i)) continue
 
     const light = new THREE.SpotLight('#ffd9a0', 6, 10, 0.32, 0.5, 2)
@@ -171,8 +128,6 @@ export function addStageSpots(scene) {
   return {
     beamMaterial,
     lensMaterial,
-    // anchura: escala los conos en sus ejes transversales (el ápice, en el
-    // origen local, no se mueve) y abre el ángulo de las luces a juego
     setWidth(v) {
       for (const beam of beams) beam.scale.set(v, v, 1)
       for (const light of lights) light.angle = 0.32 * v

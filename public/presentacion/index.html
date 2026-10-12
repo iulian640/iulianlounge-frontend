@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IulianLounge · Presentación</title>
-<meta name="description" content="IulianLounge: un speakeasy de los años 20 en el navegador. Proyecto de Iulian Timofei.">
+<meta name="description" content="IulianLounge: un club de los años 20 en el navegador. Proyecto fullstack de Iulian Timofei.">
 <style>
 @font-face { font-family: 'Limelight'; src: url('fonts/limelight-latin-400-normal.woff2') format('woff2'); font-display: swap; }
 @font-face { font-family: 'Cormorant'; font-weight: 600; src: url('fonts/cormorant-latin-600-normal.woff2') format('woff2'); font-display: swap; }
@@ -15,15 +15,14 @@
 
 :root {
   --medianoche: #0b1514;
-  --fieltro: #111f1d;
-  --tapete: #172925;
+  --papel: #f6efe1;
+  --papel-hondo: #ece2cd;
+  --tinta: #1f1915;
+  --tinta-suave: #5b5048;
+  --burdeos: #7a2a32;
+  --burdeos-suave: #f0d6d0;
   --laton: #c9a45c;
-  --oro: #e8cd8f;
-  --marfil: #efe5cc;
-  --humo: #93a69e;
-  --burdeos-claro: #d9857d;
-  --linea: rgba(201, 164, 92, 0.28);
-  --linea-suave: rgba(201, 164, 92, 0.14);
+  --verde: #1f3a32;
   --f-letrero: 'Limelight', serif;
   --f-titulo: 'Cormorant', Georgia, serif;
   --f-ui: 'Jost', 'Segoe UI', sans-serif;
@@ -34,337 +33,506 @@
 html, body { height: 100%; }
 body {
   overflow: hidden;
-  background: var(--medianoche);
-  color: var(--marfil);
+  background: var(--papel);
+  color: var(--tinta);
   font-family: var(--f-ui);
-  font-size: clamp(15px, 1.35vw, 22px);
+  font-size: clamp(14px, 1.3vw, 22px);
   line-height: 1.45;
 }
-::selection { background: rgba(232, 205, 143, 0.35); color: var(--marfil); }
 
-.slide {
-  position: absolute;
-  inset: 0;
-  display: none;
+.slide { position: absolute; inset: 0; padding: 7vh 6vw 8vh; display: none; }
+.slide.active { display: block; }
+.card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 4.5vh;
-  padding: 8vh 8vw 10vh;
-  background:
-    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(232, 205, 143, 0.1), transparent 70%),
-    var(--medianoche);
+  gap: 2.8vh;
 }
-.slide.active { display: flex; animation: enter 280ms cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes enter { from { opacity: 0; transform: translateY(8px); } }
 
-h1, h2 { font-family: var(--f-titulo); font-weight: 600; line-height: 1.05; text-wrap: balance; }
-h1 { font-size: clamp(2.6rem, 6vw, 5.5rem); }
-h2 { font-size: clamp(2rem, 3.8vw, 3.6rem); max-width: 22ch; }
-h2 em { font-style: italic; color: var(--oro); }
-h3 { font-family: var(--f-titulo); font-weight: 600; font-size: 1.55em; line-height: 1.1; }
-p { max-width: 62ch; text-wrap: pretty; }
-.soft { color: var(--humo); }
-.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--f-titulo); font-weight: 600; line-height: 1.05; color: var(--tinta); }
+h1 { font-size: 4.6vw; }
+h2 { font-size: 3.6vw; }
+h3 { font-size: 1.7vw; }
+em { font-style: italic; color: var(--burdeos); }
+p, li { color: var(--tinta-suave); }
+.lead { font-size: 1.7vw; max-width: 62ch; color: var(--tinta); }
+.kicker { font-family: var(--f-titulo); font-size: 1.8vw; font-style: italic; color: var(--burdeos); }
+.tag {
+  align-self: flex-start;
+  font-family: var(--f-mono);
+  font-size: 0.85vw;
+  letter-spacing: 0.08em;
+  padding: 0.5vh 1vw;
+  border-radius: 99px;
+  background: var(--burdeos-suave);
+  color: var(--burdeos);
+}
+.mono { font-family: var(--f-mono); font-size: 0.9em; color: var(--verde); }
+.grow { flex: 1; min-height: 0; }
+.mid { margin-block: auto; }
 
-.sign {
-  font-family: var(--f-letrero);
-  color: var(--oro);
+.ico { width: 1.6em; height: 1.6em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.badge {
+  width: 3.6vw; height: 3.6vw;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--verde);
+  color: var(--laton);
+  flex: none;
+}
+.badge .ico { width: 1.7vw; height: 1.7vw; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.8vw; }
+.chips span {
+  font-family: var(--f-mono);
+  font-size: 0.8vw;
   letter-spacing: 0.06em;
-  text-shadow: 0 0 8px rgba(232, 205, 143, 0.55), 0 0 32px rgba(232, 205, 143, 0.3);
+  padding: 0.5vh 0.9vw;
+  border-radius: 99px;
+  border: 1.5px solid var(--laton);
+  color: var(--verde);
 }
 
-.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 5vw; align-items: center; }
+.boxes { display: grid; gap: 1.6vw; }
+.boxes.two { grid-template-columns: 1fr 1fr; }
+.boxes.three { grid-template-columns: repeat(3, 1fr); }
+.boxes.four { grid-template-columns: repeat(4, 1fr); }
+.box {
+  background: var(--papel-hondo);
+  border-radius: 1.4vw;
+  padding: 2.6vh 1.6vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vh;
+}
+.box p { font-size: 1.45vw; }
+.box h3 { font-size: 2.2vw; }
+.box.row { flex-direction: row; align-items: flex-start; gap: 1.2vw; }
+.box ul { list-style: none; display: grid; gap: 1.2vh; font-size: 1.5vw; }
+.box li::before { content: '·'; color: var(--burdeos); font-weight: 500; margin-right: 0.5em; }
+.box.rule { border-left: 0.35vw solid var(--burdeos); border-radius: 0.8vw 1.4vw 1.4vw 0.8vw; }
+.box .num { font-family: var(--f-titulo); font-size: 2.6vw; color: var(--burdeos); line-height: 1; }
+
+.callout {
+  display: flex; gap: 1vw; align-items: flex-start;
+  border-left: 0.3vw solid var(--laton);
+  padding: 1.2vh 1.4vw;
+  font-size: 1.45vw;
+  color: var(--tinta);
+}
+.callout .ico { color: var(--verde); width: 1.5vw; height: 1.5vw; flex: none; margin-top: 0.1em; }
+.callout strong { font-weight: 500; }
+.callout.warm { border-left-color: var(--verde); }
+.callout.warm .ico { color: var(--burdeos); }
+
+.cover { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 4vw; height: 100%; align-items: center; }
+.arch {
+  height: 100%;
+  border-radius: 40vw 40vw 1.2vw 1.2vw;
+  overflow: hidden;
+  border: 2px solid var(--laton);
+  outline: 0.6vw solid var(--papel-hondo);
+}
+.arch img { width: 100%; height: 100%; object-fit: cover; object-position: 38% 50%; display: block; }
+.cover .sign { font-family: var(--f-letrero); font-size: 1.6vw; letter-spacing: 0.25em; color: var(--burdeos); }
+.cover .who { font-size: 1.15vw; color: var(--tinta); margin-top: 1vh; }
+.cover-text { display: flex; flex-direction: column; gap: 2.6vh; }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; align-items: center; }
+.split.wide { grid-template-columns: 1.35fr 1fr; }
+.shot { border-radius: 1.2vw; overflow: hidden; border: 2px solid var(--laton); box-shadow: 0.5vw 0.5vw 0 var(--verde); }
+.shot img { display: block; width: 100%; height: auto; }
 .phone {
-  justify-self: center;
-  width: min(100%, 25vh, 300px);
-  aspect-ratio: 390 / 844;
-  border: 1px solid var(--linea);
-  border-radius: 22px;
+  border-radius: 1.6vw;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  border: 0.45vw solid var(--tinta);
+  background: var(--tinta);
 }
-.phone.tall { width: min(100%, 38vh, 320px); }
-.phone img, .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.shot {
-  border: 1px solid var(--linea);
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-  aspect-ratio: 16 / 10;
-  background: var(--fieltro);
+.phone img { display: block; width: 100%; height: auto; }
+.phones { display: flex; gap: 2vw; justify-content: center; align-items: center; }
+.phones .phone { width: 12vw; }
+.plain { list-style: none; display: grid; gap: 2vh; font-size: 1.6vw; }
+.plain li { position: relative; padding-left: 1.5vw; color: var(--tinta); }
+.plain li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 0.55vw; height: 0.55vw; border-radius: 50%; background: var(--burdeos); }
+
+.chain { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.6vw; }
+.chain > div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2vh; text-align: center; position: relative; }
+.chain .ring {
+  width: 9vw; height: 9vw; border-radius: 50%;
+  border: 0.3vw solid var(--verde);
+  background: var(--papel);
+  display: grid; place-items: center;
+  color: var(--verde);
+  position: relative;
+  z-index: 1;
+}
+.chain .ring .ico { width: 3vw; height: 3vw; stroke-width: 1.3; }
+.chain { position: relative; }
+.chain::before { content: ''; position: absolute; top: 4.5vw; left: 10%; right: 10%; height: 2px; background: var(--laton); }
+.chain h3 { font-size: 2vw; }
+.chain p { font-size: 1.35vw; }
+
+.chevrons.mid { margin-block: auto; }
+.chevrons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4vw; }
+.chevrons > div { display: flex; flex-direction: column; gap: 1.6vh; }
+.chevrons .arrow {
+  border-top: 0.35vw solid var(--verde);
+  padding: 1.6vh 0 0 0.8vw;
+  color: var(--verde);
+}
+.chevrons h3 { font-size: 1.9vw; padding-left: 0.8vw; }
+.chevrons p { font-size: 1.35vw; padding: 0 0.8vw; }
+
+.sketches { display: flex; gap: 1.4vw; align-items: center; }
+.sketches .phone { width: 8.4vw; box-shadow: none; border-width: 0.3vw; }
+.sketches .phone.off { opacity: 0.55; filter: grayscale(0.6); }
+.sketches .phone.chosen { outline: 0.35vw solid var(--burdeos); outline-offset: 0.35vw; }
+.sketches .to { font-size: 2.4vw; color: var(--burdeos); }
+.sketches .phone.result { width: 10.5vw; box-shadow: 0.4vw 0.4vw 0 var(--verde); }
+.caption { font-size: 1.3vw; text-align: center; margin-top: 0.8vh; color: var(--tinta-suave); }
+
+.layers { display: grid; gap: 0.9vh; }
+.layers div {
+  display: grid; grid-template-columns: 11vw 1fr; align-items: center;
+  border-radius: 0.9vw;
+  padding: 1.4vh 1.4vw;
+  background: var(--papel-hondo);
+  font-size: 1.3vw;
+}
+.layers div strong { font-family: var(--f-titulo); font-size: 1.7vw; font-weight: 600; color: var(--tinta); }
+.layers div.edge { background: var(--verde); color: var(--papel); }
+.layers div.edge strong { color: var(--papel); }
+.layers div.core { background: var(--burdeos); color: var(--papel); }
+.layers div.core strong { color: var(--papel); }
+
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2vw; counter-reset: paso; }
+.flow > div {
+  counter-increment: paso;
+  border-top: 0.45vw solid var(--burdeos);
+  padding-top: 1.8vh;
+  display: flex; flex-direction: column; gap: 1vh;
+}
+.flow > div::before { content: counter(paso, decimal-leading-zero); font-family: var(--f-mono); font-size: 0.85vw; color: var(--burdeos); }
+.flow h3 { font-size: 2.2vw; }
+.flow p { font-size: 1.5vw; }
+.endpoint { font-family: var(--f-mono); color: var(--verde); font-size: 1.3em; font-weight: 500; }
+
+.demo { display: grid; grid-template-columns: 1fr 1fr; gap: 4vw; align-items: center; }
+.demo .big { font-family: var(--f-letrero); font-size: 6vw; letter-spacing: 0.08em; color: var(--burdeos); line-height: 1; }
+.demo a { font-family: var(--f-mono); font-size: 1.6vw; color: var(--verde); }
+.steps { list-style: none; counter-reset: s; display: grid; gap: 2vh; }
+.steps li { counter-increment: s; display: flex; gap: 1.2vw; align-items: baseline; font-size: 1.7vw; color: var(--tinta); }
+.steps li::before {
+  content: counter(s);
+  font-family: var(--f-titulo); font-size: 2vw; color: var(--papel);
+  background: var(--burdeos);
+  width: 3vw; height: 3vw; border-radius: 50%;
+  display: grid; place-items: center; flex: none;
+  transform: translateY(0.6vw);
 }
 
-.verbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3vw; }
-.verbs div { padding-top: 1.6vh; border-top: 1px solid var(--laton); }
-.verbs strong { display: block; font-family: var(--f-titulo); font-size: 2em; font-weight: 600; line-height: 1; margin-bottom: 0.6vh; }
+.links { display: grid; gap: 1.2vh; }
+.links a { font-family: var(--f-mono); font-size: 1.4vw; color: var(--verde); text-decoration: none; border-bottom: 1px solid var(--laton); justify-self: start; }
+.links a:hover, .links a:focus-visible { color: var(--burdeos); outline: none; }
+.close .sign { font-family: var(--f-letrero); font-size: 4.4vw; letter-spacing: 0.12em; color: var(--burdeos); line-height: 1; }
 
-.ranks { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45em; font-family: var(--f-titulo); font-size: 1.15em; }
-.ranks span:not(.arrow) { padding: 0.15em 0.7em; border: 1px solid var(--linea); border-radius: 2px; }
-.ranks .arrow { color: var(--laton); }
-.ranks .top { color: var(--oro); border-color: var(--laton); }
+.devices { display: grid; grid-template-columns: 1.7fr 1fr; gap: 3vw; align-items: center; }
+.devices .phones .phone { width: 14vw; }
+.sketches { justify-content: center; }
+.sketches .phone { width: 11.5vw; }
+.sketches .phone.result { width: 14.5vw; }
+.plain.cols { grid-template-columns: 1fr 1fr; column-gap: 3vw; font-size: 1.4vw; }
+.er { display: grid; grid-template-columns: auto 7vw auto 7vw auto; grid-template-rows: auto 7vh auto; align-items: center; justify-content: center; }
+.er .t { background: var(--papel-hondo); border-top: 0.3vw solid var(--verde); border-radius: 0.6vw; padding: 1.6vh 1.2vw; }
+.er .t strong { font-family: var(--f-mono); font-size: 1.7vw; color: var(--verde); display: block; }
+.er .t span { font-family: var(--f-mono); font-size: 1.15vw; color: var(--tinta-suave); display: block; margin-top: 0.6vh; }
+.er .link { text-align: center; font-family: var(--f-mono); font-size: 1.2vw; color: var(--burdeos); border-top: 2px solid var(--laton); padding-top: 0.6vh; margin: 0 0.4vw; }
+.er .down { grid-column: 1; justify-self: start; margin-left: 2vw; height: 100%; border-left: 2px solid var(--laton); padding-left: 0.8vw; font-family: var(--f-mono); font-size: 1.2vw; color: var(--burdeos); display: flex; align-items: center; }
+.er .t.first { grid-column: 1; }
+.defs { display: grid; grid-template-columns: 16vw 1fr; column-gap: 2.4vw; }
+.defs dt, .defs dd { border-top: 1px solid rgba(201, 164, 92, 0.45); padding: 2vh 0; }
+.defs dt { font-family: var(--f-titulo); font-weight: 600; font-size: 2vw; color: var(--tinta); }
+.defs dd { font-size: 1.45vw; color: var(--tinta-suave); }
+.reports { display: grid; grid-template-columns: 1fr; gap: 3.5vh; align-content: center; }
+.reports figure { display: grid; grid-template-columns: 22vw 1fr; grid-template-rows: auto auto 1fr; column-gap: 3vw; row-gap: 1.4vh; align-items: start; }
+.reports figure h3, .reports figure p, .reports figcaption { grid-column: 1; }
+.reports img { grid-column: 2; grid-row: 1 / span 3; }
+.reports figure p { font-size: 1.35vw; }
+.reports img { width: 100%; height: auto; border: 1px solid var(--laton); border-radius: 0.6vw; display: block; }
+.reports figcaption { font-size: 1.15vw; color: var(--tinta-suave); }
 
-.two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 4vw; align-items: end; }
-.two figure { display: flex; flex-direction: column; gap: 1.6vh; }
-.two figcaption h3 { margin-bottom: 0.6vh; }
+.box .unit { font-family: var(--f-mono); font-size: 0.9vw; color: var(--tinta-suave); margin-top: -1vh; }
+.report { display: flex; flex-direction: column; gap: 1.2vh; }
+.report img { width: 100%; height: auto; border: 1px solid var(--laton); border-radius: 0.6vw; display: block; }
+.report figcaption { font-size: 1.15vw; color: var(--tinta-suave); }
 
-ol.steps { list-style: none; counter-reset: step; display: grid; gap: 2.2vh; max-width: 54ch; }
-ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2.2em 1fr; align-items: baseline; }
-ol.steps li::before { content: counter(step); font-family: var(--f-mono); color: var(--laton); }
-ol.steps strong { font-weight: 500; }
+.tight .box { padding: 2vh 1.4vw; gap: 0.8vh; }
+.tight .box p { font-size: 1.2vw; }
+.tight .box h3 { font-size: 1.8vw; }
+.box .tally { display: flex; flex-direction: column; align-items: center; min-width: 6vw; }
+.box .tally .unit { margin-top: 0; }
+.report.narrow { width: 72%; align-self: center; }
 
-.sketches { display: flex; align-items: center; gap: 1.6vw; }
-.sketches .phone { width: min(14vh, 150px); opacity: 0.55; box-shadow: none; }
-.sketches .phone.chosen { opacity: 1; outline: 2px solid var(--oro); outline-offset: 4px; }
-.sketches .to { font-family: var(--f-titulo); font-size: 2.4em; color: var(--laton); }
-.sketches .phone.result { width: min(22vh, 220px); opacity: 1; }
-
-table { border-collapse: collapse; width: min(100%, 980px); }
-th, td { padding: 1.1vh 1.2em 1.1vh 0; text-align: left; vertical-align: baseline; border-bottom: 1px solid var(--linea-suave); }
-th { font-weight: 500; color: var(--humo); font-size: 0.85em; }
-td.name { font-family: var(--f-titulo); font-size: 1.3em; white-space: nowrap; }
-td.date { font-family: var(--f-mono); font-size: 0.85em; color: var(--humo); white-space: nowrap; }
-tr.gap td { color: var(--humo); font-style: italic; }
-td.num { font-family: var(--f-mono); color: var(--oro); white-space: nowrap; }
-
-.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4vw; align-items: stretch; }
-.flow div { position: relative; padding: 2vh 1.2vw; border: 1px solid var(--linea); border-radius: 2px; background: var(--fieltro); }
-.flow div + div::before { content: ''; position: absolute; left: -1.4vw; top: 50%; width: 1.4vw; height: 1px; background: var(--laton); }
-.flow h3 { font-size: 1.3em; margin-bottom: 0.8vh; }
-.flow p { font-size: 0.85em; color: var(--humo); }
-.side { display: flex; gap: 2vw; align-items: baseline; font-size: 0.9em; color: var(--humo); }
-.side strong { color: var(--marfil); font-weight: 500; }
-
-.adr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.6vh 4vw; max-width: 1200px; }
-.adr div { padding-top: 1.2vh; border-top: 1px solid var(--linea); }
-.adr .id { font-family: var(--f-mono); font-size: 0.8em; color: var(--laton); }
-.adr h3 { margin: 0.4vh 0 0.6vh; font-size: 1.35em; }
-.adr p { font-size: 0.9em; color: var(--humo); }
-
-ul.plain { list-style: none; display: grid; align-content: start; gap: 1.6vh; max-width: 62ch; }
-ul.plain li { padding-left: 1.2em; position: relative; }
-ul.plain li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 0.45em; height: 1px; background: var(--laton); }
-.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4vw; }
-
-.close { align-items: center; text-align: center; }
-.close .sign { font-size: clamp(3rem, 8vw, 7rem); }
-.links { display: grid; gap: 1.2vh; font-family: var(--f-mono); font-size: 0.95em; }
-.links a { color: var(--marfil); text-decoration: none; border-bottom: 1px solid var(--linea); }
-.links a:hover, .links a:focus-visible { color: var(--oro); border-color: var(--laton); outline: none; }
-.cover .sign { font-size: clamp(3.5rem, 10vw, 9rem); line-height: 1; }
-.byline { font-family: var(--f-mono); font-size: 0.85em; color: var(--humo); }
-
-.nav { position: fixed; left: 0; right: 0; bottom: 2.4vh; display: flex; justify-content: center; gap: 8px; pointer-events: none; }
-.nav span { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--laton); transition: background-color 150ms ease-out; }
-.nav span.on { background: var(--oro); border-color: var(--oro); }
-.count { position: fixed; right: 2.4vw; bottom: 2vh; font-family: var(--f-mono); font-size: 0.75em; color: var(--humo); }
-.help { position: fixed; left: 2.4vw; bottom: 2vh; font-size: 0.75em; color: var(--humo); opacity: 0.7; }
-
-@media (max-width: 760px) {
-  .slide { justify-content: flex-start; overflow-y: auto; padding: 6vh 6vw 12vh; gap: 3vh; }
-  .split, .two, .cols, .adr, .flow, .verbs { grid-template-columns: 1fr; }
-  .flow div + div::before { display: none; }
-  .help { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slide.active { animation: none; }
-}
+.nav { position: fixed; left: 50%; bottom: 1.6vh; transform: translateX(-50%); display: flex; gap: 0.5vw; }
+.nav span { width: 0.5vw; height: 0.5vw; border-radius: 50%; background: rgba(31, 25, 21, 0.18); }
+.nav span.on { background: var(--verde); }
+.count { position: fixed; right: 3.4vw; bottom: 1.2vh; font-family: var(--f-mono); font-size: 0.75vw; color: var(--tinta-suave); }
+.help { position: fixed; left: 3.4vw; bottom: 1.2vh; font-size: 0.75vw; color: var(--tinta-suave); }
 
 @media print {
   @page { size: 1600px 900px; margin: 0; }
-  body { overflow: visible; font-size: 20px; }
-  .slide { position: relative; display: flex !important; width: 1600px; height: 900px; break-after: page; animation: none; }
+  body { overflow: visible; background: var(--medianoche); }
+  .slide { position: relative; display: block !important; width: 1600px; height: 900px; page-break-after: always; break-after: page; }
   .nav, .count, .help { display: none; }
 }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-copa" viewBox="0 0 24 24"><path d="M4 4h16l-8 9z"/><path d="M12 13v7M8 20h8"/><path d="M15 4l3-2"/></symbol>
+  <symbol id="i-cartas" viewBox="0 0 24 24"><rect x="3" y="6" width="11" height="15" rx="2"/><path d="M10 6V5a2 2 0 0 1 2.4-2l6 1.3a2 2 0 0 1 1.5 2.4L17 18"/><path d="M8.5 11.5l1.5 2-1.5 2-1.5-2z"/></symbol>
+  <symbol id="i-charla" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-5 4v-4H4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+  <symbol id="i-rango" viewBox="0 0 24 24"><path d="M3 20h5v-4h5v-4h5V8h3"/><path d="M17 4h4v4"/></symbol>
+  <symbol id="i-puerta" viewBox="0 0 24 24"><path d="M6 21V5a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v16"/><path d="M3 21h18"/><circle cx="15" cy="12" r="0.9"/></symbol>
+  <symbol id="i-monedas" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-lapiz" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></symbol>
+  <symbol id="i-codigo" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14"/></symbol>
+  <symbol id="i-pantalla" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-servidor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+  <symbol id="i-chispa" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></symbol>
+</svg>
+
 <main id="deck">
 
-<section class="slide cover" aria-label="Portada">
-  <p class="sign">IULIAN'S</p>
-  <h1>IulianLounge</h1>
-  <p class="soft">Un speakeasy de los años 20 en el navegador.</p>
-  <p class="byline">Iulian Timofei · 13 de octubre de 2026 · iulianlounge.com</p>
-</section>
-
-<section class="slide" aria-label="El producto">
-  <div class="split">
-    <div style="display:grid; gap:4.5vh;">
-      <h2>Entras como recién llegado. El club acaba <em>conociéndote</em>.</h2>
-      <div class="verbs">
-        <div><strong>Pides</strong><span class="soft">Cinco copas, de 5 a 40 monedas.</span></div>
-        <div><strong>Hablas</strong><span class="soft">El barman te contesta según quién eres.</span></div>
-        <div><strong>Juegas</strong><span class="soft">Blackjack con apuestas de 10, 20 o 50.</span></div>
+<section class="slide" aria-label="Portada">
+  <div class="card">
+    <div class="cover">
+      <div class="arch"><img src="img/desktop.webp" alt="El bar en 3D: la barra, las lámparas y los sillones" width="1600" height="1000"></div>
+      <div class="cover-text">
+        <p class="sign">IULIAN'S</p>
+        <h1>IulianLounge</h1>
+        <div class="chips"><span>Vue 3</span><span>Spring Boot</span><span>PostgreSQL</span><span>Docker</span><span>Three.js</span></div>
+        <p class="lead">Proyecto final: una web con un bar de los años 20 donde pides copas y juegas al blackjack con monedas ficticias.</p>
+        <p class="who">Iulian Timofei · 13 de octubre de 2026</p>
       </div>
-      <div class="ranks" aria-label="Rangos">
-        <span>Recién llegado</span><span class="arrow">→</span><span>Cliente</span><span class="arrow">→</span><span>Habitual</span><span class="arrow">→</span><span class="top">Socio</span>
-      </div>
-      <p class="soft">Lo que gastas te sube de rango. Si te quedas a cero, la casa te invita una vez al día.</p>
     </div>
-    <div class="phone tall"><img src="img/app-bar.webp" alt="La barra en el móvil: el barman sirve un Gin Rickey y el saldo baja 15 monedas" width="600" height="1298"></div>
   </div>
 </section>
 
-<section class="slide" aria-label="Dos experiencias">
-  <h2>Un club, <em>dos</em> formas de entrar</h2>
-  <div class="two">
-    <figure>
-      <div class="shot"><img src="img/desktop.webp" alt="El lounge en 3D en el ordenador" width="1600" height="1000"></div>
-      <figcaption><h3>Escritorio: el local en 3D</h3><p class="soft">Paseas por el salón, te acercas al barman o a la mesa y pulsas E. WebGPU, con WebGL2 de reserva.</p></figcaption>
-    </figure>
-    <figure>
-      <div class="phone"><img src="img/app-table.webp" alt="La mesa de blackjack en el móvil" width="600" height="1298"></div>
-      <figcaption><h3>Móvil: dos salas en 2D</h3><p class="soft">Sin canvas. La barra y la mesa, una al lado de la otra, pensadas para el dedo.</p></figcaption>
-    </figure>
+<section class="slide" aria-label="Qué es">
+  <div class="card">
+    <h2>¿Qué es?</h2>
+    <p class="lead">Un bar en el navegador. Todo funciona con monedas ficticias: empiezas con 100.</p>
+    <div class="split wide grow">
+      <div class="boxes two">
+        <div class="box"><div class="badge"><svg class="ico"><use href="#i-copa"/></svg></div><h3>Pedir</h3><p>Cinco cócteles, de 5 a 40 monedas.</p></div>
+        <div class="box"><div class="badge"><svg class="ico"><use href="#i-cartas"/></svg></div><h3>Jugar</h3><p>Blackjack contra la casa, con apuestas de 10, 20 o 50.</p></div>
+        <div class="box"><div class="badge"><svg class="ico"><use href="#i-charla"/></svg></div><h3>Hablar</h3><p>El camarero te contesta según tu saldo y tu rango.</p></div>
+        <div class="box"><div class="badge"><svg class="ico"><use href="#i-rango"/></svg></div><h3>Rango</h3><p>Sube con lo que gastas, de Recién llegado a Socio.</p></div>
+      </div>
+      <div class="phones"><div class="phone"><img src="img/app-bar.webp" alt="La barra en el móvil" width="600" height="1298"></div></div>
+    </div>
   </div>
-  <p class="soft">Lo decidí el 3 de julio: en un teléfono el 3D gasta batería y WebGPU no es fiable. La lógica es la misma; la presentación, propia de cada uno.</p>
+</section>
+
+<section class="slide" aria-label="Flujo principal">
+  <div class="card">
+    <h2>Flujo principal</h2>
+    <div class="chain mid">
+      <div><div class="ring"><svg class="ico"><use href="#i-puerta"/></svg></div><h3>Registrarse</h3><p>La cuenta empieza con 100 monedas.</p></div>
+      <div><div class="ring"><svg class="ico"><use href="#i-copa"/></svg></div><h3>Pedir</h3><p>Eliges una copa de la carta.</p></div>
+      <div><div class="ring"><svg class="ico"><use href="#i-monedas"/></svg></div><h3>Pagar</h3><p>Se descuenta del saldo.</p></div>
+      <div><div class="ring"><svg class="ico"><use href="#i-rango"/></svg></div><h3>Subir de rango</h3><p>Según lo que llevas gastado.</p></div>
+      <div><div class="ring"><svg class="ico"><use href="#i-cartas"/></svg></div><h3>Jugar</h3><p>Una mano de blackjack.</p></div>
+    </div>
+    <div class="callout warm"><svg class="ico"><use href="#i-info"/></svg><p>Si te quedas a cero, puedes pedir 50 monedas gratis una vez al día.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Escritorio y móvil">
+  <div class="card">
+    <h2>Escritorio y móvil</h2>
+    <div class="devices grow">
+      <div class="shot"><img src="img/desktop.webp" alt="La versión de escritorio en 3D" width="1600" height="1000"></div>
+      <div class="phones">
+        <div class="phone"><img src="img/app-bar.webp" alt="La barra en el móvil" width="600" height="1298"></div>
+        <div class="phone"><img src="img/app-table.webp" alt="La mesa de blackjack en el móvil" width="600" height="1298"></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="slide" aria-label="Demo">
-  <h2>Demo</h2>
-  <ol class="steps">
-    <li><span><strong>Hacerse socio:</strong> <span class="soft">la cuenta nace con 100 monedas.</span></span></li>
-    <li><span><strong>Pedir un French 75:</strong> <span class="soft">bajan 40 monedas, el barman lo nota y subo a Cliente.</span></span></li>
-    <li><span><strong>Sentarse a la mesa:</strong> <span class="soft">una mano de blackjack, de la apuesta al resultado.</span></span></li>
-    <li><span><strong>Lo mismo en el móvil:</strong> <span class="soft">las dos salas, la carta y la charla con el barman.</span></span></li>
-  </ol>
-  <p class="soft">Si la red falla, hay un vídeo grabado de los dos recorridos.</p>
-</section>
-
-<section class="slide" aria-label="Diseño">
-  <h2>Diseño <em>antes</em> que código</h2>
-  <div class="cols">
-    <ul class="plain">
-      <li>Figma: bocetos de los dos flujos, escritorio y móvil, y los mockups.</li>
-      <li>El móvil lo rehíce al final con un método de diseño guiado: tres estructuras posibles, cada una con su boceto, y elegí una.</li>
-      <li>La elegida, «dos salas», es lo que hoy está en producción.</li>
-    </ul>
-    <div class="sketches" aria-label="De tres bocetos a la app">
-      <div class="phone"><img src="img/sketch-assigned.webp" alt="Boceto descartado: el carné de socio" width="600" height="1298"></div>
-      <div class="phone"><img src="img/sketch-descent.webp" alt="Boceto descartado: bajar al club" width="600" height="1298"></div>
-      <div class="phone chosen"><img src="img/sketch-rooms.webp" alt="Boceto elegido: dos salas" width="600" height="1298"></div>
-      <span class="to" aria-hidden="true">→</span>
-      <div class="phone result"><img src="img/app-chat.webp" alt="Resultado: la charla con el barman en el móvil" width="600" height="1298"></div>
+  <div class="card">
+    <div class="demo grow">
+      <div style="display:grid; gap:3vh;">
+        <p class="big">DEMO</p>
+        <a href="https://iulianlounge.com">iulianlounge.com</a>
+      </div>
+      <ol class="steps">
+        <li>Registrarme y pedir una copa.</li>
+        <li>Jugar una mano de blackjack.</li>
+        <li>Lo mismo en el móvil.</li>
+      </ol>
     </div>
   </div>
 </section>
 
-<section class="slide" aria-label="Planificación">
-  <h2>Jira: 50 tareas en 15 épicas</h2>
-  <table>
-    <thead><tr><th scope="col">Sprint</th><th scope="col">Fechas</th><th scope="col">Objetivo</th></tr></thead>
-    <tbody>
-      <tr><td class="name">1 · Auth y cartera</td><td class="date">3–17 jul</td><td>Usuarios, login con JWT y la cartera de monedas, con tests</td></tr>
-      <tr class="gap"><td class="name">Verano</td><td class="date">jul–sep</td><td>El lounge en 3D y su laboratorio de rendimiento</td></tr>
-      <tr><td class="name">8 · Auth completa</td><td class="date">16–22 sep</td><td>Registrarse y entrar desde el navegador</td></tr>
-      <tr><td class="name">9 · Cartera, HUD y móvil</td><td class="date">25 sep–1 oct</td><td>Saldo real en el HUD, app usable en el móvil, primer despliegue</td></tr>
-      <tr><td class="name">10 · Barra y blackjack</td><td class="date">7–9 oct</td><td>La barra, el blackjack y el barman con LLM en el backend</td></tr>
-      <tr><td class="name">11 · Móvil y entrega</td><td class="date">10–13 oct</td><td>Frontend del blackjack, móvil rehecho, E2E, documentación</td></tr>
-    </tbody>
-  </table>
+<section class="slide" aria-label="Cómo lo hice">
+  <div class="card">
+    <h2>Cómo lo hice</h2>
+    <div class="chevrons mid">
+      <div><div class="arrow"><svg class="ico"><use href="#i-calendario"/></svg></div><h3>Planificación</h3><p>Tareas y sprints en Jira.</p></div>
+      <div><div class="arrow"><svg class="ico"><use href="#i-lapiz"/></svg></div><h3>Diseño</h3><p>Bocetos y mockups en Figma.</p></div>
+      <div><div class="arrow"><svg class="ico"><use href="#i-codigo"/></svg></div><h3>Backend</h3><p>API REST con Spring Boot y tests.</p></div>
+      <div><div class="arrow"><svg class="ico"><use href="#i-pantalla"/></svg></div><h3>Frontend</h3><p>Vue 3, primero escritorio y después móvil.</p></div>
+      <div><div class="arrow"><svg class="ico"><use href="#i-servidor"/></svg></div><h3>Despliegue</h3><p>Docker en un servidor con HTTPS.</p></div>
+    </div>
+    <div class="callout"><svg class="ico"><use href="#i-info"/></svg><p>Jira: 50 tareas en 15 épicas, repartidas en sprints. Una rama por tarea.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Diseño en Figma">
+  <div class="card">
+    <h2>Diseño en Figma</h2>
+    <p class="lead">Bocetos y mockups antes de programar. Para el móvil probé tres ideas y me quedé con la tercera.</p>
+    <div class="sketches grow">
+      <div><div class="phone off"><img src="img/sketch-assigned.webp" alt="Boceto descartado: el carné" width="600" height="1298"></div><p class="caption">Idea 1</p></div>
+      <div><div class="phone off"><img src="img/sketch-descent.webp" alt="Boceto descartado: bajar al bar" width="600" height="1298"></div><p class="caption">Idea 2</p></div>
+      <div><div class="phone chosen"><img src="img/sketch-rooms.webp" alt="Boceto elegido: dos salas" width="600" height="1298"></div><p class="caption">Idea 3, la elegida</p></div>
+      <span class="to" aria-hidden="true">→</span>
+      <div><div class="phone result"><img src="img/app-chat.webp" alt="Cómo quedó en la app" width="600" height="1298"></div><p class="caption">Cómo quedó</p></div>
+    </div>
+  </div>
 </section>
 
 <section class="slide" aria-label="Arquitectura">
-  <h2>Arquitectura</h2>
-  <div class="flow">
-    <div><h3>Navegador</h3><p>Vue 3, Pinia, Vue Router, vue-i18n. Three.js para el 3D.</p></div>
-    <div><h3>Caddy</h3><p>HTTPS automático, sirve la app y reenvía /api al backend.</p></div>
-    <div><h3>Spring Boot 4</h3><p>Java 21, Spring Security con JWT, JPA. 15 endpoints REST.</p></div>
-    <div><h3>PostgreSQL 17</h3><p>En Docker. Esquema versionado con Flyway, de V1 a V7.</p></div>
-  </div>
-  <div class="side">
-    <span><strong>Mismo origen:</strong> la cookie de refresh viaja sin CORS.</span>
-    <span><strong>Claude Haiku</strong>, opcional y solo para la charla del barman.</span>
-  </div>
-</section>
-
-<section class="slide" aria-label="Decisiones">
-  <h2>Decisiones, <em>por escrito</em></h2>
-  <div class="adr">
-    <div><span class="id">ADR-04</span><h3>El saldo es un libro de cuentas</h3><p>Cada movimiento es una fila nueva; nada se sobrescribe. El saldo se puede auditar línea a línea.</p></div>
-    <div><span class="id">ADR-09</span><h3>Monedas en enteros</h3><p>Nunca double para el dinero: long en Java, bigint en la base de datos.</p></div>
-    <div><span class="id">ADR-08</span><h3>Dos tokens</h3><p>Un JWT de acceso corto y un refresh en cookie httpOnly, que se borra al salir.</p></div>
-    <div><span class="id">ADR-05</span><h3>El barman no toca el dinero</h3><p>El LLM conversa con los datos del socio, pero pedir y cobrar son deterministas.</p></div>
-    <div><span class="id">ADR-06</span><h3>El backend habla en claves</h3><p>La API devuelve códigos; el frontend pone el texto en castellano o en inglés.</p></div>
+  <div class="card">
+    <h2>Arquitectura</h2>
+    <p class="lead">Backend por capas con Java 21 y Spring Boot.</p>
+    <div class="split grow">
+      <div class="layers">
+        <div class="edge"><strong>Vue 3</strong><span>La web, en el navegador</span></div>
+        <div><strong>Caddy</strong><span>HTTPS; pasa /api al backend</span></div>
+        <div class="core"><strong>Controller</strong><span>Recibe las peticiones</span></div>
+        <div class="core"><strong>Service</strong><span>La lógica: cobrar, rango, partidas</span></div>
+        <div class="core"><strong>Repository</strong><span>Acceso a datos con JPA</span></div>
+        <div class="edge"><strong>PostgreSQL</strong><span>La base de datos, en Docker</span></div>
+      </div>
+      <ul class="plain">
+        <li>Cada capa hace una sola cosa, así puedo probar la lógica sin base de datos.</li>
+        <li>La API devuelve DTOs, nunca las entidades de la base de datos.</li>
+        <li>Los diagramas de base de datos y de clases están en el repositorio del backend.</li>
+      </ul>
+    </div>
   </div>
 </section>
 
-<section class="slide" aria-label="Calidad">
-  <h2>Probado</h2>
-  <table>
-    <thead><tr><th scope="col"></th><th scope="col">Tests</th><th scope="col">Cobertura</th><th scope="col">Herramientas</th></tr></thead>
-    <tbody>
-      <tr><td class="name">Backend</td><td class="num">636</td><td class="num">99 %</td><td>JUnit 6, MockMvc, integración contra PostgreSQL, JaCoCo con mínimo del 80 %</td></tr>
-      <tr><td class="name">Frontend</td><td class="num">976</td><td class="num">97,9 %</td><td>Vitest y Vue Test Utils, mínimo del 70 % de líneas</td></tr>
-      <tr><td class="name">End to end</td><td class="num">9</td><td class="num">no aplica</td><td>Playwright en escritorio y en móvil, contra el build de producción</td></tr>
-    </tbody>
-  </table>
-  <p class="soft">Test primero, integración continua en GitHub Actions y una revisión de código y de seguridad al cerrar cada pieza.</p>
+<section class="slide" aria-label="Ejemplo: pedir una copa">
+  <div class="card">
+    <h2>Ejemplo: pedir una copa</h2>
+    <p class="lead"><span class="endpoint">POST /api/v1/bar/orders</span></p>
+    <div class="flow mid" style="grid-template-columns: repeat(4, 1fr);">
+      <div><h3>Comprueba el token</h3><p>Spring Security valida el JWT.</p></div>
+      <div><h3>Valida la copa</h3><p>Que exista en la carta.</p></div>
+      <div><h3>Cobra</h3><p>Resta el precio y guarda el movimiento.</p></div>
+      <div><h3>Responde</h3><p>Devuelve el saldo y el rango.</p></div>
+    </div>
+    <div class="box">
+      <h3>¿Y si el pedido llega dos veces?</h3>
+      <p>Pasa con un doble clic o con una red lenta que reintenta. El navegador manda cada pedido con una clave única. Si el servidor recibe otra vez la misma clave, devuelve el cobro que ya hizo en lugar de cobrar de nuevo. Además, la base de datos no deja guardar dos movimientos con la misma clave.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Base de datos">
+  <div class="card">
+    <h2>Base de datos</h2>
+    <p class="lead">PostgreSQL en Docker. Las tablas se crean con migraciones de Flyway.</p>
+    <div class="er mid">
+      <div class="t"><strong>users</strong><span>username, email, password_hash</span></div>
+      <div class="link">1 : 1</div>
+      <div class="t"><strong>wallet</strong><span>user_id, balance</span></div>
+      <div class="link">1 : N</div>
+      <div class="t"><strong>token_transaction</strong><span>wallet_id, type, amount, balance_after</span></div>
+      <div class="down">1 : N</div>
+      <div class="t first"><strong>blackjack_hand</strong><span>user_id, bet, cards, status, payout</span></div>
+    </div>
+    <ul class="plain cols">
+      <li>Cada usuario tiene una cartera con su saldo.</li>
+      <li>Cada cambio de saldo es una fila nueva en <span class="mono">token_transaction</span>: pedidos, regalos, apuestas y premios. Así nunca se pierde un movimiento.</li>
+      <li>El saldo no puede ser negativo: lo impide una restricción de la propia base de datos.</li>
+      <li>Las monedas son números enteros, sin decimales, para no tener errores de redondeo.</li>
+    </ul>
+  </div>
 </section>
 
 <section class="slide" aria-label="Seguridad">
-  <h2>Seguridad y datos</h2>
-  <div class="cols">
-    <ul class="plain">
-      <li>Contraseñas con BCrypt; un hash falso cuando el usuario no existe, para no delatarlo por el tiempo de respuesta.</li>
-      <li>Límite de intentos en el login y el registro, y otro por socio en pedidos y apuestas.</li>
-      <li>La IP real del cliente detrás del proxy: Caddy quita las cabeceras que se podrían falsificar.</li>
-    </ul>
-    <ul class="plain">
-      <li>Pedidos y apuestas idempotentes: un doble clic no cobra dos veces.</li>
-      <li>La última defensa está en la base de datos: el saldo nunca baja de cero.</li>
-      <li>Página de privacidad y tope de gasto diario para el barman con LLM.</li>
-    </ul>
+  <div class="card">
+    <h2>Seguridad</h2>
+    <dl class="defs mid">
+      <dt>Contraseñas</dt><dd>Se guardan cifradas con BCrypt, nunca en texto plano. Si alguien robara la base de datos, no podría leerlas.</dd>
+      <dt>Login con JWT</dt><dd>Al entrar recibes un token de 15 minutos. Spring Security lo comprueba en cada petición.</dd>
+      <dt>Sesión</dt><dd>Para no pedir la contraseña cada 15 minutos hay un token de refresco en una cookie httpOnly, que JavaScript no puede leer.</dd>
+      <dt>Intentos</dt><dd>Máximo 20 por minuto en login y registro, para frenar a quien prueba contraseñas en bucle.</dd>
+    </dl>
   </div>
 </section>
 
-<section class="slide" aria-label="Despliegue">
-  <h2>En producción</h2>
-  <ul class="plain">
-    <li>Un servidor ARM de Oracle Cloud en Madrid.</li>
-    <li>Docker Compose con tres servicios: PostgreSQL, el backend y Caddy con la app.</li>
-    <li>Certificado HTTPS de Let's Encrypt, que WebGPU necesita.</li>
-    <li>Antes de migrar la base de datos, una copia que guardo también en local.</li>
-  </ul>
-  <p class="links"><a href="https://iulianlounge.com">iulianlounge.com</a></p>
+<section class="slide" aria-label="Tests del backend">
+  <div class="card">
+    <h2>Tests del backend</h2>
+    <p class="lead">627 tests en 55 clases. Cobertura de líneas: 98,9 %, con un mínimo del 80 %.</p>
+    <div class="boxes four tight">
+      <div class="box"><span class="num">34</span><span class="unit">clases</span><h3>Unitarios</h3><p>La lógica sola, sin arrancar Spring. 9 usan Mockito para aislar dependencias.</p></div>
+      <div class="box"><span class="num">10</span><span class="unit">clases</span><h3>MockMvc</h3><p>Los controladores con su seguridad: respuestas, errores y JWT, sin base de datos.</p></div>
+      <div class="box"><span class="num">3</span><span class="unit">clases</span><h3>Repositorio</h3><p>Consultas y restricciones contra PostgreSQL real.</p></div>
+      <div class="box"><span class="num">8</span><span class="unit">clases</span><h3>Integración</h3><p>La aplicación entera con PostgreSQL: registro, barra, blackjack y barman.</p></div>
+    </div>
+    <figure class="report mid narrow">
+      <img src="img/tests-backend.webp" alt="Informe de cobertura de JaCoCo por paquete" width="1600" height="321">
+      <figcaption>Informe de cobertura de JaCoCo, por paquete.</figcaption>
+    </figure>
+  </div>
 </section>
 
-<section class="slide" aria-label="Cómo trabajé con IA">
-  <h2>Cómo trabajé con IA</h2>
-  <ul class="plain">
-    <li>Trabajé con Claude Code como compañero de programación: yo decidía qué construir y cómo, y revisaba cada cambio.</li>
-    <li>Las piezas que defiendo hoy las escribí aprendiendo, paso a paso, con la IA explicando en vez de resolver.</li>
-    <li>Cada pieza pasó por revisores automáticos de código y seguridad, y por mis pruebas en pantalla antes de entrar.</li>
-  </ul>
+<section class="slide" aria-label="Tests del frontend">
+  <div class="card">
+    <h2>Tests del frontend</h2>
+    <p class="lead">977 tests en 52 ficheros. Cobertura de líneas: 98,5 %, con un mínimo del 70 %.</p>
+    <div class="split wide grow">
+      <figure class="report">
+        <img src="img/tests-frontend.webp" alt="Informe de cobertura de Vitest: 98,55 % de líneas" width="1600" height="530">
+        <figcaption>Informe de cobertura de Vitest.</figcaption>
+      </figure>
+      <div class="boxes tight" style="grid-template-columns: 1fr;">
+        <div class="box row"><div class="tally"><span class="num">25</span><span class="unit">ficheros</span></div><div><h3>Componentes</h3><p>Vue Test Utils: se montan y se prueba lo que ve y pulsa el usuario.</p></div></div>
+        <div class="box row"><div class="tally"><span class="num">27</span><span class="unit">ficheros</span></div><div><h3>Lógica</h3><p>Vitest: stores de Pinia, composables, la API y la escena 3D.</p></div></div>
+        <div class="box row"><div class="tally"><span class="num">10</span><span class="unit">recorridos</span></div><div><h3>E2E</h3><p>Playwright: flujos completos en escritorio y móvil, contra el build de producción.</p></div></div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="slide" aria-label="Lo que me llevo">
-  <h2>Lo que me llevo</h2>
-  <ul class="plain">
-    <li>Escribir las decisiones antes de programar ahorra discusiones conmigo mismo.</li>
-    <li>Los tests me dejaron cambiar el diseño del móvil a dos días de la entrega sin miedo.</li>
-    <li>Recortar a tiempo: el PMV es la barra, el blackjack y el barman; el resto espera.</li>
-  </ul>
-</section>
-
-<section class="slide" aria-label="Fase 2">
-  <h2>Lo siguiente</h2>
-  <ul class="plain">
-    <li>Encender el barman con LLM en producción: ya está programado y probado.</li>
-    <li>La mesa con varios jugadores a la vez.</li>
-    <li>Más salas: La Trastienda y La Eterna.</li>
-    <li>Controles táctiles para el 3D en tablets.</li>
-  </ul>
-</section>
-
-<section class="slide close" aria-label="Cierre">
-  <p class="sign">IULIAN'S</p>
-  <h2>La casa invita</h2>
-  <div class="links">
-    <a href="https://iulianlounge.com">iulianlounge.com</a>
-    <a href="https://github.com/iulian640/iulianlounge-frontend">github.com/iulian640/iulianlounge-frontend</a>
-    <a href="https://github.com/iulian640/iulianlounge-backend">github.com/iulian640/iulianlounge-backend</a>
+<section class="slide close" aria-label="Gracias">
+  <div class="card">
+    <div class="split grow">
+      <div style="display:grid; gap:2.4vh;">
+        <h1>Gracias</h1>
+        <p class="lead">Para una fase 2: activar el camarero con IA, mejorar los personajes 3D y añadir más salas.</p>
+      </div>
+      <div class="links">
+        <a href="https://iulianlounge.com">iulianlounge.com</a>
+        <a href="https://github.com/iulian640/iulianlounge-frontend">github.com/iulian640/iulianlounge-frontend</a>
+        <a href="https://github.com/iulian640/iulianlounge-backend">github.com/iulian640/iulianlounge-backend</a>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -10,7 +10,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  // ADR-08: en dev la API va por el mismo origen (5173) → la cookie del refresh viaja sin CORS
+  // en dev la API va por el mismo origen (5173) → la cookie del refresh viaja sin CORS
   server: {
     proxy: { '/api': 'http://localhost:8080' },
   },

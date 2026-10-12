@@ -2,22 +2,10 @@ import GUI from 'three/addons/libs/lil-gui.module.min.js'
 
 import { cristal } from './decor/repisaAlta'
 
-// Panel de afinado (solo DEV): el director de arte ajusta en SU pantalla y
-// vuelca los valores por consola para dejarlos fijos en código.
-//
-// PODADO 2026-07-14 a petición de Iulian: todas las mezclas anteriores
-// (barra, cuerpo, suelo, paredes, luces, tira, focos, humo) quedaron
-// horneadas en salon.js / lights.js / createLounge.js y sus mandos se
-// retiraron — se reponen bajo demanda. Ahora mismo solo se afina la
-// cristalería de la repisa alta.
-
 export function createTuningPanel({ renderer, setQuality }) {
   const params = {
-    // calidad y brillo: los dos únicos mandos que existirán en la versión
-    // final (decisión de Iulian, 2026-07-14)
     calidad: renderer.backend?.isWebGPUBackend ? 'alta' : 'baja',
     brillo: renderer.toneMappingExposure,
-    // los vasos de la repisa alta: valores leídos del material real
     vasosTono: `#${cristal.color.getHexString()}`,
     vasosOpacidad: cristal.opacity,
     vasosPulido: cristal.roughness,
@@ -25,11 +13,10 @@ export function createTuningPanel({ renderer, setQuality }) {
     volcarValores() {
       const dump = { ...params }
       delete dump.volcarValores
-      console.log('[afinado] pásale esto a Claude:', JSON.stringify(dump, null, 2))
+      console.log('[tuning] values:', JSON.stringify(dump, null, 2))
     },
   }
 
-  // la hora en el título delata pestañas rancias sirviendo código viejo
   const loadedAt = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
   const backend = window.__loungeBackend || '?'
   const gui = new GUI({ title: `Afinado · ${loadedAt} · ${backend}` })
