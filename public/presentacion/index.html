@@ -446,7 +446,7 @@ p, li { color: var(--tinta-suave); }
   <div class="card">
     <h2>Seguridad</h2>
     <dl class="defs mid">
-      <dt>Contraseñas</dt><dd>Se guardan cifradas con BCrypt, nunca en texto plano. Si alguien robara la base de datos, no podría leerlas.</dd>
+      <dt>Contraseñas</dt><dd>Se guardan como hash BCrypt, nunca en texto plano. Si alguien robara la base de datos, no podría leerlas.</dd>
       <dt>Login con JWT</dt><dd>Al entrar recibes un token de 15 minutos. Spring Security lo comprueba en cada petición.</dd>
       <dt>Sesión</dt><dd>Para no pedir la contraseña cada 15 minutos hay un token de refresco en una cookie httpOnly, que JavaScript no puede leer.</dd>
       <dt>Intentos</dt><dd>Máximo 20 por minuto en login y registro, para frenar a quien prueba contraseñas en bucle.</dd>
@@ -457,9 +457,9 @@ p, li { color: var(--tinta-suave); }
 <section class="slide" aria-label="Tests del backend">
   <div class="card">
     <h2>Tests del backend</h2>
-    <p class="lead">627 tests en 55 clases. Cobertura de líneas: 98,9 %, con un mínimo del 80 %.</p>
+    <p class="lead">627 tests en 56 clases. Cobertura de líneas: 98,9 %, con un mínimo del 80 %.</p>
     <div class="boxes four tight">
-      <div class="box"><span class="num">34</span><span class="unit">clases</span><h3>Unitarios</h3><p>La lógica sola, sin arrancar Spring. 9 usan Mockito para aislar dependencias.</p></div>
+      <div class="box"><span class="num">35</span><span class="unit">clases</span><h3>Unitarios</h3><p>La lógica sola, sin arrancar Spring. 9 usan Mockito para aislar dependencias.</p></div>
       <div class="box"><span class="num">10</span><span class="unit">clases</span><h3>MockMvc</h3><p>Los controladores con su seguridad: respuestas, errores y JWT, sin base de datos.</p></div>
       <div class="box"><span class="num">3</span><span class="unit">clases</span><h3>Repositorio</h3><p>Consultas y restricciones contra PostgreSQL real.</p></div>
       <div class="box"><span class="num">8</span><span class="unit">clases</span><h3>Integración</h3><p>La aplicación entera con PostgreSQL: registro, barra, blackjack y barman.</p></div>
@@ -474,7 +474,7 @@ p, li { color: var(--tinta-suave); }
 <section class="slide" aria-label="Tests del frontend">
   <div class="card">
     <h2>Tests del frontend</h2>
-    <p class="lead">977 tests en 52 ficheros. Cobertura de líneas: 98,5 %, con un mínimo del 70 %.</p>
+    <p class="lead">977 tests en 52 ficheros. Cobertura de líneas: 98,55 %, con un mínimo del 70 %.</p>
     <div class="split wide grow">
       <figure class="report">
         <img src="img/tests-frontend.webp" alt="Informe de cobertura de Vitest: 98,55 % de líneas" width="1600" height="530">

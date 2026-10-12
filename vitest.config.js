@@ -15,7 +15,7 @@ export default mergeConfig(
         // como BackendApplication en JaCoCo: cero lógica propia
         include: ['src/**/*.{js,vue}'],
         exclude: ['src/main.js'],
-        // el gate del enunciado: por debajo del 70% de líneas, rojo
+        // mínimo de cobertura: 70 % de líneas
         thresholds: { lines: 70 },
       },
     },

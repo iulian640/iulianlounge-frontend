@@ -1,6 +1,6 @@
 # IulianLounge · Frontend
 
-Vue 3 SPA for IulianLounge, a 1920s bar in the browser played with fictional coins.
+Vue 3 SPA for IulianLounge, a 1920s bar in the browser where you play with fictional coins.
 
 ![Vue 3](https://img.shields.io/badge/Vue-3.5-42b883?logo=vuedotjs&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
@@ -27,20 +27,21 @@ Vue 3 SPA for IulianLounge, a 1920s bar in the browser played with fictional coi
 2. [Tech stack](#tech-stack)
 3. [Requirements](#requirements)
 4. [Getting started](#getting-started)
-5. [Scripts](#scripts)
-6. [Project structure](#project-structure)
-7. [User flow](#user-flow)
-8. [Tests](#tests)
-9. [Responsive and accessibility](#responsive-and-accessibility)
-10. [Design](#design)
-11. [Deployment](#deployment)
-12. [Project management](#project-management)
-13. [Credits](#credits)
-14. [Author](#author)
+5. [Usage](#usage)
+6. [Scripts](#scripts)
+7. [Project structure](#project-structure)
+8. [User flow](#user-flow)
+9. [Tests](#tests)
+10. [Responsive and accessibility](#responsive-and-accessibility)
+11. [Design](#design)
+12. [Deployment](#deployment)
+13. [Project management](#project-management)
+14. [Credits](#credits)
+15. [Author](#author)
 
 ## What it is and features
 
-This repository is the IulianLounge frontend. It talks to the Spring Boot API in the [backend](https://github.com/iulian640/iulianlounge-backend). The house currency is fictional coins ("monedas" in the Spanish UI). New accounts start with 100.
+This repository is the IulianLounge frontend. It talks to the Spring Boot API in the [backend](https://github.com/iulian640/iulianlounge-backend). New accounts start with 100 coins.
 
 There are two experiences, and the page picks one on load:
 
@@ -56,7 +57,7 @@ Features:
 - Chat with the barman: quick questions with fixed answers, and free text.
 - Blackjack with bets of 10, 20 or 50 coins. The dealer stands on 17 and blackjack pays 3:2.
 - Balance in the HUD with the change after every move, and an account book with the history.
-- Rank based on spending: Recién llegado (newcomer), Cliente, Habitual and Socio (member).
+- Rank based on spending: Newcomer, Customer, Regular and Member.
 - 50 free coins once a day if your balance is zero.
 - Spanish and English with vue-i18n.
 
@@ -91,8 +92,8 @@ Features:
    git clone https://github.com/iulian640/iulianlounge-frontend.git
    ```
 
-2. Start the backend first. The steps are in its [README](https://github.com/iulian640/iulianlounge-backend).
-3. Install the frontend dependencies and start the dev server:
+2. Start the backend following its [README](https://github.com/iulian640/iulianlounge-backend) from step 2 (you have already cloned it) and leave it running.
+3. In another terminal, from the folder where you cloned both repos, install the frontend dependencies and start the dev server:
 
    ```bash
    cd iulianlounge-frontend
@@ -107,6 +108,21 @@ Notes:
 - The dev server proxies `/api` to `http://localhost:8080`. The refresh cookie travels on the same origin, so CORS is not needed.
 - WebGPU needs a secure context. `localhost` works, a LAN IP does not.
 - If the browser has no WebGPU, the scene falls back to WebGL2.
+
+## Usage
+
+Desktop:
+
+- Click the scene to look around with the mouse. Esc releases it.
+- Walk with WASD. Hold Shift to run.
+- Press E near the barman or the blackjack table.
+- Esc stands you up from the table or closes the window.
+
+Mobile:
+
+- Swipe between the bar and the table, or use the tabs at the top.
+
+In production the barman answers with fixed lines. Free text with AI is switched off.
 
 ## Scripts
 
@@ -130,7 +146,7 @@ src/
     bar/        Menu, barman, chat and bar window
     blackjack/  Table, hands, cards and bets
     hud/        Balance, name and rank, account book
-    salon/      Mobile rooms, bottom sheet and room tabs
+    salon/      Mobile rooms, bottom panel and room tabs
   composables/  Shared logic: rooms, barman talk, blackjack round, errors
   i18n/         vue-i18n setup and es.json / en.json texts
   lounge/       3D scene: lights, camera, controls, table, models and decor
@@ -139,7 +155,7 @@ src/
   views/        AccessView, LoungeView, SalonMovil and PrivacyView
 e2e/            Playwright tests (desktop and mobile)
 public/         3D models and the presentation (public/presentacion/)
-docs/           Screenshots, model credits and notes
+docs/           Screenshots and 3D model credits
 ```
 
 Unit tests live in `__tests__` folders next to the code they test.
@@ -150,7 +166,7 @@ Unit tests live in `__tests__` folders next to the code they test.
 flowchart TD
     A[Access: sign up or log in] --> B{Mouse and a screen 768 px or wider?}
     B -- Yes --> C[3D lounge]
-    B -- No --> D[2D mobile salon]
+    B -- No --> D[2D mobile version]
     C --> E[Bar]
     C --> F[Blackjack table]
     C --> G[Barman]
@@ -164,14 +180,13 @@ The routes are `/` (the lounge, session required), `/acceso` and `/privacidad`. 
 ## Tests
 
 ```bash
-npm run test:unit       # watch mode
-npm run test:coverage   # once, with coverage
-npm run test:e2e        # needs the backend running
+npx playwright install chromium   # first time only (Linux: npx playwright install --with-deps chromium)
+npm run test:e2e                  # needs the backend running
 ```
 
-- 977 tests in 52 files: 25 component tests with Vue Test Utils and 27 logic tests (stores, composables, API and the 3D scene).
+- 977 tests in 52 files: 25 mount Vue components (24 with Vue Test Utils) and 27 test plain logic (stores, API, router, i18n and the 3D scene).
 - Line coverage 98.55% (statements 97.86%, branches 92.94%). `vitest.config.js` fails if lines drop below 70%.
-- 10 Playwright E2E tests: 4 on desktop (redirect without a session, sign-up with welcome bonus and sign-out, wrong password, and the account book) and 6 on mobile (2D salon instead of 3D, swiping between rooms, drinking down to zero with the house gift, rank up, a full blackjack hand, and sign-out).
+- 10 Playwright E2E tests: 4 on desktop (redirect without a session, sign-up with welcome bonus and sign-out, wrong password, and the account book) and 6 on mobile (2D mobile version instead of 3D, swiping between rooms, drinking down to zero with the house gift, rank up, a full blackjack hand, and sign-out).
 - E2E tests run against the production build (`vite build` and `vite preview` on port 5179, with `/api` going to `localhost:8080`).
 - The GitHub Actions CI runs `npm ci`, `npm run lint` and `npm run test:coverage` on every push.
 
@@ -179,28 +194,20 @@ npm run test:e2e        # needs the backend running
 
 ## Responsive and accessibility
 
-The mobile salon is two full-screen rooms with horizontal `scroll-snap`. You switch rooms by swiping, with the edge handles or with the tabs. At the bar, a bottom sheet holds the Menu and Talk tabs.
+The mobile version is two full-screen rooms with horizontal `scroll-snap`. You switch rooms by swiping, with the side tab or with the tabs at the top. At the bar, a bottom panel holds the Menu and Talk tabs.
 
 What the code does:
 
-- 44 px touch targets and 16 px text fields.
+- Buttons and touch areas of at least 44 px and 16 px text fields.
 - `prefers-reduced-motion` is respected in the components and in the 3D scene.
 - Room tabs (`tablist`) that move with the arrow keys.
 - `aria-live` regions for the balance and for blackjack.
 - No horizontal scroll at 320 px, in portrait and landscape.
 
-| Width | View |
-| --- | --- |
-| 390 px | Bar, menu, Talk, account book and table |
-| 320 px | The bar |
-| 667 px (landscape) | The bar and the table |
-
 <p>
-  <img src="docs/responsive/bar-390.webp" alt="The bar at 390 px" width="170">
   <img src="docs/responsive/talk-390.webp" alt="Talk tab at 390 px" width="170">
   <img src="docs/responsive/account-book-390.webp" alt="Account book at 390 px" width="170">
   <img src="docs/responsive/table-bets-390.webp" alt="Bet selection at 390 px" width="170">
-  <img src="docs/responsive/table-390.webp" alt="A blackjack hand at 390 px" width="170">
   <img src="docs/responsive/bar-320.webp" alt="The bar at 320 px" width="170">
 </p>
 
@@ -211,7 +218,7 @@ What the code does:
 
 ## Design
 
-Sketches, mockups and a clickable prototype are in [Penpot](https://design.penpot.app/#/view?file-id=52a5041f-08a1-80f1-8008-c797da3e231e&page-id=72937cd6-6e9c-4b4e-991d-639a5ecf7b58&section=interactions&index=0&share-id=d0c6b4b3-247d-4110-95db-19385af7feb2), the open source alternative to Figma. The prototype has two paths: desktop and mobile.
+Sketches, mockups and a clickable prototype are in [Penpot](https://design.penpot.app/#/view?file-id=52a5041f-08a1-80f1-8008-c797da3e231e&page-id=72937cd6-6e9c-4b4e-991d-639a5ecf7b58&section=interactions&index=0&share-id=d0c6b4b3-247d-4110-95db-19385af7feb2). The prototype has two paths: desktop and mobile.
 
 <p align="center">
   <img src="docs/img/mockup-escritorio.webp" alt="Mockup of the desktop sign-in screen" width="560">
@@ -227,17 +234,7 @@ The project presentation lives in `public/presentacion/` and is published at [/p
 
 ## Project management
 
-Jira with 50 tasks in 15 epics. One branch per task, and commits carry the task key (`IUL-xx`).
-
-| Sprint | Content | Dates |
-| --- | --- | --- |
-| 1 | Auth and wallet | 3–17 Jul |
-| 8 | Full auth | 16–22 Sep |
-| 9 | Wallet, HUD and mobile | 25 Sep–1 Oct |
-| 10 | Bar and blackjack | 7–9 Oct |
-| 11 | Mobile and delivery | 10–13 Oct |
-
-From July to September I worked on the 3D lounge outside the sprints. That is why the board jumps from sprint 1 to 8.
+The work was tracked in Jira (project IUL): 50 tasks in 15 epics. One branch per task, and commits carry the task key (`IUL-xx`). The sprints are in the [backend README](https://github.com/iulian640/iulianlounge-backend/blob/main/README.en.md#project-management).
 
 ## Credits
 
