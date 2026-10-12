@@ -45,7 +45,7 @@ This repository is the IulianLounge frontend. It talks to the Spring Boot API in
 There are two experiences, and the page picks one on load:
 
 - Desktop: a 3D scene built with Three.js (WebGPU, with WebGL2 as fallback). You move with WASD and the mouse. Near the barman or the blackjack table, press E to order or play.
-- Phone and touch tablet (coarse pointer or width under 768 px): a dedicated 2D version with no canvas. It has two rooms, the bar and the table, which you swipe between. It exists because the 3D drained too much battery on phones.
+- Phone and touch tablet (touch screen or narrower than 768 px): a dedicated 2D version with no canvas. It has two rooms, the bar and the table, which you swipe between. It exists because the 3D drained too much battery on phones.
 
 Both share the same logic: Pinia stores and composables. Each mode has its own presentation.
 
@@ -148,7 +148,7 @@ Unit tests live in `__tests__` folders next to the code they test.
 
 ```mermaid
 flowchart TD
-    A[Access: sign up or log in] --> B{Wide screen and fine pointer?}
+    A[Access: sign up or log in] --> B{Mouse and a screen 768 px or wider?}
     B -- Yes --> C[3D lounge]
     B -- No --> D[2D mobile salon]
     C --> E[Bar]

@@ -45,7 +45,7 @@ Este repositorio es el frontend de IulianLounge. Habla con la API del [backend](
 Hay dos experiencias y se elige una al cargar la página:
 
 - Escritorio: una escena 3D con Three.js (WebGPU, con WebGL2 de reserva). Te mueves con WASD y el ratón. Cerca del barman o de la mesa de blackjack, pulsas E para pedir o jugar.
-- Móvil y tablet táctil (puntero grueso o ancho menor de 768 px): una versión 2D propia, sin canvas. Tiene dos salas, la barra y la mesa, que se pasan deslizando. Se hizo así porque el 3D gastaba mucha batería en el móvil.
+- Móvil y tablet táctil (pantalla táctil o de menos de 768 px de ancho): una versión 2D propia, sin canvas. Tiene dos salas, la barra y la mesa, que se pasan deslizando. Se hizo así porque el 3D gastaba mucha batería en el móvil.
 
 La lógica es la misma en las dos: stores de Pinia y composables compartidos. Cada modo tiene su propia presentación.
 
@@ -148,7 +148,7 @@ Los tests unitarios viven en carpetas `__tests__` junto al código que prueban.
 
 ```mermaid
 flowchart TD
-    A[Acceso: registro o login] --> B{¿Pantalla ancha y puntero fino?}
+    A[Acceso: registro o login] --> B{¿Ratón y pantalla de 768 px o más?}
     B -- Sí --> C[Lounge 3D]
     B -- No --> D[Salón móvil 2D]
     C --> E[Barra]
