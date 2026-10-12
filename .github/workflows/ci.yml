@@ -18,5 +18,5 @@ jobs:
 
       - run: npm run lint
 
-      # gate del enunciado: vitest falla si la cobertura de líneas baja del 70%
+      # mínimo de cobertura: 70 % de líneas
       - run: npm run test:coverage
