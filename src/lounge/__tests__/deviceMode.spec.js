@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 
 import { prefersFlatLounge } from '../deviceMode'
 
-// Una ventana falsa que responde a las media queries que le digamos
 function ventana(queriesQueCumple) {
   return { matchMedia: (query) => ({ matches: queriesQueCumple.includes(query) }) }
 }

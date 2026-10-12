@@ -27,14 +27,6 @@ import { addStageSpots } from './decor/stageSpots'
 import { addCurtains } from './decor/curtains'
 import { addSmoke } from './decor/smoke'
 
-// Motor WebGPU (rama feature/webgpu): 'three' está aliasado a 'three/webgpu'
-// en vite.config.js — con fallback automático a WebGL2 si el navegador no
-// soporta WebGPU. El bloom es SELECTIVO por MRT: solo el canal emissive
-// (letrero, velas, bombillas) recibe halo — las superficies iluminadas jamás.
-
-// jaula de la cámara: margen respecto a muros, suelo y techo para que la
-// órbita nunca atraviese la sala (la tercera persona de IUL-28 traerá su
-// propia colisión)
 const CAMERA_BOUNDS = {
   x: ROOM.width / 2 - 0.5,
   z: ROOM.depth / 2 - 0.5,
@@ -49,9 +41,6 @@ function clampCameraToRoom(camera) {
   p.y = THREE.MathUtils.clamp(p.y, CAMERA_BOUNDS.yMin, CAMERA_BOUNDS.yMax)
 }
 
-// onProgress recibe 0..1 y alimenta la barra del telón. Tramos honestos:
-// 0→0.6 descarga de assets (LoadingManager), 0.6→0.68 captura de reflejos,
-// 0.68→0.78 compilación asíncrona de pipelines, 0.78→1 barrida de calentamiento
 export async function createLounge(
   canvas,
   onProgress = () => {},
@@ -60,9 +49,6 @@ export async function createLounge(
   onNearBarman = () => {},
   onNearTable = () => {},
 ) {
-  // cronómetro de tramos del arranque: se imprime al final y queda en
-  // window.__loungeTiming — sirve para comparar la máquina real con el
-  // banco headless sin depender de capturas ni de DevTools
   const t0 = performance.now()
   const tiempos = {}
   let tAnterior = t0
@@ -74,22 +60,13 @@ export async function createLounge(
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#0b1514')
-  scene.fog = new THREE.FogExp2('#0b1514', 0.022) // el humo del club
+  scene.fog = new THREE.FogExp2('#0b1514', 0.022)
 
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
-  camera.layers.enable(1) // el suelo vive en la capa 1 (velas sin reflejo)
+  camera.layers.enable(1)
   camera.position.set(0, 1.7, 4.6)
 
-  // antialias del canvas apagado: el render pasa por el pipeline de
-  // postproceso (offscreen), el MSAA del canvas solo costaría sin verse
   const renderer = new THREE.WebGPURenderer({ canvas, antialias: false })
-  // sonda de coste GPU real: se muta renderer.backend.trackTimestamp (NO
-  // renderer.trackTimestamp, que no existe — vive en la instancia del
-  // backend) ANTES de renderer.init(), que gatea la feature contra
-  // hasFeature('timestamp-query'). Solo bajo demanda (?gpums=1): a clocks
-  // interactivos las escrituras de timestamp por pass cuestan ~10fps reales
-  // (medido en pantalla 2026-07-15); el "coste cero" del laboratorio era un
-  // artefacto del régimen infra-clockeado del headless (ley 18)
   const quiereGpuMs = new URLSearchParams(window.location.search).has('gpums')
   if (import.meta.env.DEV && quiereGpuMs) {
     renderer.backend.trackTimestamp = true
@@ -98,13 +75,8 @@ export async function createLounge(
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFShadowMap
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 2.2 // mezcla final de Iulian (2026-07-12)
-  // luces por lotes (arrays de uniforms + bucle en el shader) en vez de
-  // desenrolladas: con 26 luces, cada una engordaba el shader de TODOS los
-  // materiales (99 programas, ~50KB de WGSL cada uno = el grueso del coste de
-  // compilación del arranque). Solo las 3 de sombra siguen por la vía
-  // individual — la imagen no cambia, solo el tamaño del código
-  renderer.lighting = new DynamicLighting({ maxPointLights: 40 }) // 39 en escena (ley 5): justo, subir el tope antes de añadir más
+  renderer.toneMappingExposure = 2.2
+  renderer.lighting = new DynamicLighting({ maxPointLights: 40 })
   await renderer.init()
   let walk = null
   let panel = null
@@ -116,45 +88,23 @@ export async function createLounge(
     return null
   }
   if (signal?.aborted) return releaseEarly()
-  // qué motor corre DE VERDAD: WebGPUBackend, o WebGLBackend si el navegador
-  // no soporta WebGPU (Brave lo trae desactivado por defecto)
   const isWebGPU = renderer.backend?.isWebGPUBackend === true
   const backendName = isWebGPU ? 'WebGPU' : 'WebGL2 (fallback)'
   console.log('[lounge] motor:', backendName)
   window.__loungeBackend = backendName
 
-  // bloom selectivo por MRT: la escena escribe color y emissive por separado,
-  // el halo se calcula SOLO sobre el emissive — se acabó pelear con umbrales.
-  // samples: 1 = sin MSAA en el MRT (carísimo en doble target); el suavizado
-  // perceptible lo aporta la resolución de render de 'calidad'
   const postProcessing = new THREE.RenderPipeline(renderer)
   const scenePass = pass(scene, camera, { samples: 1 })
   scenePass.setMRT(mrt({ output, emissive }))
   const scenePassColor = scenePass.getTextureNode('output')
-  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0) // mezcla Iulian 2026-07-13
-  bloomPass.resolutionScale = 0.5 // el halo no necesita resolución completa
+  const bloomPass = bloom(scenePass.getTextureNode('emissive'), 0.2, 0.5, 0)
+  bloomPass.resolutionScale = 0.5
   const nativeOutputNode = scenePassColor.add(bloomPass)
   postProcessing.outputNode = nativeOutputNode
 
-  // FSR1 en 'baja' (laboratorio 2026-07-14, dominio postpro/P1): render
-  // interno al 66% + upscale FSR1 (EASU+RCAS) al tamaño nativo midió +74% de
-  // FPS con suavidad apenas perceptible — la letra del letrero se lee igual.
-  // Solo WebGPU: el laboratorio no probó FSR en el respaldo WebGL2, así que
-  // 'baja' ahí sigue siendo la dieta de DPR de siempre (rama de abajo).
-  // El nodo se construye perezoso (solo si 'baja' se llega a pisar de
-  // verdad) para no compilar un programa que casi nadie va a usar — por
-  // defecto WebGPU arranca en 'alta' (línea de abajo)
   const FSR_SCALE = 0.66
   let fsrOutputNode = null
 
-  // presets de calidad = resolución real de render (el mayor coste de todos).
-  // En el respaldo WebGL2 hasta el tope de 'alta' baja a 1.5: a DPR 2 real el
-  // fallback se hundía a 16fps (medido) — que el selector no ofrezca trampas.
-  // El tope WebGPU es 1.4: en escritorios con escala alta (Hyprland 1.6 →
-  // DPR 1.6) el nativo hundía 'alta' a 37fps en la iGPU; a 1.4 se recupera
-  // ~+30% de fps perdiendo un 12% de resolución lineal (curva medida
-  // 2026-07-20: 1.6→37 / 1.25→54 / 1.0+FSR→109). Con DPR 1 (Windows a
-  // escala 100%) el cap no actúa
   const QUALITY = {
     alta: Math.min(window.devicePixelRatio, isWebGPU ? 1.4 : 1.5),
     media: 1.25,
@@ -172,30 +122,13 @@ export async function createLounge(
       scenePass.setResolutionScale(1)
       postProcessing.outputNode = nativeOutputNode
     }
-    // el pass en sí (scenePass) no necesita recompilarse por cambiar su
-    // resolutionScale — solo redimensiona render targets. Lo que SÍ exige
-    // reconstrucción es el fragmentNode del quad de postproceso cuando el
-    // outputNode cambia de grafo (nativo <-> FSR): needsUpdate se lo dice al
-    // RenderPipeline (RenderPipeline.js _update()), que reasigna
-    // _quadMesh.material.fragmentNode y marca needsUpdate en el material —
-    // sin esto el quad seguiría pintando con el grafo anterior
     postProcessing.needsUpdate = true
     calidadActual = level
   }
   let calidadActual = null
 
-  // esperar un frame REAL: el trabajo del visillo (pintarlo, componerlo) y el
-  // congelón de compilación viven en frames distintos — igual que la barrida
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
 
-  // cambio de calidad con visillo: cuando el cambio estrena o retira el grafo
-  // FSR de 'baja', el primer render del grafo nuevo compila su pipeline EN
-  // SÍNCRONO y congela el hilo un ratín (ley 17). El visillo (lo pinta
-  // LoungeView vía onQualityBusy) tapa ese congelón con animación de
-  // compositor, que sigue viva aunque el hilo esté parado. alta <-> media no
-  // cambia de grafo (solo redimensiona render targets): sin visillo.
-  // Los cambios van en cola: dos clics rápidos se aplican en orden, cada uno
-  // decide con la calidad que de verdad quedó puesta
   let colaCalidad = Promise.resolve()
   const cambiaCalidad = async (level) => {
     if (level === calidadActual) return
@@ -206,14 +139,10 @@ export async function createLounge(
     }
     onQualityBusy(true)
     try {
-      // dos frames: en el primero Vue pinta el visillo, en el segundo el
-      // compositor lo sube a pantalla — solo entonces puede llegar el congelón
       await nextFrame()
       await nextFrame()
       if (!alive) return
       applyQuality(level)
-      // el congelón llega con el primer render() del grafo nuevo (el bucle
-      // sigue corriendo); cuando estos dos frames han pasado, ya quedó atrás
       await nextFrame()
       await nextFrame()
     } finally {
@@ -224,15 +153,10 @@ export async function createLounge(
     colaCalidad = colaCalidad.then(() => cambiaCalidad(level))
     return colaCalidad
   }
-  // por defecto según el motor REAL: con WebGPU a tope (decisión de Iulian:
-  // 120fps sobrados); en el respaldo WebGL2 (Firefox sin WebGPU, visitas por
-  // http de LAN — contexto no seguro) la resolución ×2 hundía los FPS →
-  // resolución nativa. El selector del panel sigue mandando
   setQuality(isWebGPU ? 'alta' : 'baja')
 
   const mountPanel = (smoke) => {
     if (!import.meta.env.DEV) return
-    // mandos de depuración en consola + panel de afinado del director de arte
     window.__lounge = {
       scene,
       camera,
@@ -255,13 +179,10 @@ export async function createLounge(
     })
   }
 
-  // paseo en primera persona (precursor de la tercera persona de IUL-28)
   walk = createWalkControls(camera, canvas)
   camera.position.set(0, 1.7, 4.6)
-  camera.lookAt(-3, 1.5, 0) // al entrar, la mirada cae hacia la barra
+  camera.lookAt(-3, 1.5, 0)
 
-  // el gancho al LoadingManager se instala ANTES de disparar ninguna carga:
-  // así onLoad no puede habérsenos escapado y el timeout es solo red de seguridad
   const texturesSettled = new Promise((resolve) => {
     const manager = THREE.DefaultLoadingManager
     const previous = manager.onLoad
@@ -272,43 +193,23 @@ export async function createLounge(
     manager.onProgress = (url, loaded, total) => {
       if (total > 0) onProgress((loaded / total) * 0.6)
     }
-    setTimeout(resolve, 8000) // red de seguridad si alguna carga se queda colgada
+    setTimeout(resolve, 8000)
   })
 
-  // bisección de arranque: ?sin=cortinas,focos,lamparas,ceniceros,humo,cocteleria,repisa
-  // apaga piezas de decor para cazar cuellos de botella de carga (DEV)
   const sin = new Set((new URLSearchParams(window.location.search).get('sin') ?? '').split(','))
 
   buildSalon(scene)
   addSalonLights(scene)
-  // piezas rescatadas del lote (2026-07-13), de una en una con OK de Iulian:
-  // arquitectura (cornisa/pilastras/zócalo/arco) y puerta con mirilla —
-  // geometría pura, cero luces
   addArchitecture(scene)
   addDoor(scene)
-  // expositor de fedoras retroiluminado (referencia speakeasyIdeas de Iulian;
-  // germen visual de la tienda del club) — luz por tiras emissive + puntuales
-  // cortas sin sombra, cero sombras nuevas
   addHatDisplay(scene)
-  // botellas de marca reales en la trasbarra, a contraluz del panel —
-  // geometría pura con materiales compartidos, cero luces
   addBotellas(scene)
-  // estación de coctelería sobre la encimera de la trasbarra (coctelera,
-  // sifón, cubitera, tabla de limones...) — geometría pura, cero luces
   if (!sin.has('cocteleria')) addCocktailStation(scene)
-  // repisa alta sin alcohol: cristalería de punta a punta (decisión de
-  // Iulian 2026-07-14) — geometría pura, cero luces
   if (!sin.has('repisa')) addRepisaAlta(scene)
-  // lámparas de pie victorianas (pantalla roja + flecos) en las esquinas
-  // del lado de la barra, y focos de trípode flanqueando el escenario —
-  // todo con luces sin sombra (el presupuesto de sombras manda)
   if (!sin.has('lamparas')) addFloorLamps(scene)
   const stageSpots = sin.has('focos') ? null : addStageSpots(scene)
-  // telón de fondo + patas recogidas + cenefa (sustituyen a la cortina
-  // plana que ponía salon.js)
   if (!sin.has('cortinas')) addCurtains(scene)
 
-  // animaciones activas (camarero, banda, ventiladores)
   const updatables = []
   const blackjackTable = createBlackjackTable({
     scene,
@@ -316,9 +217,6 @@ export async function createLounge(
     updatables,
     reducedMotion: prefersReducedMotion,
   })
-  // ceniceros con puros encendidos (brasas que laten) y sus volutas de humo:
-  // las puntas de los puros son los emisores. Antes de la captura de entorno
-  // para que el hideFromEnv del humo valga (no se hornea en el suelo)
   const { tips } = sin.has('ceniceros') ? { tips: [] } : addAshtrays(scene, updatables)
   const smoke = sin.has('humo') || tips.length === 0 ? null : addSmoke(scene, tips)
   if (smoke) updatables.push(smoke.update)
@@ -330,40 +228,14 @@ export async function createLounge(
     addLetrero(scene).catch((error) => console.error('[lounge] letrero:', error)),
   ])
 
-  // ORDEN DE ARRANQUE (todo detrás del telón de carga, la vista espera esta
-  // promesa): amueblar → capturar reflejos → UNA compilación asíncrona de los
-  // pipelines del pass MRT ya con envMap → congelar sombras → barrida →
-  // frame de estreno.
-  //
-  // scenePass.compileAsync(renderer) fija el render target y el MRT del pass
-  // antes de compilar, así las claves de caché coinciden con el render real
-  // (renderer.compileAsync(scene, camera) a pelo compilaba el render directo
-  // a canvas, que nunca se usa — trabajo tirado). Por debajo Dawn usa
-  // createRenderPipelineAsync: compila en su pool de hilos SIN congelar el
-  // hilo principal (el congelón síncrono medía ~23s en headless).
-  //
-  // La captura va PRIMERO: compilar el pass sin envMap y recompilarlo con él
-  // eran dos tandas completas — la primera se invalidaba entera al poner
-  // scene.environment (trabajo tirado, medido ~11s en headless)
   await Promise.all([ready, texturesSettled])
   if (signal?.aborted) return releaseEarly()
   cronometra('assets')
 
-  // higiene de variantes (laboratorio 2026-07-14): un material compartido
-  // por objetos con receiveShadow MEZCLADO se parte en dos programas (con y
-  // sin muestreo de sombra). Unificar el flag colapsó −4 programas sin
-  // estrenar ninguna sombra de contacto visible — es limpieza de censo, no
-  // palanca de tiempo
   scene.traverse((o) => {
     if (o.isMesh && !o.userData.isCard) o.receiveShadow = true
   })
 
-  // dieta del respaldo WebGL2 (Firefox sin WebGPU, visitas por http de LAN):
-  // ahí no hay compilación asíncrona ni va sobrado de GPU. Medido en banco:
-  // muestrear las 3 sombras PCF en cada fragmento hundía los FPS (35→60 sin
-  // ellas) y los conos de niebla castigan por overdraw (-35% de carga sin
-  // ellos). Se aplica ANTES de compilar para que los programas ya nazcan
-  // sin el código de sombras. La vía WebGPU no se toca
   if (!isWebGPU) {
     renderer.shadowMap.enabled = false
     scene.traverse((o) => {
@@ -374,26 +246,15 @@ export async function createLounge(
   onProgress(0.62)
 
   {
-    // resolución 128 (laboratorio 2026-07-14, dominio renderer/R1 envres): el
-    // coste de captura sale plano frente a 256 (~435ms en banco, cualquiera
-    // de las dos) y en este suelo es visualmente nulo — la laca lo difumina
-    // (woodFloor.clearcoatRoughness 0.33, salon.js) hasta que las capturas
-    // rasantes son indistinguibles, verificado por hash sobre renders reales
     const cubeTarget = new THREE.CubeRenderTarget(128, { type: THREE.HalfFloatType })
     const cubeCamera = new THREE.CubeCamera(0.1, 50, cubeTarget)
     cubeCamera.position.set(0, 1.6, 0)
-    for (const face of cubeCamera.children) face.layers.enable(1) // que vea el suelo
+    for (const face of cubeCamera.children) face.layers.enable(1)
     scene.add(cubeCamera)
 
-    // los emissives (bombillas, letrero, trasbarra) se ocultan SOLO durante
-    // la captura: si entran en el cubemap, la laca del suelo los unta como
-    // globos gigantes con paralaje falso
     const hidden = []
     const dimmed = []
     try {
-      // la trasbarra se apaga durante la captura: su pared encendida en el
-      // cubemap acaba reflejada en el suelo delante de la barra, donde el
-      // mostrador debería taparla (los envMaps no conocen la oclusión)
       scene.traverse((o) => {
         if (o.isLight && o.userData.kind === 'shelf') {
           dimmed.push([o, o.intensity])
@@ -401,10 +262,6 @@ export async function createLounge(
         }
       })
       scene.traverse((o) => {
-        // solo lo que de verdad brilla: emissive de COLOR no-negro con
-        // intensidad real (emissiveIntensity vale 1 por defecto en TODO
-        // material aunque el emissive sea negro), más lo marcado hideFromEnv
-        // (los faroles: sus pantallas iluminadas de cerca salen como discos)
         const emissiveColor = o.material?.emissive
         const glows =
           o.isMesh &&
@@ -416,18 +273,13 @@ export async function createLounge(
           hidden.push(o)
         }
       })
-      // toda la captura se pinta con UN material neutro (marrón de la sala):
-      // cada material visible en el cubemap compilaba su segunda variante de
-      // pipeline — medido en el laboratorio 2026-07-14: −7 programas,
-      // compilación −34%, arranque total −30%, y capturas del reflejo del
-      // suelo indistinguibles del control
       scene.overrideMaterial = new THREE.MeshStandardMaterial({
         color: '#3a2f28',
         roughness: 0.9,
       })
       cubeCamera.update(renderer, scene)
       scene.environment = cubeTarget.texture
-      scene.environmentIntensity = 0.65 // mezcla final de Iulian
+      scene.environmentIntensity = 0.65
     } catch (error) {
       console.error('[lounge] captura de entorno fallida (seguimos sin reflejos):', error)
     } finally {
@@ -440,16 +292,10 @@ export async function createLounge(
     cronometra('reflejos')
     onProgress(0.68)
 
-    // la escena es estática: congelar los mapas de sombra tras la carga
-    // ahorra su recálculo en cada frame
     renderer.shadowMap.autoUpdate = false
     renderer.shadowMap.needsUpdate = true
   }
 
-  // la ÚNICA compilación del pass MRT, ya con envMap puesto. El frustum
-  // culling fuera mientras compila: si no, solo compila lo que mira la cámara
-  // y cada giro del jugador estrena pipelines nuevos (el atasco reaparecía
-  // repartido por la barrida)
   const culled = []
   scene.traverse((o) => {
     if (o.isMesh && o.frustumCulled) {
@@ -457,9 +303,6 @@ export async function createLounge(
       culled.push(o)
     }
   })
-  // la compilación no da señal de avance, pero el hilo principal queda libre
-  // (Dawn compila en sus hilos): la barra repta hacia el 77% mientras tanto
-  // para que el tramo largo no parezca colgado
   let reptar = 0.68
   const goteo = setInterval(() => {
     reptar = Math.min(reptar + 0.006, 0.77)
@@ -494,10 +337,6 @@ export async function createLounge(
     reducedMotion: prefersReducedMotion,
   })
 
-  // interruptor de vida: dispose() lo apaga y el bucle muere en el siguiente
-  // frame. Sin esto, cada remontaje del componente (HMR de Vite al guardar
-  // un fichero) apilaba un lounge entero corriendo invisible — bucle de
-  // render, listeners y escena en GPU incluidos.
   let alive = true
 
   function tick() {
@@ -517,7 +356,7 @@ export async function createLounge(
   }
 
   const dispose = () => {
-    if (!alive) return // idempotente: unmount y pagehide pueden llegar los dos
+    if (!alive) return
     alive = false
     window.removeEventListener('resize', onResize)
     window.removeEventListener('pagehide', dispose)
@@ -526,37 +365,11 @@ export async function createLounge(
     blackjackTable.dispose()
     stats?.dom.remove()
     renderer.dispose()
-    // renderer.dispose() NO destruye el GPUDevice: sin esto, cada remontaje
-    // (HMR) deja un device entero vivo en el proceso GPU del navegador — que
-    // es compartido y sobrevive a las recargas — y los arranques se van
-    // volviendo cada vez más lentos (síntoma cazado 2026-07-13)
     renderer.backend?.device?.destroy?.()
   }
-  // la recarga (F5) no pasa por onUnmounted de Vue: pagehide es la única
-  // señal que llega antes de morir la página — soltamos el device ahí también
   window.addEventListener('pagehide', dispose)
   signal?.addEventListener('abort', dispose, { once: true })
 
-  // calentón ANTES de levantar el telón: barrida de orientaciones para que
-  // el primer giro del jugador no encuentre NADA sin preparar. Los pipelines
-  // ya están compilados (compileAsync de arriba), pero queda trabajo perezoso
-  // por objeto que se estrena en el primer draw real de cada orientación
-  // (bind groups, buffers de uniforms). Cada orientación en su PROPIO frame
-  // (rAF entre medias): el trabajo vive en el proceso GPU de Chrome y
-  // encadenar renders en una sola tarea no le deja rematar
-  // 8 orientaciones bastan: la cámara ve ~91° en horizontal (fov 60 a 16:9),
-  // a 45° por paso todo queda visto con solape — eran 12 cuando la barrida
-  // también compilaba pipelines; ya solo estrena bind groups y buffers
-  //
-  // laboratorio 2026-07-14: un barrido en un SOLO sentido (yaw creciente,
-  // antihorario) deja sin calentar el primer giro horario del jugador —
-  // ~410ms de hitch de compilación de pipeline en ese primer frame CW. El
-  // sentido del giro, no solo la orientación final, dispara variantes de
-  // pipeline/bind-group que un barrido unidireccional nunca estrena.
-  // Arreglo: ida antihoraria + vuelta horaria por las MISMAS 8 orientaciones
-  // — se reutiliza el trabajo (mismos objetos, mismo AABB visible en cada
-  // parada) así que el coste añadido es un segundo paso ligero de bind
-  // groups/uniforms, no un segundo barrido de compilación
   const yawInicial = camera.rotation.y
   const PASOS = 8
   const TOTAL_PASOS = PASOS * 2
@@ -578,13 +391,10 @@ export async function createLounge(
     onProgress(0.78 + (pasoGlobal / TOTAL_PASOS) * 0.22)
   }
   camera.rotation.y = yawInicial
-  postProcessing.render() // frame de estreno con la mirada de entrada
+  postProcessing.render()
   blackjackTable.endWarmup()
   cronometra('barrida')
   tiempos.total = Math.round(performance.now() - t0)
-  // lectura bajo demanda (no rolling): resuelve las queries del último
-  // render de la barrida (frame de estreno de arriba). No toca ningún tramo
-  // de reloj de pared existente — es un campo aparte, solo en DEV
   if (import.meta.env.DEV && renderer.backend?.trackTimestamp) {
     try {
       const gpuMs = await renderer.resolveTimestampsAsync('render')

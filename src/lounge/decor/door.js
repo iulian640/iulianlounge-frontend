@@ -2,11 +2,6 @@
 
 import { ROOM, materials } from '../salon'
 
-// Puerta de entrada con mirilla — IUL-27 P1. El hueco lo deja buildShell()
-// en salon.js: doorWidth 1.4, doorHeight 2.2, centrado en x=0, pared sur
-// (z = ROOM.depth / 2). Aquí solo se rellena el hueco con la hoja.
-// Cerrada, no interactiva — la interacción (santo y seña) llega con IUL-28.
-
 const DOOR_WIDTH = 1.4
 const DOOR_HEIGHT = 2.2
 const WALL_THICKNESS = 0.2
@@ -14,7 +9,6 @@ const WALL_THICKNESS = 0.2
 const LEAF_THICKNESS = 0.06
 const FRAME_DEPTH = 0.09
 
-// mirilla a la altura de los ojos (referencia ~1.65 m de pie)
 const PEEPHOLE_Y = 1.65
 
 function slab(width, height, depth, material) {
@@ -31,7 +25,6 @@ function stud(radius, height, material) {
   return mesh
 }
 
-// marco de latón embutido en el hueco del muro
 function buildFrame() {
   const frame = new THREE.Group()
   const jambWidth = 0.08
@@ -55,7 +48,6 @@ function buildFrame() {
   return frame
 }
 
-// hoja maciza con entrepaños hundidos (dos paneles superiores, uno largo abajo)
 function buildLeaf() {
   const leaf = new THREE.Group()
 
@@ -65,12 +57,10 @@ function buildLeaf() {
   const panelMat = materials.woodTrim
   const panelDepth = LEAF_THICKNESS + 0.02
 
-  // panel inferior, largo
   const lowerPanel = slab(DOOR_WIDTH - 0.08 - panelInset * 2, 0.95, 0.015, panelMat)
   lowerPanel.position.set(0, -(DOOR_HEIGHT - 0.08) / 2 + 0.55, panelDepth / 2 - LEAF_THICKNESS / 2)
   leaf.add(lowerPanel)
 
-  // dos paneles superiores, a ambos lados del eje de la mirilla
   for (const side of [-1, 1]) {
     const upperPanel = slab((DOOR_WIDTH - 0.08 - panelInset * 3) / 2, 0.85, 0.015, panelMat)
     upperPanel.position.set(
@@ -81,7 +71,6 @@ function buildLeaf() {
     leaf.add(upperPanel)
   }
 
-  // remaches de latón repartidos por el perímetro de la hoja
   const rivetPositions = []
   const halfW = DOOR_WIDTH / 2 - 0.1
   const halfH = (DOOR_HEIGHT - 0.08) / 2 - 0.1
@@ -100,9 +89,6 @@ function buildLeaf() {
   return leaf
 }
 
-// mirilla de speakeasy clásica: ventanilla RECTANGULAR horizontal con marco
-// de latón y trampilla de madera cerrada al ras (la versión anterior — aro
-// + trampilla aparcada al lado — se leía como una "C" al revés)
 function buildPeephole() {
   const group = new THREE.Group()
   group.position.set(0, PEEPHOLE_Y - DOOR_HEIGHT / 2, LEAF_THICKNESS / 2)
@@ -111,7 +97,6 @@ function buildPeephole() {
   const openingHeight = 0.09
   const frameBar = 0.022
 
-  // marco: cuatro barras de latón alrededor del hueco
   const top = slab(openingWidth + frameBar * 2, frameBar, 0.02, materials.brass)
   top.position.set(0, openingHeight / 2 + frameBar / 2, 0.004)
   const bottom = top.clone()
@@ -122,12 +107,10 @@ function buildPeephole() {
   right.position.x = openingWidth / 2 + frameBar / 2
   group.add(top, bottom, left, right)
 
-  // trampilla de madera cerrada, al ras del marco, ligeramente hundida
   const shutter = slab(openingWidth, openingHeight, 0.014, materials.woodTrim)
   shutter.position.z = -0.002
   group.add(shutter)
 
-  // pomito de latón centrado para deslizarla
   const pull = stud(0.011, 0.022, materials.brass)
   pull.position.set(0, 0, 0.012)
   group.add(pull)
@@ -135,7 +118,6 @@ function buildPeephole() {
   return group
 }
 
-// tirador y bisagras de latón
 function buildHardware() {
   const group = new THREE.Group()
 
@@ -151,7 +133,6 @@ function buildHardware() {
   grip.position.set(handleX, -0.15, LEAF_THICKNESS / 2 + 0.03)
   group.add(grip)
 
-  // tres bisagras en el canto izquierdo (visibles desde dentro del salón)
   for (const y of [-0.75, 0, 0.75]) {
     const hinge = slab(0.03, 0.16, 0.02, materials.brass)
     hinge.position.set(-(DOOR_WIDTH / 2 - 0.02), y, LEAF_THICKNESS / 2 + 0.01)
@@ -161,12 +142,6 @@ function buildHardware() {
   return group
 }
 
-/**
- * Monta la puerta de entrada (hoja + marco + mirilla + herrajes) en el
- * hueco de la pared sur y la añade a la escena. Cerrada, sin luces nuevas.
- * @param {THREE.Scene} scene
- * @returns {THREE.Group}
- */
 export function addDoor(scene) {
   const door = new THREE.Group()
   door.name = 'puerta-entrada'
@@ -176,11 +151,6 @@ export function addDoor(scene) {
   door.add(buildPeephole())
   door.add(buildHardware())
 
-  // el hueco está centrado en x=0, pared sur (z = ROOM.depth / 2); la hoja
-  // se apoya al ras del hueco, ligeramente retranqueada dentro del muro.
-  // GIRADA 180°: los detalles (entrepaños, mirilla, herrajes) se montan en
-  // la cara +Z del grupo, y sin el giro miraban hacia FUERA del salón —
-  // desde dentro se veía una tabla lisa (cazado por Iulian, 2026-07-13)
   door.rotation.y = Math.PI
   door.position.set(
     0,

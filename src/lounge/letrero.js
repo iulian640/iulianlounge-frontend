@@ -4,15 +4,9 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 
 import { ROOM } from './salon'
 
-// El letrero "IULIAN'S" — letras 3D emissive sobre la barra, candidato a
-// bloom (marquesina cálida, nada de neón atómico).
-
 const FONT_LIMELIGHT = '/fonts/limelight.typeface.json'
 const FONT_FALLBACK = '/fonts/helvetiker_bold.typeface.json'
 
-// Carga Limelight (la tipografía de marquesina de la biblia visual); si la
-// Intendencia todavía no ha dejado el fichero en public/fonts/, cae a la
-// helvetiker de siempre en vez de romper el arranque.
 async function loadSignFont() {
   const loader = new FontLoader()
   try {
@@ -23,16 +17,11 @@ async function loadSignFont() {
   }
 }
 
-// Bombillas de marquesina en fila perimetral alrededor del marco de latón.
-// Puramente emissive (sin PointLight real: el letrero ya tiene su propia
-// luz en lights.js) para no comerse presupuesto de sombras. La intensidad
-// supera el umbral del bloom MRT a propósito.
 function buildMarqueeBulbs(frameWidth, frameHeight, frameLength) {
   const BULB_RADIUS = 0.02
   const BULB_SPACING = 0.12
-  const FACE_OFFSET = frameWidth / 2 + BULB_RADIUS + 0.01 // delante de la cara del marco
+  const FACE_OFFSET = frameWidth / 2 + BULB_RADIUS + 0.01
 
-  // puntos en el plano (y, z) recorriendo el perímetro del marco
   const halfH = frameHeight / 2 - 0.05
   const halfL = frameLength / 2 - 0.05
   const points = []
@@ -54,7 +43,7 @@ function buildMarqueeBulbs(frameWidth, frameHeight, frameLength) {
   const material = new THREE.MeshStandardMaterial({
     color: '#E8CD8F',
     emissive: '#E8CD8F',
-    emissiveIntensity: 2.2, // por encima del umbral 0.3 del bloom MRT
+    emissiveIntensity: 2.2,
     roughness: 0.4,
   })
 
@@ -85,21 +74,17 @@ export async function addLetrero(scene) {
   })
   geometry.computeBoundingBox()
   const width = geometry.boundingBox.max.x - geometry.boundingBox.min.x
-  geometry.center() // el origen de TextGeometry no está centrado
+  geometry.center()
 
   const text = new THREE.Mesh(
     geometry,
-    // color base NEGRO: las letras no reciben luz de las lámparas — solo
-    // emiten. Si recibieran, cada letra cruzaría el umbral del bloom en un
-    // momento distinto y se "encenderían" una a una al subir el mando
     new THREE.MeshStandardMaterial({
       color: '#000000',
       emissive: '#ffc887',
-      emissiveIntensity: 0.85, // mezcla Iulian 2026-07-13 (letrero 0.5 con Limelight)
+      emissiveIntensity: 0.85,
     }),
   )
-  text.name = 'letrero-texto' // el panel de afinado regula su brillo
-  // pared oeste, sobre la trasbarra, mirando a la sala, centrado en su marco
+  text.name = 'letrero-texto'
   text.rotation.y = Math.PI / 2
   text.position.set(-ROOM.width / 2 + 0.18, 2.81, 0)
 

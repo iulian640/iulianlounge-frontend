@@ -3,18 +3,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 const loader = new GLTFLoader()
 
-// Carga un GLB y lo normaliza: cada asset viene en unidades distintas, así
-// que se escala a una medida objetivo en metros y se apoya centrado en y=0.
-// - height: altura objetivo (muebles, personajes)
-// - footprint: diámetro objetivo en planta (piezas planas: alfombras)
-// - recolor: viste el asset con la paleta del club, por nombre de material
-//   ({ wood: '#3a2417', metal: { color: '#c9a45c', metalness: 1 } })
-// - hide: nombres de material cuyas mallas se DESCARTAN (partes del GLB que
-//   no queremos: los vinilos del gramófono) — se quitan antes de medir para
-//   que no cuenten en la normalización de escala
-// - rotationX: corrige modelos tumbados en otro eje (se aplica ANTES de medir)
-// - animate: regex del clip a reproducir ('Idle', 'Working'); deja la función
-//   de avance en prop.userData.update(dt)
 export function loadProp(
   url,
   { height, footprint, rotationY = 0, rotationX = 0, recolor = {}, hide = [], animate } = {},
@@ -28,8 +16,6 @@ export function loadProp(
         const hidden = []
         model.traverse((child) => {
           if (child.isMesh) {
-            // desinfectante: una malla con NaN envenena el pase de bloom
-            // y deja el frame entero en negro (nos pasó con sconce.glb)
             const positions = child.geometry?.attributes?.position?.array
             if (positions && !positions.every(Number.isFinite)) {
               corrupt.push(child)
@@ -55,8 +41,6 @@ export function loadProp(
         }
         for (const mesh of hidden) mesh.removeFromParent()
 
-        // OJO GLTF: los nodos pueden traer matriz cocinada (matrixAutoUpdate
-        // false) e ignorar rotation directa — se rota siempre vía un pivote nuestro
         let target = model
         if (rotationX) {
           const pivot = new THREE.Group()
