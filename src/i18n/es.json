@@ -104,7 +104,13 @@
       "cartas": "La mesa de cartas",
       "escenario": "El escenario"
     },
-    "closed": "Cerrado"
+    "closed": "Cerrado",
+    "rooms": {
+      "label": "Salas del club",
+      "bar": "La barra",
+      "cards": "La mesa"
+    },
+    "goTo": "Ir a {room}"
   },
   "rank": {
     "nadie": "Recién llegado",
@@ -159,6 +165,16 @@
     },
     "scene": {
       "glass": "Una copa servida en la barra"
+    },
+    "sheet": {
+      "label": "Pedir y charlar",
+      "menu": "La carta",
+      "chat": "Charlar",
+      "expand": "Subir la carta",
+      "collapse": "Bajar la carta"
+    },
+    "speech": {
+      "open": "Charlar con el barman"
     }
   },
   "blackjack": {
@@ -167,7 +183,6 @@
       "title": "Blackjack"
     },
     "title": "Blackjack",
-    "rules": "La banca pide hasta 17 · Blackjack paga 3:2",
     "dealer": "La banca",
     "you": "Tú",
     "bet": "Apuesta",

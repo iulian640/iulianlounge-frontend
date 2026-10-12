@@ -87,11 +87,20 @@ async function mountSalon(menu = MENU, blackjackTable = EMPTY_TABLE) {
 }
 
 async function openBar() {
-  await wrapper.find('.toggle:not(.cards-toggle)').trigger('click')
+  await wrapper.find('.grab').trigger('click')
+}
+
+async function openTalk() {
+  await wrapper.find('#bar-sheet-tab-chat').trigger('click')
 }
 
 async function openCards() {
-  await wrapper.find('.cards-toggle').trigger('click')
+  await wrapper.find('#room-tab-cards').trigger('click')
+  await flushPromises()
+}
+
+async function backToBar() {
+  await wrapper.find('#room-tab-bar').trigger('click')
   await flushPromises()
 }
 
@@ -109,11 +118,14 @@ describe('SalonMovil', () => {
     document.body.innerHTML = ''
   })
 
-  it('renders the hud slot and the room name', async () => {
+  it('renders the hud slot, the club sign and the two rooms with the bar first', async () => {
     await mountSalon()
 
     expect(wrapper.find('.hud-slot').exists()).toBe(true)
-    expect(wrapper.find('h1').text()).toBe('El Salón')
+    expect(wrapper.find('h1').text()).toBe("IULIAN'S")
+    const tabs = wrapper.findAll('[role="tab"][id^="room-tab-"]')
+    expect(tabs.map((tab) => tab.text())).toEqual(['La barra', 'La mesa'])
+    expect(tabs.map((tab) => tab.attributes('aria-selected'))).toEqual(['true', 'false'])
   })
 
   it('draws the scene with two shelves, the barman and the counter', async () => {
@@ -175,62 +187,65 @@ describe('SalonMovil', () => {
     expect(wrapper.find('.speech-text').classes()).toContain('long')
   })
 
-  it('starts with the bar collapsed and the toggle wired to the panel', async () => {
+  it('starts with the sheet lowered on the menu and the grab wired to it', async () => {
     await mountSalon()
 
-    const toggle = wrapper.find('.toggle')
+    const grab = wrapper.find('.grab')
 
-    expect(toggle.element.tagName).toBe('BUTTON')
-    expect(toggle.attributes('aria-expanded')).toBe('false')
-    expect(toggle.attributes('aria-controls')).toBe('bar-panel')
-    expect(wrapper.find('#bar-panel').isVisible()).toBe(false)
-    expect(toggle.text()).toContain('La barra')
-    expect(toggle.text()).toContain('Pedir una copa')
-  })
-
-  it('reveals the chips, the text input and the menu when the toggle is pressed', async () => {
-    await mountSalon()
-
-    await openBar()
-
-    expect(wrapper.find('.toggle').attributes('aria-expanded')).toBe('true')
-    expect(wrapper.find('#bar-panel').isVisible()).toBe(true)
-    expect(wrapper.findAll('.chip')).toHaveLength(2)
-    expect(wrapper.find('input.field').exists()).toBe(true)
+    expect(grab.element.tagName).toBe('BUTTON')
+    expect(grab.attributes('aria-expanded')).toBe('false')
+    expect(grab.attributes('aria-controls')).toBe('bar-sheet-body')
+    expect(grab.attributes('aria-label')).toBe('Subir la carta')
+    expect(wrapper.find('.sheet').classes()).not.toContain('expanded')
+    expect(wrapper.find('#bar-sheet-tab-menu').attributes('aria-selected')).toBe('true')
     expect(wrapper.findAll('.drink')).toHaveLength(5)
   })
 
-  it('collapses the bar again with a second press', async () => {
+  it('raises the sheet with the grab and shows the chips and the text input in the talk tab', async () => {
     await mountSalon()
-    await openBar()
 
     await openBar()
+    await openTalk()
 
-    expect(wrapper.find('.toggle').attributes('aria-expanded')).toBe('false')
-    expect(wrapper.find('#bar-panel').isVisible()).toBe(false)
+    expect(wrapper.find('.grab').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+    expect(wrapper.find('#bar-sheet-chat').isVisible()).toBe(true)
+    expect(wrapper.find('#bar-sheet-menu').isVisible()).toBe(false)
+    expect(wrapper.findAll('.chip')).toHaveLength(2)
+    expect(wrapper.find('input.field').exists()).toBe(true)
   })
 
-  it('keeps the whole conversation in a compact log inside the panel', async () => {
+  it('lowers the sheet again with a second press', async () => {
     await mountSalon()
     await openBar()
 
-    expect(wrapper.find('.chat').classes()).toContain('compact')
-    expect(wrapper.find('[role="log"]').exists()).toBe(true)
+    await openBar()
+
+    expect(wrapper.find('.grab').attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('.sheet').classes()).not.toContain('expanded')
   })
 
-  it('hides the bubble from assistive technology only while the log is open', async () => {
+  it('shows the whole conversation in the talk tab', async () => {
+    await mountSalon()
+    await openTalk()
+
+    expect(wrapper.find('.chat').classes()).not.toContain('compact')
+    expect(wrapper.find('[role="log"]').isVisible()).toBe(true)
+  })
+
+  it('opens the talk tab when the bubble is tapped', async () => {
     await mountSalon()
 
-    expect(wrapper.find('.speech').attributes('aria-hidden')).toBeUndefined()
+    await wrapper.find('.speech').trigger('click')
 
-    await openBar()
-
-    expect(wrapper.find('.speech').attributes('aria-hidden')).toBe('true')
+    expect(wrapper.find('.speech').element.tagName).toBe('BUTTON')
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+    expect(wrapper.find('#bar-sheet-tab-chat').attributes('aria-selected')).toBe('true')
   })
 
   it('answers a chip locally and shows the answer in the bubble', async () => {
     await mountSalon()
-    await openBar()
+    await openTalk()
 
     await wrapper.findAll('.chip')[0].trigger('click')
 
@@ -239,7 +254,7 @@ describe('SalonMovil', () => {
 
   it('sends free text to the barman with the current locale and shows the reply', async () => {
     await mountSalon()
-    await openBar()
+    await openTalk()
     api.mockResolvedValueOnce({ source: 'LLM', text: 'Un Sidecar, sin dudarlo.' })
 
     await wrapper.find('input.field').setValue('Algo con coñac')
@@ -255,7 +270,7 @@ describe('SalonMovil', () => {
 
   it('locks the text input after a fallback reply and keeps chips and menu usable', async () => {
     await mountSalon()
-    await openBar()
+    await openTalk()
     api.mockResolvedValueOnce({ source: 'FALLBACK', line: 'barman.busy' })
 
     await wrapper.find('input.field').setValue('Hola')
@@ -297,6 +312,7 @@ describe('SalonMovil', () => {
 
     expect(wrapper.find('.glass').exists()).toBe(false)
     expect(wrapper.find('[role="alert"]').text()).toBe('Eso cuesta más monedas de las que llevas encima.')
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
   })
 
   it('removes the glass when the bar store is reset', async () => {
@@ -347,36 +363,24 @@ describe('SalonMovil', () => {
     expect(wrapper.find('.credit').exists()).toBe(false)
   })
 
-  it('keeps only the stage as a closed corner without promising anything', async () => {
+  it('has no closed corners left: the stage is gone', async () => {
     await mountSalon()
 
-    const corners = wrapper.findAll('.corner.closed')
-
-    expect(corners.map((corner) => corner.find('.corner-title').text())).toEqual(['El escenario'])
-    expect(corners.map((corner) => corner.find('.corner-state').text())).toEqual(['Cerrado'])
-    expect(corners.some((corner) => corner.find('button, a').exists())).toBe(false)
-    expect(wrapper.text()).not.toMatch(/pronto|soon/i)
+    expect(wrapper.find('.corner').exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(/escenario|pronto|soon/i)
   })
 
-  it('shows the closed stage in English', async () => {
-    i18n.global.locale.value = 'en'
 
+  it('keeps the table room inert until the member goes there', async () => {
     await mountSalon()
 
-    expect(wrapper.findAll('.corner.closed').map((corner) => corner.text())).toEqual(['The stageClosed'])
-  })
+    const tab = wrapper.find('#room-tab-cards')
 
-  it('starts with the cards table collapsed and the toggle wired to the panel', async () => {
-    await mountSalon()
-
-    const toggle = wrapper.find('.cards-toggle')
-
-    expect(toggle.element.tagName).toBe('BUTTON')
-    expect(toggle.attributes('aria-expanded')).toBe('false')
-    expect(toggle.attributes('aria-controls')).toBe('cards-panel')
-    expect(wrapper.find('#cards-panel').isVisible()).toBe(false)
-    expect(toggle.text()).toContain('Cartas')
-    expect(toggle.text()).toContain('Blackjack')
+    expect(tab.attributes('aria-selected')).toBe('false')
+    expect(tab.attributes('aria-controls')).toBe('room-cards')
+    expect(tab.attributes('tabindex')).toBe('-1')
+    expect(wrapper.find('#room-cards').attributes('inert')).toBeDefined()
+    expect(wrapper.find('#room-bar').attributes('inert')).toBeUndefined()
   })
 
   it('does not touch the blackjack api until the cards table is opened', async () => {
@@ -386,38 +390,94 @@ describe('SalonMovil', () => {
     expect(wrapper.find('.table').exists()).toBe(false)
   })
 
-  it('reveals the betting table when the cards toggle is pressed', async () => {
+  it('opens the betting table when the member goes to the table room', async () => {
     await mountSalon()
 
     await openCards()
 
-    expect(wrapper.find('.cards-toggle').attributes('aria-expanded')).toBe('true')
-    expect(wrapper.find('#cards-panel').isVisible()).toBe(true)
+    expect(wrapper.find('#room-tab-cards').attributes('aria-selected')).toBe('true')
+    expect(wrapper.find('#room-cards').attributes('inert')).toBeUndefined()
+    expect(wrapper.find('#room-bar').attributes('inert')).toBeDefined()
     expect(api).toHaveBeenCalledWith('/blackjack')
     expect(wrapper.findAll('.bet-chip')).toHaveLength(3)
-    expect(wrapper.find('#cards-panel .action.primary').text()).toBe('Repartir · 20 ¢')
+    expect(wrapper.find('#room-cards .action.primary').text()).toBe('Repartir · 20 ¢')
   })
 
-  it('collapses the cards table again and keeps its state', async () => {
+  it('hands the focus to the tab of the new room when the focused control is left behind', async () => {
+    await mountSalon()
+    const next = wrapper.find('.next')
+    next.element.focus()
+
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(document.activeElement.id).toBe('room-tab-cards')
+  })
+
+  it('moves between the sheet tabs with the arrow keys and raises the sheet', async () => {
+    await mountSalon()
+    wrapper.find('#bar-sheet-tab-menu').element.focus()
+
+    await wrapper.find('.sheet [role="tablist"]').trigger('keydown', { key: 'ArrowRight' })
+    await flushPromises()
+
+    expect(wrapper.find('#bar-sheet-tab-chat').attributes('aria-selected')).toBe('true')
+    expect(wrapper.find('#bar-sheet-tab-chat').attributes('tabindex')).toBe('0')
+    expect(document.activeElement.id).toBe('bar-sheet-tab-chat')
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+  })
+
+  it('raises the lowered sheet when keyboard focus reaches a hidden control', async () => {
+    await mountSalon()
+    const order = wrapper.findAll('.order')[4].element
+    order.matches = (selector) => selector === ':focus-visible'
+
+    order.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    await flushPromises()
+
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
+  })
+
+  it('leaves the lowered sheet alone when a visible drink is tapped', async () => {
+    await mountSalon()
+    const order = wrapper.findAll('.order')[0].element
+    order.matches = () => false
+
+    order.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    await flushPromises()
+
+    expect(wrapper.find('.sheet').classes()).not.toContain('expanded')
+  })
+
+  it('goes to the table from the handle at the edge of the bar', async () => {
+    await mountSalon()
+
+    await wrapper.find('.next').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('#room-tab-cards').attributes('aria-selected')).toBe('true')
+  })
+
+  it('goes back to the bar and keeps the hand in play', async () => {
     await mountSalon(MENU, { ...EMPTY_TABLE, hand: BLACKJACK_HAND })
     await openCards()
 
-    await openCards()
+    await backToBar()
 
-    expect(wrapper.find('.cards-toggle').attributes('aria-expanded')).toBe('false')
-    expect(wrapper.find('#cards-panel').isVisible()).toBe(false)
+    expect(wrapper.find('#room-tab-bar').attributes('aria-selected')).toBe('true')
     expect(useBlackjackStore().hand.id).toBe(BLACKJACK_HAND.id)
+    await openCards()
     expect(api.mock.calls.filter(([path]) => path === '/blackjack')).toHaveLength(1)
   })
 
-  it('opens the cards table independently of the bar', async () => {
+  it('keeps the sheet raised while the member visits the table', async () => {
     await mountSalon()
     await openBar()
 
     await openCards()
+    await backToBar()
 
-    expect(wrapper.find('#bar-panel').isVisible()).toBe(true)
-    expect(wrapper.find('#cards-panel').isVisible()).toBe(true)
+    expect(wrapper.find('.sheet').classes()).toContain('expanded')
   })
 
   it('deals a hand from the salon and updates the balance', async () => {
@@ -425,7 +485,7 @@ describe('SalonMovil', () => {
     await openCards()
     api.mockResolvedValueOnce({ hand: BLACKJACK_HAND, balance: 40 })
 
-    await wrapper.find('#cards-panel .action.primary').trigger('click')
+    await wrapper.find('#room-cards .action.primary').trigger('click')
     await flushPromises()
 
     expect(api).toHaveBeenLastCalledWith(
@@ -433,23 +493,24 @@ describe('SalonMovil', () => {
       expect.objectContaining({ method: 'POST', body: { bet: 'TWENTY' } }),
     )
     expect(useWalletStore().balance).toBe(40)
-    expect(wrapper.findAll('#cards-panel .action').map((button) => button.text())).toEqual([
+    expect(wrapper.findAll('#room-cards .action').map((button) => button.text())).toEqual([
       'Pedir carta',
       'Plantarse',
     ])
   })
 
-  it('shows the cards toggle in English', async () => {
+  it('names the rooms in English', async () => {
     i18n.global.locale.value = 'en'
 
     await mountSalon()
 
-    expect(wrapper.find('.cards-toggle').text()).toContain('Cards')
+    expect(wrapper.find('#room-tab-bar').text()).toBe('The bar')
+    expect(wrapper.find('#room-tab-cards').text()).toBe('The table')
   })
 
   it('links the privacy page from the notice under the text input', async () => {
     await mountSalon()
-    await openBar()
+    await openTalk()
 
     expect(wrapper.findComponent(RouterLinkStub).props('to')).toBe('/privacidad')
   })

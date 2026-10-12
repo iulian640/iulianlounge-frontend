@@ -1,7 +1,13 @@
+<script setup>
+defineProps({
+  croupier: { type: Boolean, default: false },
+})
+</script>
+
 <template>
   <svg class="figure" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <path d="M14 150 C14 96 30 78 60 76 C90 78 106 96 106 150 Z" fill="#e9dfc6" />
-    <path d="M30 150 L30 96 C34 86 44 80 52 79 L60 112 L68 79 C76 80 86 86 90 96 L90 150 Z" fill="#1d1916" />
+    <path d="M30 150 L30 96 C34 86 44 80 52 79 L60 112 L68 79 C76 80 86 86 90 96 L90 150 Z" :fill="croupier ? '#5a3a44' : '#1d1916'" />
     <circle cx="60" cy="122" r="2" fill="#c9a45c" />
     <circle cx="60" cy="134" r="2" fill="#c9a45c" />
     <rect x="14" y="112" width="16" height="6" fill="#c9a45c" />
@@ -16,6 +22,12 @@
     <path
       d="M42.5 42 C41 26 50 20 61 20 C72 20 80 27 77.5 42 C74 34 66 30 56 31 C50 32 46 36 42.5 42 Z"
       fill="#2a1d15"
+    />
+    <path
+      v-if="croupier"
+      d="M39 37 C46 27 74 27 81 37 L84 41 C71 35.5 49 35.5 36 41 Z"
+      fill="#2f6b4f"
+      fill-opacity="0.9"
     />
     <path d="M50 40.5 L56 39.5 M64 39.5 L70 40.5" stroke="#2a1d15" stroke-width="1.5" stroke-linecap="round" />
     <circle cx="53" cy="45" r="1.7" fill="#2a1d15" />

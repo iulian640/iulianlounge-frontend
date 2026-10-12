@@ -50,6 +50,7 @@ defineExpose({ focus: () => button.value?.focus() })
     ref="button"
     type="button"
     class="ficha"
+    :class="{ changing: change }"
     :aria-label="t('hud.balance', { amount: formatted })"
     :aria-expanded="expanded"
     aria-controls="libro-cuentas"
@@ -57,13 +58,15 @@ defineExpose({ focus: () => button.value?.focus() })
   >
     <span class="canto" aria-hidden="true"></span>
     <span class="cifra">{{ formatted }}</span>
-    <span class="moneda">{{ t('currency.name') }}</span>
+    <span class="label-stack">
+      <span class="moneda" :class="{ muted: change }">{{ t('currency.name') }}</span>
+      <span v-if="change" :key="change.id" class="delta" :class="change.direction" aria-hidden="true">
+        {{ change.text }}
+      </span>
+    </span>
     <svg class="chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
       <path d="M3 4.5l3 3 3-3" />
     </svg>
-    <span v-if="change" :key="change.id" class="delta" :class="change.direction" aria-hidden="true">
-      {{ change.text }}
-    </span>
   </button>
   <p class="sr-only" role="status" aria-live="polite">{{ announcement }}</p>
 </template>
@@ -135,10 +138,20 @@ defineExpose({ focus: () => button.value?.focus() })
   transform: rotate(180deg);
 }
 
+.label-stack {
+  display: grid;
+  align-items: center;
+}
+
+.label-stack > * {
+  grid-area: 1 / 1;
+}
+
+.moneda.muted {
+  opacity: 0;
+}
+
 .delta {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 36px;
   font-family: var(--f-mono);
   font-size: 0.9rem;
   font-weight: 600;
@@ -158,18 +171,18 @@ defineExpose({ focus: () => button.value?.focus() })
 @keyframes delta-rise {
   0% {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(6px);
   }
   18% {
     opacity: 1;
     transform: translateY(0);
   }
-  75% {
+  80% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(-4px);
   }
 }
 
@@ -188,6 +201,17 @@ defineExpose({ focus: () => button.value?.focus() })
 @media (max-width: 379px) {
   .moneda {
     display: none;
+  }
+
+  .delta {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    margin-top: -0.65em;
+  }
+
+  .ficha.changing .chevron {
+    opacity: 0;
   }
 }
 

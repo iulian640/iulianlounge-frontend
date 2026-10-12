@@ -39,43 +39,51 @@ const totalText = computed(() => totalLabel(t, props.total, props.hasHiddenCard)
 .hand-side {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
 .hand-head {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
+  white-space: nowrap;
 }
 
 .hand-label {
-  font-family: var(--f-ui);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--laton);
-}
-
-.hand-total {
-  font-family: var(--f-mono);
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--f-titulo);
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: 600;
   color: var(--marfil);
 }
 
+.hand-total {
+  min-width: 2ch;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(11, 21, 20, 0.55);
+  font-family: var(--f-mono);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--oro);
+}
+
 .hand-total.bust {
-  color: #d9776f;
+  color: var(--burdeos-claro);
 }
 
 .hand {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 72px;
+  justify-content: center;
+  min-height: 82px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.hand li + li {
+  margin-left: -18px;
 }
 </style>

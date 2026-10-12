@@ -95,8 +95,17 @@ async function logout() {
 }
 
 .hud.inline {
-  position: static;
+  position: relative;
+  top: auto;
+  right: auto;
   width: 100%;
+}
+
+.hud.inline :deep(.libro) {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 3;
 }
 
 .barra {
@@ -110,7 +119,22 @@ async function logout() {
 }
 
 .hud.inline .barra {
+  width: 100%;
   box-shadow: none;
+}
+
+.hud.inline :deep(.ficha) {
+  flex: 1;
+}
+
+.hud.inline :deep(.socio) {
+  flex-shrink: 0;
+}
+
+@media (max-width: 379px) {
+  .hud.inline :deep(.socio) {
+    flex-shrink: 1;
+  }
 }
 
 .libro-enter-active,
