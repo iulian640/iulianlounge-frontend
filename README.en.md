@@ -35,9 +35,8 @@ Vue 3 SPA for IulianLounge, a 1920s bar in the browser played with fictional coi
 10. [Design](#design)
 11. [Deployment](#deployment)
 12. [Project management](#project-management)
-13. [Known issues and improvements](#known-issues-and-improvements)
-14. [Credits](#credits)
-15. [Author](#author)
+13. [Credits](#credits)
+14. [Author](#author)
 
 ## What it is and features
 
@@ -239,13 +238,6 @@ Jira with 50 tasks in 15 epics. One branch per task, and commits carry the task 
 | 11 | Mobile and delivery | 10–13 Oct |
 
 From July to September I worked on the 3D lounge outside the sprints. That is why the board jumps from sprint 1 to 8.
-
-## Known issues and improvements
-
-- Three.js ships in the main bundle on phones too, where it is not used. Lazy loading is missing.
-- On some Linux Chromium builds the 3D scene renders black with WebGPU. It works in Firefox.
-- There is no visible language selector. The English texts exist, but the interface starts in Spanish.
-- The AI barman is switched off in production. The chat answers with fixed lines.
 
 ## Credits
 

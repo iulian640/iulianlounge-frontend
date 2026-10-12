@@ -35,9 +35,8 @@ SPA en Vue 3 de IulianLounge, un bar de los años 20 en el navegador donde se ju
 10. [Diseño](#diseño)
 11. [Despliegue](#despliegue)
 12. [Gestión del proyecto](#gestión-del-proyecto)
-13. [Problemas conocidos y mejoras](#problemas-conocidos-y-mejoras)
-14. [Créditos](#créditos)
-15. [Autor](#autor)
+13. [Créditos](#créditos)
+14. [Autor](#autor)
 
 ## Qué es y funcionalidades
 
@@ -239,13 +238,6 @@ Jira con 50 tareas en 15 épicas. Una rama por tarea y commits con la clave de l
 | 11 | Móvil y entrega | 10–13 oct |
 
 De julio a septiembre trabajé en el lounge 3D fuera de los sprints. Por eso el tablero salta del sprint 1 al 8.
-
-## Problemas conocidos y mejoras
-
-- Three.js va en el bundle principal también en móvil, donde no se usa. Falta carga diferida.
-- En algunos Chromium de Linux el 3D sale negro con WebGPU. En Firefox va bien.
-- No hay selector de idioma visible. Los textos en inglés están, pero la interfaz arranca en castellano.
-- El barman con IA está apagado en producción. El chat responde con frases fijas.
 
 ## Créditos
 
