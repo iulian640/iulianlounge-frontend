@@ -1,88 +1,113 @@
-# IulianLounge: frontend
+# IulianLounge · Frontend
 
-[Versión en español](README.md)
+Vue 3 SPA for IulianLounge, a 1920s bar in the browser played with fictional coins.
 
-Iulian's is a 1920s speakeasy in the browser. You enter as a newcomer, order drinks at the bar, talk to the barman and play blackjack.
+![Vue 3](https://img.shields.io/badge/Vue-3.5-42b883?logo=vuedotjs&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-0.185-000000?logo=threedotjs&logoColor=white)
+[![CI](https://github.com/iulian640/iulianlounge-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/iulian640/iulianlounge-frontend/actions/workflows/ci.yml)
 
 [App](https://iulianlounge.com) · [Presentation](https://iulianlounge.com/presentacion/) · [Backend](https://github.com/iulian640/iulianlounge-backend) · [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX)
 
+[Versión en español](README.md)
+
 <p align="center">
-  <img src="docs/responsive/bar-390.webp" alt="The bar on a 390 px phone" width="240">
-  &nbsp;
-  <img src="docs/responsive/table-390.webp" alt="The blackjack table on a 390 px phone" width="240">
+  <img src="docs/img/desktop.webp" alt="The 3D lounge on desktop" width="720">
 </p>
 
-## What it is
+<p align="center">
+  <img src="docs/responsive/bar-390.webp" alt="The bar on a 390 px phone" width="220">
+  &nbsp;
+  <img src="docs/responsive/table-390.webp" alt="The blackjack table on a 390 px phone" width="220">
+</p>
 
-This repository is the IulianLounge frontend: a Vue 3 SPA that talks to the [backend](https://github.com/iulian640/iulianlounge-backend) API. The house currency is coins ("monedas" in the Spanish UI). New accounts start with 100.
+## Contents
 
-Spending raises your rank: Recién llegado, Cliente, Habitual, Socio (newcomer, customer, regular, member). If your balance hits zero, the house gives you 50 coins once a day.
+1. [What it is and features](#what-it-is-and-features)
+2. [Tech stack](#tech-stack)
+3. [Requirements](#requirements)
+4. [Getting started](#getting-started)
+5. [Scripts](#scripts)
+6. [Project structure](#project-structure)
+7. [User flow](#user-flow)
+8. [Tests](#tests)
+9. [Responsive and accessibility](#responsive-and-accessibility)
+10. [Design](#design)
+11. [Deployment](#deployment)
+12. [Project management](#project-management)
+13. [Known issues and improvements](#known-issues-and-improvements)
+14. [Credits](#credits)
+15. [Author](#author)
 
-## Two experiences
+## What it is and features
 
-On 3 July 2026 I decided the lounge could not be the same on every device. The choice is made when the page loads.
+This repository is the IulianLounge frontend. It talks to the Spring Boot API in the [backend](https://github.com/iulian640/iulianlounge-backend). The house currency is fictional coins ("monedas" in the Spanish UI). New accounts start with 100.
 
-- Desktop: a 3D lounge you walk through with WASD and the mouse. Approach the barman or the blackjack table and press E. It uses Three.js with WebGPU and a WebGL2 fallback.
-- **Phones and touch tablets** (coarse pointer or width under 768 px): a 2D experience with no canvas. Two full-screen rooms side by side, La barra (the bar) and La mesa (the table). You switch rooms with horizontal scroll-snap, the edge handles or the room tabs. In the bar, a bottom sheet with the tabs La carta (the menu) and Charlar (chat). At the top, the HUD plate with balance, name, rank and sign out, plus an account book.
+There are two experiences, and the page picks one on load:
 
-The logic is shared between both modes (Pinia stores and composables). Each mode has its own presentation.
+- Desktop: a 3D scene built with Three.js (WebGPU, with WebGL2 as fallback). You move with WASD and the mouse. Near the barman or the blackjack table, press E to order or play.
+- Phone and touch tablet (coarse pointer or width under 768 px): a dedicated 2D version with no canvas. It has two rooms, the bar and the table, which you swipe between. It exists because the 3D drained too much battery on phones.
 
-## Features
+Both share the same logic: Pinia stores and composables. Each mode has its own presentation.
 
-- Sign up, sign in and sign out.
-- The bar menu: Bathtub Gin (5 coins), Bee's Knees (10), Gin Rickey (15), Sidecar (25) and French 75 (40).
-- Barman chat: quick questions get fixed answers. Free text goes to Claude Haiku only when the server has an API key. Without one, the barman answers with fixed lines.
-- Blackjack with bets of 10, 20 or 50, hit and stand. The dealer stands on 17 and blackjack pays 3:2.
-- Balance in the HUD with the change (−N or +N) after each move.
-- Account book with the movement history.
-- Ranks based on spending, and the daily house credit at zero balance.
-- UI text in Spanish, with the English translation already in place; the language switcher comes in phase 2.
+Features:
 
-## Stack
+- Sign up, log in and log out.
+- Drinks menu with five cocktails, from 5 to 40 coins.
+- Chat with the barman: quick questions with fixed answers, and free text.
+- Blackjack with bets of 10, 20 or 50 coins. The dealer stands on 17 and blackjack pays 3:2.
+- Balance in the HUD with the change after every move, and an account book with the history.
+- Rank based on spending: Recién llegado (newcomer), Cliente, Habitual and Socio (member).
+- 50 free coins once a day if your balance is zero.
+- Spanish and English with vue-i18n.
 
-| Area | Technology |
-| --- | --- |
-| Framework | Vue 3.5 (Composition API, `<script setup>`, JavaScript) |
-| Build | Vite 8 |
-| State and routing | Pinia 3, Vue Router 5 |
-| i18n | vue-i18n 11 (ES main, EN) |
-| 3D | Three.js 0.185 (WebGPU build) |
-| Tests | Vitest 4, Vue Test Utils, jsdom, Playwright 1.61.1 |
-| Quality | ESLint 10 and oxlint |
-| Fonts | Limelight, Cormorant, Jost, IBM Plex Mono (@fontsource) |
+## Tech stack
 
-## Frontend architecture
+| Area | Technology | Version |
+| --- | --- | --- |
+| Framework | Vue (Composition API, `<script setup>`, JavaScript) | 3.5 |
+| Build | Vite | 8 |
+| State | Pinia | 3 |
+| Routing | Vue Router | 5 |
+| i18n | vue-i18n | 11 |
+| 3D | Three.js (WebGPU build) | 0.185 |
+| Unit tests | Vitest, Vue Test Utils, jsdom | 4 / 2.4 / 29 |
+| E2E tests | Playwright | 1.61.1 |
+| Quality | ESLint and oxlint | 10 / 1.69 |
+| Formatting | oxfmt | 0.54 |
+| Fonts | Limelight, Cormorant, Jost, IBM Plex Mono (`@fontsource`) | |
 
-```text
-src/
-  views/        AccessView, LoungeView, SalonMovil, PrivacyView
-  components/
-    hud/        balance, name and rank, account book
-    bar/        menu, barman, chat
-    blackjack/  table, hands, cards, bets
-    salon/      mobile rooms, bottom sheet, room tabs
-  composables/  shared logic (rooms, talk, blackjack round...)
-  stores/       Pinia: auth, wallet, bar, blackjack
-  lounge/       the 3D lounge (scene, lights, camera, controls, table)
-  i18n/         es.json, en.json
-  api/          HTTP client
-  router/
-```
+## Requirements
 
-Unit tests live in `__tests__` folders next to the code they cover. E2E tests are in `e2e/`.
+- Node `^22.18.0` or `>=24.12.0` (CI uses 24).
+- npm.
+- The backend running on port 8080.
 
 ## Getting started
 
-Requirements: Node `^22.18.0` or `>=24.12.0` (CI uses 24) and the backend running on port 8080. Backend instructions are in its [README](https://github.com/iulian640/iulianlounge-backend).
+1. Clone both repositories:
 
-```bash
-npm ci
-npm run dev
-```
+   ```bash
+   git clone https://github.com/iulian640/iulianlounge-backend.git
+   git clone https://github.com/iulian640/iulianlounge-frontend.git
+   ```
 
-Open `http://localhost:5173`. In development, Vite proxies `/api` to `http://localhost:8080`. That keeps the refresh cookie on the same origin, so CORS is not needed.
+2. Start the backend first. The steps are in its [README](https://github.com/iulian640/iulianlounge-backend).
+3. Install the frontend dependencies and start the dev server:
 
-The 3D lounge needs a browser with WebGPU or WebGL2 and a secure context. `localhost` works, a LAN IP does not.
+   ```bash
+   cd iulianlounge-frontend
+   npm ci
+   npm run dev
+   ```
+
+4. Open http://localhost:5173.
+
+Notes:
+
+- The dev server proxies `/api` to `http://localhost:8080`. The refresh cookie travels on the same origin, so CORS is not needed.
+- WebGPU needs a secure context. `localhost` works, a LAN IP does not.
+- If the browser has no WebGPU, the scene falls back to WebGL2.
 
 ## Scripts
 
@@ -92,81 +117,136 @@ The 3D lounge needs a browser with WebGPU or WebGL2 and a secure context. `local
 | `npm run build` | Production build |
 | `npm run preview` | Serves the build locally |
 | `npm run test:unit` | Vitest in watch mode |
-| `npm run test:coverage` | Vitest with a coverage report |
+| `npm run test:coverage` | Vitest once, with coverage report |
 | `npm run test:e2e` | Playwright E2E tests |
-| `npm run lint` | oxlint and ESLint, with auto-fix |
+| `npm run lint` | oxlint and ESLint, both with `--fix`: they modify files |
 | `npm run format` | Formats `src/` with oxfmt |
+
+## Project structure
+
+```text
+src/
+  api/          HTTP client (fetch, errors, session renewal)
+  components/
+    bar/        Menu, barman, chat and bar window
+    blackjack/  Table, hands, cards and bets
+    hud/        Balance, name and rank, account book
+    salon/      Mobile rooms, bottom sheet and room tabs
+  composables/  Shared logic: rooms, barman talk, blackjack round, errors
+  i18n/         vue-i18n setup and es.json / en.json texts
+  lounge/       3D scene: lights, camera, controls, table, models and decor
+  router/       Routes and auth guard
+  stores/       Pinia: auth, wallet, bar and blackjack
+  views/        AccessView, LoungeView, SalonMovil and PrivacyView
+e2e/            Playwright tests (desktop and mobile)
+public/         3D models and the presentation (public/presentacion/)
+docs/           Screenshots, model credits and notes
+```
+
+Unit tests live in `__tests__` folders next to the code they test.
+
+## User flow
+
+```mermaid
+flowchart TD
+    A[Access: sign up or log in] --> B{Wide screen and fine pointer?}
+    B -- Yes --> C[3D lounge]
+    B -- No --> D[2D mobile salon]
+    C --> E[Bar]
+    C --> F[Blackjack table]
+    C --> G[Barman]
+    D --> E
+    D --> F
+    D --> G
+```
+
+The routes are `/` (the lounge, session required), `/acceso` and `/privacidad`. Without a session, `/` redirects to `/acceso`.
 
 ## Tests
 
-- 976 unit and component tests in 52 files.
-- Line coverage of 97.88% (statements and branches around 93%, functions around 95.9%). `vitest.config.js` fails below 70% lines.
-- 9 Playwright E2E tests. Four on desktop: access flow, wrong password, HUD and account book. Five on mobile: the 2D lounge, a drink down to zero balance with the house credit, the rank chip, a full blackjack hand and sign out.
-
 ```bash
-npm run test:coverage
-npm run test:e2e
+npm run test:unit       # watch mode
+npm run test:coverage   # once, with coverage
+npm run test:e2e        # needs the backend running
 ```
 
-E2E tests run against the production build (`vite build` and `vite preview` on port 5179, with `/api` proxied to `localhost:8080`). The backend must be running locally.
+- 977 tests in 52 files: 25 component tests with Vue Test Utils and 27 logic tests (stores, composables, API and the 3D scene).
+- Line coverage 98.55% (statements 97.86%, branches 92.94%). `vitest.config.js` fails if lines drop below 70%.
+- 10 Playwright E2E tests: 4 on desktop (redirect without a session, sign-up with welcome bonus and sign-out, wrong password, and the account book) and 6 on mobile (2D salon instead of 3D, swiping between rooms, drinking down to zero with the house gift, rank up, a full blackjack hand, and sign-out).
+- E2E tests run against the production build (`vite build` and `vite preview` on port 5179, with `/api` going to `localhost:8080`).
+- The GitHub Actions CI runs `npm ci`, `npm run lint` and `npm run test:coverage` on every push.
 
-GitHub Actions CI runs `npm ci`, `npm run lint` and `npm run test:coverage` on every push.
+![Vitest coverage report](docs/img/coverage-vitest.webp)
 
-## Responsive
+## Responsive and accessibility
 
-The mobile redesign used the impeccable design method. It produced three structures and I picked "Dos salas" (two rooms). Screenshots of the app on a phone:
+The mobile salon is two full-screen rooms with horizontal `scroll-snap`. You switch rooms by swiping, with the edge handles or with the tabs. At the bar, a bottom sheet holds the Menu and Talk tabs.
+
+What the code does:
+
+- 44 px touch targets and 16 px text fields.
+- `prefers-reduced-motion` is respected in the components and in the 3D scene.
+- Room tabs (`tablist`) that move with the arrow keys.
+- `aria-live` regions for the balance and for blackjack.
+- No horizontal scroll at 320 px, in portrait and landscape.
 
 | Width | View |
 | --- | --- |
-| 390 px | The bar, the table, chat and account book |
-| 320 px | The bar, with no horizontal scroll |
-| 667 px (landscape) | The same rooms side by side, with the menu next to the bar |
+| 390 px | Bar, menu, Talk, account book and table |
+| 320 px | The bar |
+| 667 px (landscape) | The bar and the table |
 
 <p>
-  <img src="docs/responsive/bar-390.webp" alt="The bar at 390 px" width="190">
-  <img src="docs/responsive/talk-390.webp" alt="The chat tab at 390 px" width="190">
-  <img src="docs/responsive/account-book-390.webp" alt="The account book at 390 px" width="190">
-  <img src="docs/responsive/table-bets-390.webp" alt="Choosing a bet at the table at 390 px" width="190">
-  <img src="docs/responsive/table-390.webp" alt="A finished blackjack hand at 390 px" width="190">
-  <img src="docs/responsive/bar-320.webp" alt="The bar at 320 px" width="190">
+  <img src="docs/responsive/bar-390.webp" alt="The bar at 390 px" width="170">
+  <img src="docs/responsive/talk-390.webp" alt="Talk tab at 390 px" width="170">
+  <img src="docs/responsive/account-book-390.webp" alt="Account book at 390 px" width="170">
+  <img src="docs/responsive/table-bets-390.webp" alt="Bet selection at 390 px" width="170">
+  <img src="docs/responsive/table-390.webp" alt="A blackjack hand at 390 px" width="170">
+  <img src="docs/responsive/bar-320.webp" alt="The bar at 320 px" width="170">
 </p>
 
 <p>
-  <img src="docs/responsive/bar-landscape-667.webp" alt="The bar in landscape at 667 px" width="400">
-  <img src="docs/responsive/table-landscape-667.webp" alt="The table in landscape at 667 px" width="400">
+  <img src="docs/responsive/bar-landscape-667.webp" alt="The bar in landscape at 667 px" width="380">
+  <img src="docs/responsive/table-landscape-667.webp" alt="The table in landscape at 667 px" width="380">
 </p>
-
-## Accessibility
-
-- 44 px touch targets and 16 px inputs.
-- No horizontal scroll at 320 px, in portrait and landscape.
-- Respects `prefers-reduced-motion`.
-- The rooms are a `tablist` and switch with the arrow keys.
-- Live regions for the balance and for blackjack.
 
 ## Design
 
-- [PRODUCT.md](PRODUCT.md): product record.
-- [DESIGN.md](DESIGN.md): design system. Palette of midnight, felt, baize, brass, gold, ivory, smoke and burgundy. Limelight only for the sign, Cormorant, Jost and IBM Plex Mono for the rest. Gold is reserved for money and the sign.
-- [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX): sketches and mockups.
+Sketches, mockups and prototype are in [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX). These are the sketches of the mobile rooms:
+
+![Sketches of the mobile rooms](docs/img/sketch-rooms.webp)
 
 ## Deployment
 
-Production runs at [iulianlounge.com](https://iulianlounge.com) on Oracle Cloud ARM (Madrid). Docker Compose runs Caddy, which serves this SPA and proxies `/api` to the backend. The compose file is in `deploy/` of the [backend repo](https://github.com/iulian640/iulianlounge-backend).
+Caddy serves the build on the same server as the backend and forwards `/api` to it. The setup is in the [backend deploy README](https://github.com/iulian640/iulianlounge-backend/blob/main/deploy/README.md).
 
-## Process
+The project presentation lives in `public/presentacion/` and is published at [/presentacion/](https://iulianlounge.com/presentacion/).
 
-I worked from a Jira board with sprints: 50 tasks in 15 epics. Commits follow the conventional commits format and include the Jira key (`IUL-NN`).
+## Project management
+
+Jira with 50 tasks in 15 epics. One branch per task, and commits carry the task key (`IUL-xx`).
 
 | Sprint | Content | Dates |
 | --- | --- | --- |
-| Sprint 1 | Auth and wallet | 3 to 17 Jul |
-| Summer | 3D lounge and its performance lab | Jul–Sep |
-| Sprint 8 | Full auth | 16 to 22 Sep |
-| Sprint 9 | Wallet, HUD and mobile | 25 Sep to 1 Oct |
-| Sprint 10 | Bar and blackjack | 7 to 9 Oct |
-| Sprint 11 | Mobile and delivery | 10 to 13 Oct |
+| 1 | Auth and wallet | 3–17 Jul |
+| 8 | Full auth | 16–22 Sep |
+| 9 | Wallet, HUD and mobile | 25 Sep–1 Oct |
+| 10 | Bar and blackjack | 7–9 Oct |
+| 11 | Mobile and delivery | 10–13 Oct |
+
+From July to September I worked on the 3D lounge outside the sprints. That is why the board jumps from sprint 1 to 8.
+
+## Known issues and improvements
+
+- Three.js ships in the main bundle on phones too, where it is not used. Lazy loading is missing.
+- On some Linux Chromium builds the 3D scene renders black with WebGPU. It works in Firefox.
+- There is no visible language selector. The English texts exist, but the interface starts in Spanish.
+- The AI barman is switched off in production. The chat answers with fixed lines.
+
+## Credits
+
+3D models and their licences are listed in [docs/CREDITS.md](docs/CREDITS.md).
 
 ## Author
 
-Iulian Timofei. [GitHub](https://github.com/iulian640).
+Iulian Timofei · [GitHub](https://github.com/iulian640)
