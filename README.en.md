@@ -212,9 +212,7 @@ What the code does:
 
 ## Design
 
-Sketches, mockups and prototype are in [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX). These are the sketches of the mobile rooms:
-
-![Sketches of the mobile rooms](docs/img/sketch-rooms.webp)
+Sketches, mockups and prototype are in [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX).
 
 ## Deployment
 
