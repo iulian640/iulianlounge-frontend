@@ -7,7 +7,7 @@ SPA en Vue 3 de IulianLounge, un bar de los años 20 en el navegador donde se ju
 ![Three.js](https://img.shields.io/badge/Three.js-0.185-000000?logo=threedotjs&logoColor=white)
 [![CI](https://github.com/iulian640/iulianlounge-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/iulian640/iulianlounge-frontend/actions/workflows/ci.yml)
 
-[App](https://iulianlounge.com) · [Presentación](https://iulianlounge.com/presentacion/) · [Backend](https://github.com/iulian640/iulianlounge-backend) · [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX)
+[App](https://iulianlounge.com) · [Presentación](https://iulianlounge.com/presentacion/) · [Backend](https://github.com/iulian640/iulianlounge-backend) · [Penpot](https://design.penpot.app/#/view?file-id=52a5041f-08a1-80f1-8008-c797da3e231e&page-id=72937cd6-6e9c-4b4e-991d-639a5ecf7b58&section=interactions&index=0&share-id=d0c6b4b3-247d-4110-95db-19385af7feb2)
 
 [English version](README.en.md)
 
@@ -212,7 +212,13 @@ Lo que hay en el código:
 
 ## Diseño
 
-Bocetos, mockups y prototipo en [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX).
+Bocetos, mockups y prototipo navegable en [Penpot](https://design.penpot.app/#/view?file-id=52a5041f-08a1-80f1-8008-c797da3e231e&page-id=72937cd6-6e9c-4b4e-991d-639a5ecf7b58&section=interactions&index=0&share-id=d0c6b4b3-247d-4110-95db-19385af7feb2), la alternativa libre a Figma. El prototipo tiene dos recorridos: escritorio y móvil.
+
+<p align="center">
+  <img src="docs/img/mockup-escritorio.webp" alt="Mockup de la pantalla de acceso en escritorio" width="560">
+  &nbsp;
+  <img src="docs/img/mockup-movil.webp" alt="Mockup de la barra en el móvil" width="180">
+</p>
 
 ## Despliegue
 
