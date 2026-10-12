@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IulianLounge · Presentación</title>
+<meta name="description" content="IulianLounge: un speakeasy de los años 20 en el navegador. Proyecto de Iulian Timofei.">
+<style>
+@font-face { font-family: 'Limelight'; src: url('fonts/limelight-latin-400-normal.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Cormorant'; font-weight: 600; src: url('fonts/cormorant-latin-600-normal.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Cormorant'; font-weight: 600; font-style: italic; src: url('fonts/cormorant-latin-600-italic.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Jost'; font-weight: 400; src: url('fonts/jost-latin-400-normal.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Jost'; font-weight: 500; src: url('fonts/jost-latin-500-normal.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; font-weight: 500; src: url('fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2'); font-display: swap; }
+
+:root {
+  --medianoche: #0b1514;
+  --fieltro: #111f1d;
+  --tapete: #172925;
+  --laton: #c9a45c;
+  --oro: #e8cd8f;
+  --marfil: #efe5cc;
+  --humo: #93a69e;
+  --burdeos-claro: #d9857d;
+  --linea: rgba(201, 164, 92, 0.28);
+  --linea-suave: rgba(201, 164, 92, 0.14);
+  --f-letrero: 'Limelight', serif;
+  --f-titulo: 'Cormorant', Georgia, serif;
+  --f-ui: 'Jost', 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', Consolas, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  overflow: hidden;
+  background: var(--medianoche);
+  color: var(--marfil);
+  font-family: var(--f-ui);
+  font-size: clamp(15px, 1.35vw, 22px);
+  line-height: 1.45;
+}
+::selection { background: rgba(232, 205, 143, 0.35); color: var(--marfil); }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4.5vh;
+  padding: 8vh 8vw 10vh;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(232, 205, 143, 0.1), transparent 70%),
+    var(--medianoche);
+}
+.slide.active { display: flex; animation: enter 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } }
+
+h1, h2 { font-family: var(--f-titulo); font-weight: 600; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(2.6rem, 6vw, 5.5rem); }
+h2 { font-size: clamp(2rem, 3.8vw, 3.6rem); max-width: 22ch; }
+h2 em { font-style: italic; color: var(--oro); }
+h3 { font-family: var(--f-titulo); font-weight: 600; font-size: 1.55em; line-height: 1.1; }
+p { max-width: 62ch; text-wrap: pretty; }
+.soft { color: var(--humo); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.sign {
+  font-family: var(--f-letrero);
+  color: var(--oro);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 8px rgba(232, 205, 143, 0.55), 0 0 32px rgba(232, 205, 143, 0.3);
+}
+
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 5vw; align-items: center; }
+.phone {
+  justify-self: center;
+  width: min(100%, 25vh, 300px);
+  aspect-ratio: 390 / 844;
+  border: 1px solid var(--linea);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.phone.tall { width: min(100%, 38vh, 320px); }
+.phone img, .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.shot {
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 16 / 10;
+  background: var(--fieltro);
+}
+
+.verbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3vw; }
+.verbs div { padding-top: 1.6vh; border-top: 1px solid var(--laton); }
+.verbs strong { display: block; font-family: var(--f-titulo); font-size: 2em; font-weight: 600; line-height: 1; margin-bottom: 0.6vh; }
+
+.ranks { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45em; font-family: var(--f-titulo); font-size: 1.15em; }
+.ranks span:not(.arrow) { padding: 0.15em 0.7em; border: 1px solid var(--linea); border-radius: 2px; }
+.ranks .arrow { color: var(--laton); }
+.ranks .top { color: var(--oro); border-color: var(--laton); }
+
+.two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 4vw; align-items: end; }
+.two figure { display: flex; flex-direction: column; gap: 1.6vh; }
+.two figcaption h3 { margin-bottom: 0.6vh; }
+
+ol.steps { list-style: none; counter-reset: step; display: grid; gap: 2.2vh; max-width: 54ch; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2.2em 1fr; align-items: baseline; }
+ol.steps li::before { content: counter(step); font-family: var(--f-mono); color: var(--laton); }
+ol.steps strong { font-weight: 500; }
+
+.sketches { display: flex; align-items: center; gap: 1.6vw; }
+.sketches .phone { width: min(14vh, 150px); opacity: 0.55; box-shadow: none; }
+.sketches .phone.chosen { opacity: 1; outline: 2px solid var(--oro); outline-offset: 4px; }
+.sketches .to { font-family: var(--f-titulo); font-size: 2.4em; color: var(--laton); }
+.sketches .phone.result { width: min(22vh, 220px); opacity: 1; }
+
+table { border-collapse: collapse; width: min(100%, 980px); }
+th, td { padding: 1.1vh 1.2em 1.1vh 0; text-align: left; vertical-align: baseline; border-bottom: 1px solid var(--linea-suave); }
+th { font-weight: 500; color: var(--humo); font-size: 0.85em; }
+td.name { font-family: var(--f-titulo); font-size: 1.3em; white-space: nowrap; }
+td.date { font-family: var(--f-mono); font-size: 0.85em; color: var(--humo); white-space: nowrap; }
+tr.gap td { color: var(--humo); font-style: italic; }
+td.num { font-family: var(--f-mono); color: var(--oro); white-space: nowrap; }
+
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4vw; align-items: stretch; }
+.flow div { position: relative; padding: 2vh 1.2vw; border: 1px solid var(--linea); border-radius: 2px; background: var(--fieltro); }
+.flow div + div::before { content: ''; position: absolute; left: -1.4vw; top: 50%; width: 1.4vw; height: 1px; background: var(--laton); }
+.flow h3 { font-size: 1.3em; margin-bottom: 0.8vh; }
+.flow p { font-size: 0.85em; color: var(--humo); }
+.side { display: flex; gap: 2vw; align-items: baseline; font-size: 0.9em; color: var(--humo); }
+.side strong { color: var(--marfil); font-weight: 500; }
+
+.adr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.6vh 4vw; max-width: 1200px; }
+.adr div { padding-top: 1.2vh; border-top: 1px solid var(--linea); }
+.adr .id { font-family: var(--f-mono); font-size: 0.8em; color: var(--laton); }
+.adr h3 { margin: 0.4vh 0 0.6vh; font-size: 1.35em; }
+.adr p { font-size: 0.9em; color: var(--humo); }
+
+ul.plain { list-style: none; display: grid; align-content: start; gap: 1.6vh; max-width: 62ch; }
+ul.plain li { padding-left: 1.2em; position: relative; }
+ul.plain li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 0.45em; height: 1px; background: var(--laton); }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4vw; }
+
+.close { align-items: center; text-align: center; }
+.close .sign { font-size: clamp(3rem, 8vw, 7rem); }
+.links { display: grid; gap: 1.2vh; font-family: var(--f-mono); font-size: 0.95em; }
+.links a { color: var(--marfil); text-decoration: none; border-bottom: 1px solid var(--linea); }
+.links a:hover, .links a:focus-visible { color: var(--oro); border-color: var(--laton); outline: none; }
+.cover .sign { font-size: clamp(3.5rem, 10vw, 9rem); line-height: 1; }
+.byline { font-family: var(--f-mono); font-size: 0.85em; color: var(--humo); }
+
+.nav { position: fixed; left: 0; right: 0; bottom: 2.4vh; display: flex; justify-content: center; gap: 8px; pointer-events: none; }
+.nav span { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--laton); transition: background-color 150ms ease-out; }
+.nav span.on { background: var(--oro); border-color: var(--oro); }
+.count { position: fixed; right: 2.4vw; bottom: 2vh; font-family: var(--f-mono); font-size: 0.75em; color: var(--humo); }
+.help { position: fixed; left: 2.4vw; bottom: 2vh; font-size: 0.75em; color: var(--humo); opacity: 0.7; }
+
+@media (max-width: 760px) {
+  .slide { justify-content: flex-start; overflow-y: auto; padding: 6vh 6vw 12vh; gap: 3vh; }
+  .split, .two, .cols, .adr, .flow, .verbs { grid-template-columns: 1fr; }
+  .flow div + div::before { display: none; }
+  .help { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide.active { animation: none; }
+}
+
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  body { overflow: visible; font-size: 20px; }
+  .slide { position: relative; display: flex !important; width: 1600px; height: 900px; break-after: page; animation: none; }
+  .nav, .count, .help { display: none; }
+}
+</style>
+</head>
+<body>
+<main id="deck">
+
+<section class="slide cover" aria-label="Portada">
+  <p class="sign">IULIAN'S</p>
+  <h1>IulianLounge</h1>
+  <p class="soft">Un speakeasy de los años 20 en el navegador.</p>
+  <p class="byline">Iulian Timofei · 13 de octubre de 2026 · iulianlounge.com</p>
+</section>
+
+<section class="slide" aria-label="El producto">
+  <div class="split">
+    <div style="display:grid; gap:4.5vh;">
+      <h2>Entras como recién llegado. El club acaba <em>conociéndote</em>.</h2>
+      <div class="verbs">
+        <div><strong>Pides</strong><span class="soft">Cinco copas, de 5 a 40 monedas.</span></div>
+        <div><strong>Hablas</strong><span class="soft">El barman te contesta según quién eres.</span></div>
+        <div><strong>Juegas</strong><span class="soft">Blackjack con apuestas de 10, 20 o 50.</span></div>
+      </div>
+      <div class="ranks" aria-label="Rangos">
+        <span>Recién llegado</span><span class="arrow">→</span><span>Cliente</span><span class="arrow">→</span><span>Habitual</span><span class="arrow">→</span><span class="top">Socio</span>
+      </div>
+      <p class="soft">Lo que gastas te sube de rango. Si te quedas a cero, la casa te invita una vez al día.</p>
+    </div>
+    <div class="phone tall"><img src="img/app-bar.webp" alt="La barra en el móvil: el barman sirve un Gin Rickey y el saldo baja 15 monedas" width="600" height="1298"></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Dos experiencias">
+  <h2>Un club, <em>dos</em> formas de entrar</h2>
+  <div class="two">
+    <figure>
+      <div class="shot"><img src="img/desktop.webp" alt="El lounge en 3D en el ordenador" width="1600" height="1000"></div>
+      <figcaption><h3>Escritorio: el local en 3D</h3><p class="soft">Paseas por el salón, te acercas al barman o a la mesa y pulsas E. WebGPU, con WebGL2 de reserva.</p></figcaption>
+    </figure>
+    <figure>
+      <div class="phone"><img src="img/app-table.webp" alt="La mesa de blackjack en el móvil" width="600" height="1298"></div>
+      <figcaption><h3>Móvil: dos salas en 2D</h3><p class="soft">Sin canvas. La barra y la mesa, una al lado de la otra, pensadas para el dedo.</p></figcaption>
+    </figure>
+  </div>
+  <p class="soft">Lo decidí el 3 de julio: en un teléfono el 3D gasta batería y WebGPU no es fiable. La lógica es la misma; la presentación, propia de cada uno.</p>
+</section>
+
+<section class="slide" aria-label="Demo">
+  <h2>Demo</h2>
+  <ol class="steps">
+    <li><span><strong>Hacerse socio:</strong> <span class="soft">la cuenta nace con 100 monedas.</span></span></li>
+    <li><span><strong>Pedir un French 75:</strong> <span class="soft">bajan 40 monedas, el barman lo nota y subo a Cliente.</span></span></li>
+    <li><span><strong>Sentarse a la mesa:</strong> <span class="soft">una mano de blackjack, de la apuesta al resultado.</span></span></li>
+    <li><span><strong>Lo mismo en el móvil:</strong> <span class="soft">las dos salas, la carta y la charla con el barman.</span></span></li>
+  </ol>
+  <p class="soft">Si la red falla, hay un vídeo grabado de los dos recorridos.</p>
+</section>
+
+<section class="slide" aria-label="Diseño">
+  <h2>Diseño <em>antes</em> que código</h2>
+  <div class="cols">
+    <ul class="plain">
+      <li>Figma: bocetos de los dos flujos, escritorio y móvil, y los mockups.</li>
+      <li>El móvil lo rehíce al final con un método de diseño guiado: tres estructuras posibles, cada una con su boceto, y elegí una.</li>
+      <li>La elegida, «dos salas», es lo que hoy está en producción.</li>
+    </ul>
+    <div class="sketches" aria-label="De tres bocetos a la app">
+      <div class="phone"><img src="img/sketch-assigned.webp" alt="Boceto descartado: el carné de socio" width="600" height="1298"></div>
+      <div class="phone"><img src="img/sketch-descent.webp" alt="Boceto descartado: bajar al club" width="600" height="1298"></div>
+      <div class="phone chosen"><img src="img/sketch-rooms.webp" alt="Boceto elegido: dos salas" width="600" height="1298"></div>
+      <span class="to" aria-hidden="true">→</span>
+      <div class="phone result"><img src="img/app-chat.webp" alt="Resultado: la charla con el barman en el móvil" width="600" height="1298"></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Planificación">
+  <h2>Jira: 50 tareas en 15 épicas</h2>
+  <table>
+    <thead><tr><th scope="col">Sprint</th><th scope="col">Fechas</th><th scope="col">Objetivo</th></tr></thead>
+    <tbody>
+      <tr><td class="name">1 · Auth y cartera</td><td class="date">3–17 jul</td><td>Usuarios, login con JWT y la cartera de monedas, con tests</td></tr>
+      <tr class="gap"><td class="name">Verano</td><td class="date">jul–sep</td><td>El lounge en 3D y su laboratorio de rendimiento</td></tr>
+      <tr><td class="name">8 · Auth completa</td><td class="date">16–22 sep</td><td>Registrarse y entrar desde el navegador</td></tr>
+      <tr><td class="name">9 · Cartera, HUD y móvil</td><td class="date">25 sep–1 oct</td><td>Saldo real en el HUD, app usable en el móvil, primer despliegue</td></tr>
+      <tr><td class="name">10 · Barra y blackjack</td><td class="date">7–9 oct</td><td>La barra, el blackjack y el barman con LLM en el backend</td></tr>
+      <tr><td class="name">11 · Móvil y entrega</td><td class="date">10–13 oct</td><td>Frontend del blackjack, móvil rehecho, E2E, documentación</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" aria-label="Arquitectura">
+  <h2>Arquitectura</h2>
+  <div class="flow">
+    <div><h3>Navegador</h3><p>Vue 3, Pinia, Vue Router, vue-i18n. Three.js para el 3D.</p></div>
+    <div><h3>Caddy</h3><p>HTTPS automático, sirve la app y reenvía /api al backend.</p></div>
+    <div><h3>Spring Boot 4</h3><p>Java 21, Spring Security con JWT, JPA. 15 endpoints REST.</p></div>
+    <div><h3>PostgreSQL 17</h3><p>En Docker. Esquema versionado con Flyway, de V1 a V7.</p></div>
+  </div>
+  <div class="side">
+    <span><strong>Mismo origen:</strong> la cookie de refresh viaja sin CORS.</span>
+    <span><strong>Claude Haiku</strong>, opcional y solo para la charla del barman.</span>
+  </div>
+</section>
+
+<section class="slide" aria-label="Decisiones">
+  <h2>Decisiones, <em>por escrito</em></h2>
+  <div class="adr">
+    <div><span class="id">ADR-04</span><h3>El saldo es un libro de cuentas</h3><p>Cada movimiento es una fila nueva; nada se sobrescribe. El saldo se puede auditar línea a línea.</p></div>
+    <div><span class="id">ADR-09</span><h3>Monedas en enteros</h3><p>Nunca double para el dinero: long en Java, bigint en la base de datos.</p></div>
+    <div><span class="id">ADR-08</span><h3>Dos tokens</h3><p>Un JWT de acceso corto y un refresh en cookie httpOnly, que se borra al salir.</p></div>
+    <div><span class="id">ADR-05</span><h3>El barman no toca el dinero</h3><p>El LLM conversa con los datos del socio, pero pedir y cobrar son deterministas.</p></div>
+    <div><span class="id">ADR-06</span><h3>El backend habla en claves</h3><p>La API devuelve códigos; el frontend pone el texto en castellano o en inglés.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Calidad">
+  <h2>Probado</h2>
+  <table>
+    <thead><tr><th scope="col"></th><th scope="col">Tests</th><th scope="col">Cobertura</th><th scope="col">Herramientas</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Backend</td><td class="num">636</td><td class="num">99 %</td><td>JUnit 6, MockMvc, integración contra PostgreSQL, JaCoCo con mínimo del 80 %</td></tr>
+      <tr><td class="name">Frontend</td><td class="num">976</td><td class="num">97,9 %</td><td>Vitest y Vue Test Utils, mínimo del 70 % de líneas</td></tr>
+      <tr><td class="name">End to end</td><td class="num">9</td><td class="num">no aplica</td><td>Playwright en escritorio y en móvil, contra el build de producción</td></tr>
+    </tbody>
+  </table>
+  <p class="soft">Test primero, integración continua en GitHub Actions y una revisión de código y de seguridad al cerrar cada pieza.</p>
+</section>
+
+<section class="slide" aria-label="Seguridad">
+  <h2>Seguridad y datos</h2>
+  <div class="cols">
+    <ul class="plain">
+      <li>Contraseñas con BCrypt; un hash falso cuando el usuario no existe, para no delatarlo por el tiempo de respuesta.</li>
+      <li>Límite de intentos en el login y el registro, y otro por socio en pedidos y apuestas.</li>
+      <li>La IP real del cliente detrás del proxy: Caddy quita las cabeceras que se podrían falsificar.</li>
+    </ul>
+    <ul class="plain">
+      <li>Pedidos y apuestas idempotentes: un doble clic no cobra dos veces.</li>
+      <li>La última defensa está en la base de datos: el saldo nunca baja de cero.</li>
+      <li>Página de privacidad y tope de gasto diario para el barman con LLM.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" aria-label="Despliegue">
+  <h2>En producción</h2>
+  <ul class="plain">
+    <li>Un servidor ARM de Oracle Cloud en Madrid.</li>
+    <li>Docker Compose con tres servicios: PostgreSQL, el backend y Caddy con la app.</li>
+    <li>Certificado HTTPS de Let's Encrypt, que WebGPU necesita.</li>
+    <li>Antes de migrar la base de datos, una copia que guardo también en local.</li>
+  </ul>
+  <p class="links"><a href="https://iulianlounge.com">iulianlounge.com</a></p>
+</section>
+
+<section class="slide" aria-label="Cómo trabajé con IA">
+  <h2>Cómo trabajé con IA</h2>
+  <ul class="plain">
+    <li>Trabajé con Claude Code como compañero de programación: yo decidía qué construir y cómo, y revisaba cada cambio.</li>
+    <li>Las piezas que defiendo hoy las escribí aprendiendo, paso a paso, con la IA explicando en vez de resolver.</li>
+    <li>Cada pieza pasó por revisores automáticos de código y seguridad, y por mis pruebas en pantalla antes de entrar.</li>
+  </ul>
+</section>
+
+<section class="slide" aria-label="Lo que me llevo">
+  <h2>Lo que me llevo</h2>
+  <ul class="plain">
+    <li>Escribir las decisiones antes de programar ahorra discusiones conmigo mismo.</li>
+    <li>Los tests me dejaron cambiar el diseño del móvil a dos días de la entrega sin miedo.</li>
+    <li>Recortar a tiempo: el PMV es la barra, el blackjack y el barman; el resto espera.</li>
+  </ul>
+</section>
+
+<section class="slide" aria-label="Fase 2">
+  <h2>Lo siguiente</h2>
+  <ul class="plain">
+    <li>Encender el barman con LLM en producción: ya está programado y probado.</li>
+    <li>La mesa con varios jugadores a la vez.</li>
+    <li>Más salas: La Trastienda y La Eterna.</li>
+    <li>Controles táctiles para el 3D en tablets.</li>
+  </ul>
+</section>
+
+<section class="slide close" aria-label="Cierre">
+  <p class="sign">IULIAN'S</p>
+  <h2>La casa invita</h2>
+  <div class="links">
+    <a href="https://iulianlounge.com">iulianlounge.com</a>
+    <a href="https://github.com/iulian640/iulianlounge-frontend">github.com/iulian640/iulianlounge-frontend</a>
+    <a href="https://github.com/iulian640/iulianlounge-backend">github.com/iulian640/iulianlounge-backend</a>
+  </div>
+</section>
+
+</main>
+
+<div class="nav" id="nav" aria-hidden="true"></div>
+<div class="count" id="count" aria-live="polite"></div>
+<div class="help">← → para avanzar · F pantalla completa</div>
+
+<script>
+const slides = [...document.querySelectorAll('.slide')]
+const nav = document.getElementById('nav')
+const count = document.getElementById('count')
+let current = 0
+let touchStart = null
+
+slides.forEach(() => nav.appendChild(document.createElement('span')))
+const dots = [...nav.children]
+
+function show(index) {
+  current = Math.max(0, Math.min(slides.length - 1, index))
+  slides.forEach((slide, i) => slide.classList.toggle('active', i === current))
+  dots.forEach((dot, i) => dot.classList.toggle('on', i === current))
+  count.textContent = `${current + 1} / ${slides.length}`
+  history.replaceState(null, '', `#${current + 1}`)
+}
+
+document.addEventListener('keydown', (event) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(event.key)) show(current + 1)
+  else if (['ArrowLeft', 'PageUp'].includes(event.key)) show(current - 1)
+  else if (event.key === 'Home') show(0)
+  else if (event.key === 'End') show(slides.length - 1)
+  else if (event.key.toLowerCase() === 'f') {
+    if (document.fullscreenElement) document.exitFullscreen()
+    else document.documentElement.requestFullscreen()
+  }
+})
+
+document.addEventListener('click', (event) => {
+  if (event.target.closest('a')) return
+  show(event.clientX > window.innerWidth / 2 ? current + 1 : current - 1)
+})
+
+document.addEventListener('touchstart', (event) => {
+  touchStart = event.touches[0].clientX
+}, { passive: true })
+
+document.addEventListener('touchend', (event) => {
+  if (touchStart === null) return
+  const distance = event.changedTouches[0].clientX - touchStart
+  touchStart = null
+  if (Math.abs(distance) > 50) show(distance < 0 ? current + 1 : current - 1)
+}, { passive: true })
+
+show((parseInt(location.hash.slice(1), 10) || 1) - 1)
+</script>
+</body>
+</html>
