@@ -35,7 +35,7 @@ const { t } = useI18n()
   position: relative;
   height: 100%;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   background:
     radial-gradient(ellipse 90% 60% at 50% 30%, rgba(46, 94, 72, 0.55), transparent 70%),
     linear-gradient(180deg, #13261f 0%, #0b1514 100%);

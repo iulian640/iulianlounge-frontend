@@ -141,6 +141,29 @@ describe('useRooms', () => {
     delete window.ResizeObserver
   })
 
+  it('still follows a swipe after the first measure of the scroller', async () => {
+    window.ResizeObserver = class {
+      constructor(callback) {
+        this.callback = callback
+      }
+      observe() {
+        this.callback()
+      }
+      disconnect() {}
+    }
+    const rooms = setup()
+    const scroller = fakeScroller()
+    rooms.scroller.value = scroller
+    await nextTick()
+
+    scroller.scrollLeft = 390
+    rooms.onScroll()
+
+    expect(scroller.scrollTo).not.toHaveBeenCalled()
+    expect(rooms.active.value).toBe('cards')
+    delete window.ResizeObserver
+  })
+
   it('moves between rooms with the arrow keys and stops at the ends', () => {
     const rooms = setup()
     rooms.scroller.value = fakeScroller()
