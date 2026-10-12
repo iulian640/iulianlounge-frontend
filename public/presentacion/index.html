@@ -272,6 +272,16 @@ p, li { color: var(--tinta-suave); }
 .box .tally .unit { margin-top: 0; }
 .report.narrow { width: 72%; align-self: center; }
 
+.layers .back { font-size: 1.15vw; color: var(--tinta-suave); margin-top: 0.6vh; }
+
+.layers-wide { display: grid; align-content: center; }
+.layers-wide .layers div { grid-template-columns: 14vw 1fr; font-size: 1.45vw; padding: 1.8vh 1.6vw; }
+.layers-wide .layers div strong { font-size: 2vw; }
+.layers-wide .layers .back { font-size: 1.35vw; }
+.er-fig { display: flex; justify-content: center; }
+.er-fig img { width: 100%; height: auto; border: 1px solid var(--laton); border-radius: 0.6vw; }
+.db-split { grid-template-columns: 1.45fr 1fr; }
+.db-notes { font-size: 1.35vw; }
 .nav { position: fixed; left: 50%; bottom: 1.6vh; transform: translateX(-50%); display: flex; gap: 0.5vw; }
 .nav span { width: 0.5vw; height: 0.5vw; border-radius: 50%; background: rgba(31, 25, 21, 0.18); }
 .nav span.on { background: var(--verde); }
@@ -384,21 +394,17 @@ p, li { color: var(--tinta-suave); }
 <section class="slide" aria-label="Arquitectura">
   <div class="card">
     <h2>Arquitectura</h2>
-    <p class="lead">Backend por capas con Java 21 y Spring Boot.</p>
-    <div class="split grow">
+    <p class="lead">Lo que pasa al pedir un French 75, capa a capa.</p>
+    <div class="layers-wide grow">
       <div class="layers">
-        <div class="edge"><strong>Vue 3</strong><span>La web, en el navegador</span></div>
-        <div><strong>Caddy</strong><span>HTTPS; pasa /api al backend</span></div>
-        <div class="core"><strong>Controller</strong><span>Recibe las peticiones</span></div>
-        <div class="core"><strong>Service</strong><span>La lógica: cobrar, rango, partidas</span></div>
-        <div class="core"><strong>Repository</strong><span>Acceso a datos con JPA</span></div>
-        <div class="edge"><strong>PostgreSQL</strong><span>La base de datos, en Docker</span></div>
+        <div class="edge"><strong>Vue 3</strong><span>Pulsas «Pedir» y el store manda POST /api/v1/bar/orders con tu token</span></div>
+        <div><strong>Caddy</strong><span>Recibe la petición por HTTPS y pasa /api al backend</span></div>
+        <div class="core"><strong>Controller</strong><span>BarController comprueba que la petición es válida</span></div>
+        <div class="core"><strong>Service</strong><span>BarService cobra, recalcula el rango y elige la frase del barman</span></div>
+        <div class="core"><strong>Repository</strong><span>Guarda el movimiento y el saldo nuevo con JPA</span></div>
+        <div class="edge"><strong>PostgreSQL</strong><span>Los datos quedan guardados, en Docker</span></div>
+        <p class="back">↑ La respuesta vuelve por el mismo camino y en pantalla baja el saldo.</p>
       </div>
-      <ul class="plain">
-        <li>Cada capa hace una sola cosa, así puedo probar la lógica sin base de datos.</li>
-        <li>La API devuelve DTOs, nunca las entidades de la base de datos.</li>
-        <li>Los diagramas de base de datos y de clases están en el repositorio del backend.</li>
-      </ul>
     </div>
   </div>
 </section>
@@ -424,21 +430,15 @@ p, li { color: var(--tinta-suave); }
   <div class="card">
     <h2>Base de datos</h2>
     <p class="lead">PostgreSQL en Docker. Las tablas se crean con migraciones de Flyway.</p>
-    <div class="er mid">
-      <div class="t"><strong>users</strong><span>username, email, password_hash</span></div>
-      <div class="link">1 : 1</div>
-      <div class="t"><strong>wallet</strong><span>user_id, balance</span></div>
-      <div class="link">1 : N</div>
-      <div class="t"><strong>token_transaction</strong><span>wallet_id, type, amount, balance_after</span></div>
-      <div class="down">1 : N</div>
-      <div class="t first"><strong>blackjack_hand</strong><span>user_id, bet, cards, status, payout</span></div>
-    </div>
-    <ul class="plain cols">
+    <div class="split db-split grow">
+      <figure class="er-fig"><img src="img/er.webp" alt="Diagrama entidad-relación: users, wallet, token_transaction y blackjack_hand" width="1400" height="990"></figure>
+      <ul class="plain db-notes">
       <li>Cada usuario tiene una cartera con su saldo.</li>
       <li>Cada cambio de saldo es una fila nueva en <span class="mono">token_transaction</span>: pedidos, regalos, apuestas y premios. Así nunca se pierde un movimiento.</li>
       <li>El saldo no puede ser negativo: lo impide una restricción de la propia base de datos.</li>
       <li>Las monedas son números enteros, sin decimales, para no tener errores de redondeo.</li>
     </ul>
+    </div>
   </div>
 </section>
 
