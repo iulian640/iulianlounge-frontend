@@ -212,9 +212,7 @@ Lo que hay en el código:
 
 ## Diseño
 
-Bocetos, mockups y prototipo en [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX). Estos son los bocetos de las salas del móvil:
-
-![Bocetos de las salas del móvil](docs/img/sketch-rooms.webp)
+Bocetos, mockups y prototipo en [Figma](https://www.figma.com/design/ns6uohIpSej1vuw90QWlpX).
 
 ## Despliegue
 
