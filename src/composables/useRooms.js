@@ -29,15 +29,19 @@ export function useRooms(ids) {
     slideTimer = null
   }
 
+  function slideTo(id, element, behavior) {
+    target = id
+    clearTimeout(slideTimer)
+    slideTimer = setTimeout(release, SLIDE_TIMEOUT_MS)
+    element.scrollTo({ left: leftOf(id, element), behavior })
+  }
+
   function goTo(id) {
     if (!ids.includes(id)) return
     active.value = id
     const element = scroller.value
     if (!element?.scrollTo) return
-    target = id
-    clearTimeout(slideTimer)
-    slideTimer = setTimeout(release, SLIDE_TIMEOUT_MS)
-    element.scrollTo({ left: leftOf(id, element), behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+    slideTo(id, element, prefersReducedMotion() ? 'auto' : 'smooth')
   }
 
   function sync() {
@@ -69,8 +73,9 @@ export function useRooms(ids) {
   watch(scroller, (element, _previous, onCleanup) => {
     if (!element || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(() => {
-      target = active.value
-      element.scrollTo?.({ left: leftOf(active.value, element), behavior: 'auto' })
+      if (!element.scrollTo) return
+      if (Math.abs(element.scrollLeft - leftOf(active.value, element)) <= ARRIVAL_TOLERANCE_PX) return
+      slideTo(active.value, element, 'auto')
     })
     observer.observe(element)
     onCleanup(() => observer.disconnect())
