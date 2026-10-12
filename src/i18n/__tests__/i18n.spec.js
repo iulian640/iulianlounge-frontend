@@ -126,7 +126,7 @@ describe('bar dictionaries', () => {
     }
   })
 
-  it('keeps the catalogue wording decided in ADR-10', () => {
+  it('keeps the agreed catalogue wording', () => {
     expect(lookup(es, 'barman.greeting.nadie')).toBe('Buenas. ¿Qué te pongo?')
     expect(lookup(en, 'barman.greeting.nadie')).toBe('Evening. What can I get you?')
     expect(lookup(es, 'barman.promotion.habitual')).toBe('Aquí tienes. Ya eres cliente de la casa.')

@@ -45,7 +45,7 @@ No es una web con un 3D decorativo: es un juego pequeño con un backend serio (c
 ## Evidence on Hand
 
 - Código y tests reales: 636 tests en el backend (cobertura ~99 %), 958 tests unitarios y 8 E2E (Playwright) en el frontend.
-- Documentación en el repo del backend: CONCEPT.md, docs/ficcion.md, ADRs, diagramas.
+- Documentación en el repo del backend: README y diagramas.
 - No hay usuarios reales, testimonios ni métricas de uso: no inventarlos.
 
 ## Product Principles

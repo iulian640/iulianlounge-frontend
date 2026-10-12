@@ -5,7 +5,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { ROOM } from './salon'
 
 // El letrero "IULIAN'S" — letras 3D emissive sobre la barra, candidato a
-// bloom (CONCEPT.md: marquesina cálida, nada de neón atómico).
+// bloom (marquesina cálida, nada de neón atómico).
 
 const FONT_LIMELIGHT = '/fonts/limelight.typeface.json'
 const FONT_FALLBACK = '/fonts/helvetiker_bold.typeface.json'

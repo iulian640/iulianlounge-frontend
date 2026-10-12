@@ -47,5 +47,5 @@
 - Espejo tras la barra (vetado 2026-07-13, sigue en el stash).
 - Cuadros procedurales (vetados 2026-07-13, en el stash).
 - Sofá y rincón doméstico, plantas de interior (2026-07-12).
-- Neón atómico: jamás — marquesina cálida (CONCEPT.md).
+- Neón atómico: jamás — marquesina cálida.
 - RectAreaLight y sombras nuevas: ver docs/leyes-de-rendimiento.md.
